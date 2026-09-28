@@ -9,7 +9,7 @@ const router = express.Router();
 const learnersFile = path.join(process.cwd(), "data", "learners.json");
 const MAX_SKEW_MS = 5 * 60 * 1000;
 
-function readLearners(): any[] {
+function readLearersSafe(): any[] {\n  return readLearners();\n}\n\nfunction readLearners(): any[] {
   if (!fs.existsSync(learnersFile)) return [];
   try {
     const parsed = JSON.parse(fs.readFileSync(learnersFile, "utf8"));
@@ -62,6 +62,34 @@ router.use((req, res, next) => {
     return res.status(401).json({ error: "Invalid V79 platform signature." });
   }
   next();
+});
+
+router.get("/admin/stats", (_req, res) => {
+  const learners = readLearersSafe();
+  const db = loadDb();
+  const courses = Array.isArray(db.courses) ? db.courses : [];
+  const publishedCourses = courses.filter((course: any) => ["Published", "Uploaded"].includes(course.status)).length;
+  const draftCourses = courses.filter((course: any) => ["Draft", "Review", "Imported", "Ready for Upload"].includes(course.status)).length;
+  const activeMemberships = learners.filter((learner: any) => hasMembership(learner)).length;
+  const totalEnrolments = learners.reduce((sum: number, learner: any) =>
+    sum + (Array.isArray(learner.enrolledCourseIds) ? learner.enrolledCourseIds.length : 0), 0);
+  const certificates = learners.reduce((sum: number, learner: any) => {
+    const progress = learner?.progress && typeof learner.progress === "object" ? learner.progress : {};
+    return sum + Object.values(progress).filter((entry: any) =>
+      Boolean(entry?.certificate?.id || entry?.programmeState?.certificateId)
+    ).length;
+  }, 0);
+
+  res.json({
+    totalCourses: courses.length,
+    publishedCourses,
+    draftCourses,
+    totalLearners: learners.length,
+    activeMemberships,
+    totalEnrolments,
+    certificates,
+    generatedAt: new Date().toISOString(),
+  });
 });
 
 router.get("/summary/:subject", (req, res) => {
