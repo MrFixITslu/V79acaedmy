@@ -777,6 +777,12 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
           </div>
           
           <div className="flex items-center gap-3">
+            <a
+              href="https://hub.v79sl.com/"
+              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
+            >
+              V79 Hub
+            </a>
             {currentLesson && isEnrolled && (
               <label className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl cursor-pointer transition-all text-xs font-semibold">
                 <input

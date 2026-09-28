@@ -72,6 +72,7 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 py-4">
         <a href="/academy" className="flex items-center gap-3 font-bold text-xl"><GraduationCap className="h-10 w-10 rounded-xl bg-indigo-600 p-2 text-white"/>V79 Academy</a>
         <nav aria-label="Academy navigation" className="flex items-center gap-2 text-sm font-semibold">
+          <a href="https://hub.v79sl.com/" className="academy-tab">V79 Hub</a>
           <button className={tab === 'catalog' ? 'academy-tab active' : 'academy-tab'} onClick={() => { setTab('catalog'); setDetail(null); }}>Explore</button>
           {user && <button className={tab === 'learning' ? 'academy-tab active' : 'academy-tab'} onClick={() => { setTab('learning'); setDetail(null); }}>My learning</button>}
           {user ? <button className="academy-tab" aria-label="Sign out" onClick={async () => { await fetch('/api/learner/logout', { method: 'POST' }); localStorage.removeItem('v79_student_user'); setUser(null); setTab('catalog'); }}><LogOut size={18}/></button> : <button className="academy-primary" onClick={() => { setAuth('login'); setAuthError(''); }}>Sign in</button>}
