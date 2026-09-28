@@ -51,7 +51,12 @@ app.use(['/api/admin/login', '/api/admin/reset-password', '/api/learner/login', 
 setInterval(() => { for (const [key, entry] of attempts) if (entry.expires < Date.now()) attempts.delete(key); }, 60000).unref();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({
+  limit: "2mb",
+  verify: (req: any, _res, body) => {
+    req.rawBody = Buffer.from(body);
+  }
+}));
 
 // Lightweight unauthenticated health endpoint for container/orchestrator checks.
 // It intentionally returns no application data or secrets.
@@ -497,9 +502,76 @@ app.post('/api/public/lessons/:lessonId/quiz/submit', (req, res) => {
   res.json({ score: Math.round(correct / quiz.questions.length * 100), correct, total: quiz.questions.length });
 });
 
-// Everything under /api except the unauthenticated auth routes above requires a valid,
-// fully-activated (non-password-pending) session.
+// Hub Admin can operate the Academy management APIs through a signed,
+// server-to-server channel. No Academy password or browser admin cookie is shared.
+const HUB_ADMIN_MAX_SKEW_MS = 5 * 60 * 1000;
+const usedHubAdminSignatures = new Map<string, number>();
+const hubAdminPrefixes = [
+  "/api/courses",
+  "/api/modules",
+  "/api/lessons",
+  "/api/content-blocks",
+  "/api/assets",
+  "/api/assignments",
+  "/api/downloads",
+  "/api/media",
+  "/api/import-histories",
+  "/api/publishing-logs",
+  "/api/gemini/assist",
+  "/api/learners",
+  "/api/junior-admin",
+];
+
+function isHubAdminPath(pathname: string) {
+  return hubAdminPrefixes.some(prefix => pathname === prefix || pathname.startsWith(prefix + "/"));
+}
+
+function verifyHubAdminRequest(req: express.Request) {
+  const pathname = new URL(req.originalUrl, "http://v79.internal").pathname;
+  if (!isHubAdminPath(pathname)) return false;
+
+  const secret = String(process.env.V79_PLATFORM_SHARED_SECRET || "");
+  const serviceId = String(req.get("x-v79-service-id") || "");
+  const timestamp = String(req.get("x-v79-timestamp") || "");
+  const signature = String(req.get("x-v79-signature") || "");
+  if (secret.length < 32 || serviceId !== "v79-hub" || !timestamp || !signature) return false;
+
+  const when = Number(timestamp);
+  if (!Number.isFinite(when) || Math.abs(Date.now() - when) > HUB_ADMIN_MAX_SKEW_MS) return false;
+
+  const rawBody = (req as any).rawBody as Buffer | undefined;
+  const bodyHash = crypto.createHash("sha256").update(rawBody || Buffer.alloc(0)).digest("hex");
+  const canonical = [req.method.toUpperCase(), pathname, timestamp, bodyHash].join("\n");
+  const expected = crypto.createHmac("sha256", secret).update(canonical).digest("hex");
+
+  let matches = false;
+  try {
+    const left = Buffer.from(expected, "hex");
+    const right = Buffer.from(signature, "hex");
+    matches = left.length === right.length && crypto.timingSafeEqual(left, right);
+  } catch {
+    matches = false;
+  }
+  if (!matches) return false;
+
+  if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    const replayKey = crypto.createHash("sha256").update(`${timestamp}:${signature}`).digest("hex");
+    const previous = usedHubAdminSignatures.get(replayKey);
+    if (previous && previous > Date.now()) return false;
+    usedHubAdminSignatures.set(replayKey, Date.now() + HUB_ADMIN_MAX_SKEW_MS);
+  }
+  return true;
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, expiry] of usedHubAdminSignatures) if (expiry <= now) usedHubAdminSignatures.delete(key);
+}, 60_000).unref();
+
+// Everything under /api except the unauthenticated auth routes above requires either
+// a valid Academy admin session or a valid Hub Admin service signature.
 app.use("/api", (req, res, next) => {
+  if (verifyHubAdminRequest(req)) return next();
   const session = getSession(parseCookies(req)[SESSION_COOKIE_NAME]);
   if (!session) {
     return res.status(401).json({ error: "Unauthorized: please log in." });
