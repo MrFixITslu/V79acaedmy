@@ -9,7 +9,7 @@ const router = express.Router();
 const learnersFile = path.join(process.cwd(), "data", "learners.json");
 const MAX_SKEW_MS = 5 * 60 * 1000;
 
-function readLearersSafe(): any[] {\n  return readLearners();\n}\n\nfunction readLearners(): any[] {
+function readLearners(): any[] {
   if (!fs.existsSync(learnersFile)) return [];
   try {
     const parsed = JSON.parse(fs.readFileSync(learnersFile, "utf8"));
@@ -65,7 +65,7 @@ router.use((req, res, next) => {
 });
 
 router.get("/admin/stats", (_req, res) => {
-  const learners = readLearersSafe();
+  const learners = readLearners();
   const db = loadDb();
   const courses = Array.isArray(db.courses) ? db.courses : [];
   const publishedCourses = courses.filter((course: any) => ["Published", "Uploaded"].includes(course.status)).length;
