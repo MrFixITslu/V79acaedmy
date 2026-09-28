@@ -4,20 +4,49 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import net from 'node:net';
+import { createHash, createHmac } from 'node:crypto';
 const root=process.cwd(); const directory=mkdtempSync(path.join(os.tmpdir(),'v79-academy-test-'));
+const platformSecret='academy-hub-test-secret-long-enough-2026';
 const socket=net.createServer(); await new Promise(r=>socket.listen(0,'127.0.0.1',r)); const port=socket.address().port;await new Promise(r=>socket.close(r));
-const child=spawn(process.execPath,[path.join(root,'dist/server.cjs')],{cwd:directory,env:{...process.env,NODE_ENV:'production',PORT:String(port),ADMIN_PASSWORD:'isolated-test-password-123'},stdio:'ignore'});
+const child=spawn(process.execPath,[path.join(root,'dist/server.cjs')],{cwd:directory,env:{...process.env,NODE_ENV:'production',PORT:String(port),ADMIN_PASSWORD:'isolated-test-password-123',V79_PLATFORM_SHARED_SECRET:platformSecret},stdio:'ignore'});
 const base=`http://127.0.0.1:${port}`;
 async function api(route,{method='GET',cookie='',body,status=200,headers={}}={}) {
   const response=await fetch(base+route,{method,headers:{...(cookie?{Cookie:cookie}:{}),...headers,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
   const data=await response.json();assert.equal(response.status,status,`${method} ${route}: ${JSON.stringify(data)}`);return {data,cookie:response.headers.get('set-cookie')?.split(';')[0]};
 }
+function hubSignature(route,method,payload='') {
+  const timestamp=String(Date.now());
+  const pathname=new URL(base+route).pathname;
+  const bodyHash=createHash('sha256').update(payload).digest('hex');
+  const signature=createHmac('sha256',platformSecret).update([method.toUpperCase(),pathname,timestamp,bodyHash].join('\n')).digest('hex');
+  return {'x-v79-service-id':'v79-hub','x-v79-timestamp':timestamp,'x-v79-signature':signature};
+}
+async function hubApi(route,{method='GET',body,status=200,headers}={}) {
+  const payload=body===undefined?'':JSON.stringify(body);
+  const signed=headers || hubSignature(route,method,payload);
+  const response=await fetch(base+route,{method,headers:{...signed,...(body===undefined?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:payload});
+  const data=await response.json();
+  assert.equal(response.status,status,method+' '+route+': '+JSON.stringify(data));
+  return {data,headers:signed};
+}
+
 try {
   for(let i=0;i<100;i++){try{await fetch(base+'/healthz');break;}catch{await new Promise(r=>setTimeout(r,100));}}
   const health=await api('/healthz');assert.equal(health.data.status,'ok');
   const guest=await api('/api/learner/session');assert.equal(guest.data.user,null);
   const catalog=(await api('/api/public/courses')).data;assert.ok(catalog.length>=2);assert.ok(catalog.every(c=>!c.programme));
   await api('/api/courses',{status:401});
+  const signedCourses=(await hubApi('/api/courses')).data;
+  assert.ok(Array.isArray(signedCourses));
+  const hubDraft={title:'Hub Admin signed course',status:'Draft',category:'Hub Test',pricingType:'free'};
+  const hubDraftPayload=JSON.stringify(hubDraft);
+  const replayHeaders=hubSignature('/api/courses','POST',hubDraftPayload);
+  const signedCreate=await hubApi('/api/courses',{method:'POST',body:hubDraft,status:201,headers:replayHeaders});
+  assert.equal(signedCreate.data.title,'Hub Admin signed course');
+  await hubApi('/api/courses',{method:'POST',body:hubDraft,status:401,headers:replayHeaders});
+  const tamperHeaders=hubSignature('/api/courses','POST',hubDraftPayload);
+  await hubApi('/api/courses',{method:'POST',body:{...hubDraft,title:'Tampered course'},status:401,headers:tamperHeaders});
+  await hubApi('/api/courses/'+signedCreate.data.id,{method:'DELETE'});
   const login=await api('/api/admin/login',{method:'POST',body:{password:'isolated-test-password-123'}});
   const changed=await api('/api/admin/change-password',{method:'POST',cookie:login.cookie,body:{currentPassword:'isolated-test-password-123',newPassword:'updated-test-password-456'}});
   const admin=changed.cookie || (await api('/api/admin/login',{method:'POST',body:{password:'updated-test-password-456'}})).cookie;
