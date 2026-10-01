@@ -38,3 +38,28 @@ button, a, input, select, textarea { touch-action:manipulation; }
   #v79-certificate-canvas { position: fixed; inset: 0; width: 100%; background: white; padding: 2rem; border: 8px solid #d4a137; }
   @page { size: landscape; margin: 12mm; }
 }
+
+
+/* V79 Digital Academy premium learning system */
+.v79-academy-admin{--academy-bg:#07111f;--academy-panel:#091728;--academy-border:#1a3854;--academy-blue:#0a86ff;--academy-teal:#14b8a6;color-scheme:dark}
+.v79-academy-admin .bg-white{background-color:#091728!important}
+.v79-academy-admin .bg-slate-50,.v79-academy-admin .bg-slate-100{background-color:#0b1a2c!important}
+.v79-academy-admin .border-slate-100,.v79-academy-admin .border-slate-200,.v79-academy-admin .border-slate-300{border-color:#1a3854!important}
+.v79-academy-admin .text-slate-900,.v79-academy-admin .text-slate-800{color:#f8fafc!important}
+.v79-academy-admin .text-slate-700{color:#d5deea!important}.v79-academy-admin .text-slate-600{color:#94a3b8!important}.v79-academy-admin .text-slate-500{color:#718096!important}
+.v79-academy-admin input,.v79-academy-admin select,.v79-academy-admin textarea{background:#07121f!important;border-color:#244560!important;color:#e8eef7!important}
+.v79-academy-admin input::placeholder,.v79-academy-admin textarea::placeholder{color:#526276!important}
+.v79-academy-admin input:focus,.v79-academy-admin select:focus,.v79-academy-admin textarea:focus{border-color:rgba(20,184,166,.65)!important;box-shadow:0 0 0 3px rgba(20,184,166,.11)!important}
+.v79-academy-admin table,.v79-academy-admin tr{border-color:#18324b!important}
+.v79-academy-public .academy-primary{background:linear-gradient(135deg,#14b8a6,#0a86ff);border-radius:.8rem;font-weight:750}
+.v79-academy-public .academy-primary:hover{filter:brightness(1.06)}
+.v79-academy-public header .academy-tab{color:#94a3b8}.v79-academy-public header .academy-tab:hover{color:#fff;background:rgba(255,255,255,.05)}
+.v79-academy-public header .academy-tab.active{background:rgba(20,184,166,.14);color:#68e6d4;border:1px solid rgba(20,184,166,.25)}
+.v79-academy-public .academy-course-card:hover{border-color:#5eead4;box-shadow:0 16px 42px -14px rgb(15 23 42 / 18%)}
+.v79-academy-classroom .academy-classroom-nav .text-slate-900,.v79-academy-classroom .academy-classroom-nav .text-slate-800,.v79-academy-classroom .academy-classroom-nav .text-slate-700{color:#e8eef7!important}
+.v79-academy-classroom .academy-classroom-nav .text-slate-600{color:#a4b0c0!important}.v79-academy-classroom .academy-classroom-nav .text-slate-500,.v79-academy-classroom .academy-classroom-nav .text-slate-400{color:#718096!important}
+.v79-academy-classroom .academy-classroom-nav .bg-white{background:#091728!important}
+.v79-academy-classroom .academy-classroom-nav .bg-slate-50,.v79-academy-classroom .academy-classroom-nav .bg-slate-50\/50,.v79-academy-classroom .academy-classroom-nav .bg-slate-100{background:#0b1a2c!important}
+.v79-academy-classroom .academy-classroom-nav .border-slate-100,.v79-academy-classroom .academy-classroom-nav .border-slate-200{border-color:#1a3854!important}
+.v79-academy-classroom .academy-classroom-nav .bg-indigo-600{background:#14b8a6!important}
+.v79-academy-classroom .academy-classroom-nav .text-indigo-600,.v79-academy-classroom .academy-classroom-nav .text-indigo-700{color:#68e6d4!important}
