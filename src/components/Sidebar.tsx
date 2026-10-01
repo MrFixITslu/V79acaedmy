@@ -1,6 +1,6 @@
 import React from 'react';
 import { Course } from '../types';
-import { BookOpen, LayoutDashboard, Settings, GraduationCap, PlusCircle, UploadCloud, Image, FileCheck } from 'lucide-react';
+import { ArrowLeft, BookOpen, LayoutDashboard, Settings, GraduationCap, PlusCircle, UploadCloud, Image, FileCheck } from 'lucide-react';
 
 interface SidebarProps {
   courses: Course[];
@@ -18,15 +18,15 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
   const isAdmin = userRole === 'Admin';
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 shrink-0">
+    <aside className="w-[252px] bg-[#06101d] text-slate-300 flex flex-col border-r border-[#17324d]/70 shrink-0 relative overflow-hidden">
       {/* Brand Header */}
-      <div className="p-6 border-b border-slate-800 flex items-center space-x-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+      <div className="p-5 border-b border-[#17324d]/70 flex items-center space-x-3 relative">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] flex items-center justify-center text-white shadow-[0_0_24px_rgba(20,184,166,.15)]">
           <GraduationCap className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="font-bold text-white text-base tracking-wide">V79 Academy</h1>
-          <p className="text-xs text-indigo-400 font-medium">Authoring studio</p>
+          <h1 className="font-black text-white text-base tracking-wide">V79 Digital Academy</h1>
+          <p className="text-[9px] text-[#68e6d4] font-black uppercase tracking-[0.14em]">Authoring studio</p>
         </div>
       </div>
 
@@ -40,8 +40,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
             onClick={() => setCurrentView('dashboard')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
               currentView === 'dashboard'
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
             }`}
           >
             <LayoutDashboard className="w-4 h-4" />
@@ -54,8 +54,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
                 onClick={() => setCurrentView('courses')}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                   currentView === 'courses' || currentView === 'editor'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                    : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                    ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                    : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -66,8 +66,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
                 onClick={() => setCurrentView('create-course')}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                   currentView === 'create-course'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                    : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                    ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                    : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
                 }`}
               >
                 <PlusCircle className="w-4 h-4" />
@@ -78,8 +78,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
                 onClick={() => setCurrentView('import-curriculum')}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                   currentView === 'import-curriculum'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                    : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                    ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                    : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
                 }`}
               >
                 <UploadCloud className="w-4 h-4" />
@@ -91,12 +91,12 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
           <div className="pt-2 px-3">
             <a
               href="/academy"
-              className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-lg text-xs font-bold bg-gradient-to-tr from-indigo-600 to-violet-500 text-white hover:opacity-90 shadow-xs transition-opacity text-center"
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-[#0A86FF]/10 border border-[#0A86FF]/30 text-[#74d0ff] hover:bg-[#0A86FF]/18 transition text-center"
             >
               <GraduationCap className="w-4 h-4" />
               <span>Launch Student Portal ↗</span>
             </a>
-            <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
+            <p className="text-[9px] text-slate-600 mt-2 leading-relaxed">
               Visit the public V79 Academy landing page & catalog (<code className="text-indigo-400">/academy</code>).
             </p>
           </div>
@@ -141,8 +141,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
               onClick={() => setCurrentView('media-library')}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 currentView === 'media-library'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                  : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                  : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
               }`}
             >
               <Image className="w-4 h-4" />
@@ -153,8 +153,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
               onClick={() => setCurrentView('publishing')}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 currentView === 'publishing'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                  : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                  : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
               }`}
             >
               <FileCheck className="w-4 h-4" />
@@ -165,8 +165,8 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
               onClick={() => setCurrentView('settings')}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 currentView === 'settings'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                  : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                  ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
+                  : 'hover:bg-white/[0.045] text-slate-400 hover:text-white border border-transparent'
               }`}
             >
               <Settings className="w-4 h-4" />
@@ -177,9 +177,16 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
       </div>
 
       {/* Footer Info */}
-      <div className="p-4 border-t border-slate-800 bg-slate-950/40">
+      <div className="px-3.5 pb-3 bg-[#050d17]">
+        <a href="https://hub.v79sl.com/" className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-[#0A86FF]/30 bg-[#0A86FF]/10 text-[10px] font-bold text-[#74d0ff] hover:bg-[#0A86FF]/18 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to V79 Digital Hub
+        </a>
+      </div>
+
+      <div className="p-3.5 border-t border-[#17324d]/70 bg-[#050d17]">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-indigo-400">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] flex items-center justify-center text-[10px] font-black text-white">
             {userRole === 'Admin' ? 'AD' : userRole === 'Instructor' ? 'IN' : 'ST'}
           </div>
           <div className="overflow-hidden">
