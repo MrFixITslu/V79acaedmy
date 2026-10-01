@@ -480,7 +480,7 @@ export default function AdminApp() {
   }
 
   return (
-    <div className="admin-shell min-h-screen bg-slate-50 flex text-slate-900 font-sans antialiased">
+    <div className="v79-academy-admin admin-shell min-h-screen bg-[#07111f] flex text-slate-100 font-sans antialiased">
       {/* Sidebar */}
       <Sidebar
         courses={courses}
@@ -507,7 +507,7 @@ export default function AdminApp() {
           setUserRole={setUserRole}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 min-w-0 bg-[#07111f]">
           {currentView === 'dashboard' && (
             <Dashboard
               courses={courses}
