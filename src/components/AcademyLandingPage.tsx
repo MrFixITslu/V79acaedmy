@@ -66,22 +66,22 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
     (access === 'All' || (access === 'Free' ? !requiresSubscription(c) : requiresSubscription(c))) &&
     `${c.title} ${c.shortDescription} ${c.category}`.toLowerCase().includes(query.toLowerCase()));
   const label = (c: Course) => requiresSubscription(c) ? 'Academy subscription' : 'Free course';
-  return <div className="academy-shell min-h-screen bg-slate-50 text-slate-900">
+  return <div className="v79-academy-public academy-shell min-h-screen bg-slate-50 text-slate-900">
     <a href="#course-catalog" className="sr-only focus:not-sr-only">Skip to courses</a>
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur px-5 sm:px-10">
+    <header className="sticky top-0 z-30 border-b border-[#17324d] bg-[#07111f]/95 backdrop-blur-xl px-5 sm:px-10 text-white">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 py-4">
-        <a href="/academy" className="flex items-center gap-3 font-bold text-xl"><GraduationCap className="h-10 w-10 rounded-xl bg-indigo-600 p-2 text-white"/>V79 Academy</a>
+        <a href="/academy" className="flex items-center gap-3 font-black text-lg"><GraduationCap className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] p-2 text-white"/>V79 Digital Academy</a>
         <nav aria-label="Academy navigation" className="flex items-center gap-2 text-sm font-semibold">
-          <a href="https://hub.v79sl.com/" className="academy-tab">V79 Hub</a>
+          <a href="https://hub.v79sl.com/" className="academy-tab">Back to Hub</a>
           <button className={tab === 'catalog' ? 'academy-tab active' : 'academy-tab'} onClick={() => { setTab('catalog'); setDetail(null); }}>Explore</button>
           {user && <button className={tab === 'learning' ? 'academy-tab active' : 'academy-tab'} onClick={() => { setTab('learning'); setDetail(null); }}>My learning</button>}
           {user ? <button className="academy-tab" aria-label="Sign out" onClick={async () => { await fetch('/api/learner/logout', { method: 'POST' }); localStorage.removeItem('v79_student_user'); setUser(null); setTab('catalog'); }}><LogOut size={18}/></button> : <button className="academy-primary" onClick={() => { setAuth('login'); setAuthError(''); }}>Sign in</button>}
         </nav>
       </div>
     </header>
-    {!detail && <section className="bg-slate-950 text-white px-6 py-14 sm:py-20 relative overflow-hidden">
+    {!detail && <section className="bg-[#07111f] text-white px-6 py-14 sm:py-20 relative overflow-hidden">
       <div className="max-w-7xl mx-auto grid md:grid-cols-[1.4fr_1fr] gap-12 items-center">
-        <div><p className="text-indigo-300 uppercase tracking-[.2em] text-xs font-bold mb-5">Practical learning. Real progress.</p>
+        <div><p className="text-[#68e6d4] uppercase tracking-[.2em] text-xs font-bold mb-5">Practical learning. Real progress.</p>
           <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.08] max-w-2xl">{tab === 'learning' ? `Keep growing, ${user?.name.split(' ')[0]}.` : 'Build skills that move you forward.'}</h1>
           <p className="text-slate-300 mt-6 text-lg max-w-xl leading-relaxed">Learn at your pace with practical lessons, business programmes and guided activities. Turn knowledge into your next advantage.</p>
           <a href="#course-catalog" className="academy-primary inline-flex items-center gap-3 mt-8">{tab === 'learning' ? 'Continue learning' : 'Find your next course'}<ArrowRight size={18}/></a>
@@ -121,7 +121,7 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
         </>}
       </>}
     </main>
-    <footer className="border-t px-6 py-8 mt-12 text-sm text-slate-500 flex flex-wrap justify-between gap-4"><span>© {new Date().getFullYear()} V79 Academy · From Idea to Advantage</span><a href="/">Authoring studio</a></footer>
+    <footer className="border-t px-6 py-8 mt-12 text-sm text-slate-500 flex flex-wrap justify-between gap-4"><span>© {new Date().getFullYear()} V79 Digital Academy - From Idea to Advantage</span><a href="/">Authoring studio</a></footer>
     {auth && <div className="fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-5" onKeyDown={e => { if (e.key === 'Escape') setAuth(''); }}><section role="dialog" aria-modal="true" aria-labelledby="auth-heading" className="bg-white rounded-3xl w-full max-w-md p-8 relative"><button aria-label="Close sign in" className="absolute top-4 right-4 p-2" onClick={() => setAuth('')}><X size={20}/></button><GraduationCap className="text-indigo-600 mb-5" size={36}/><h2 id="auth-heading" className="text-2xl font-bold">{auth === 'login' ? 'Welcome back' : 'Start your learning journey'}</h2><p className="text-sm text-slate-500 mt-2 mb-6">Save your progress and keep your courses together.</p>{authError && <p role="alert" className="bg-rose-50 text-rose-800 p-3 rounded-xl mb-4">{authError}</p>}<form onSubmit={authenticate} className="space-y-4">{auth === 'register' && <label className="block text-sm font-semibold">Full name<input name="name" required autoComplete="name" className="academy-input"/></label>}<label className="block text-sm font-semibold">Email<input name="email" type="email" required autoFocus autoComplete="email" className="academy-input"/></label><label className="block text-sm font-semibold">Password<input name="password" type="password" required minLength={12} maxLength={256} autoComplete={auth === 'login' ? 'current-password' : 'new-password'} className="academy-input"/><span className="text-xs text-slate-500 font-normal">At least 12 characters</span></label><button disabled={busy} className="academy-primary w-full">{busy ? 'Please wait…' : auth === 'login' ? 'Sign in' : 'Create account'}</button></form><button className="text-indigo-700 text-sm font-semibold mt-6" onClick={() => { setAuth(auth === 'login' ? 'register' : 'login'); setAuthError(''); }}>{auth === 'login' ? 'New here? Create an account' : 'Already registered? Sign in'}</button><p className="mt-4 text-xs text-slate-500">Forgot your password? Contact your academy administrator for a reset.</p></section></div>}
   </div>;
 }
