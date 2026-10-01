@@ -46,29 +46,29 @@ export function Dashboard({
   };
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-5 xl:p-7 space-y-4 max-w-[1540px] mx-auto">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-[#091728] rounded-[24px] border border-[#1a3854] p-6 sm:p-7 text-white shadow-[0_24px_70px_rgba(0,0,0,.24)] relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none"></div>
         <div className="max-w-2xl space-y-3 relative z-10">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-            V79 Academy Management Console
+            V79 Digital Academy - Learning Operations
           </span>
-          <h2 className="text-3xl font-bold tracking-tight">Course Authoring Dashboard</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Build learning that moves people forward.</h2>
           <p className="text-slate-300 text-sm leading-relaxed">
-            Create, review, structure, and export training modules for Fire Finance Pro, SIWM, Tiquet, and KashDash before publishing to the live Academy platform.
+            Create, review, structure and publish practical training programmes across the V79 Digital Academy.
           </p>
           <div className="pt-2 flex items-center space-x-4">
             <button
               onClick={onNewCourse}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition-all flex items-center space-x-2"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#14B8A6] to-[#0A86FF] text-white font-black text-[10px] uppercase tracking-wider hover:brightness-110 shadow-[0_8px_28px_rgba(20,184,166,.16)] transition-all flex items-center space-x-2"
             >
               <BookOpen className="w-4 h-4" />
               <span>Create New Course</span>
             </button>
             <button
               onClick={() => setCurrentView('courses')}
-              className="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-200 font-semibold text-sm hover:bg-slate-700 transition-all border border-slate-700"
+              className="px-5 py-2.5 rounded-xl bg-[#07121f] text-[#74d0ff] font-black text-[10px] uppercase tracking-wider hover:bg-[#0d1e32] transition-all border border-[#1f4668]"
             >
               View Full Catalog
             </button>
@@ -77,11 +77,11 @@ export function Dashboard({
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex items-center justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        <div className="bg-[#0a1727] rounded-2xl p-4 border border-[#1a3854] flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">Total Courses</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{totalCourses}</p>
+            <p className="text-3xl font-black text-white mt-1">{totalCourses}</p>
             <span className="text-xs text-emerald-600 font-medium mt-1 inline-flex items-center">
               Active Curriculum
             </span>
@@ -91,10 +91,10 @@ export function Dashboard({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0a1727] rounded-2xl p-4 border border-[#1a3854] flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">Drafts in Progress</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{draftCourses}</p>
+            <p className="text-3xl font-black text-white mt-1">{draftCourses}</p>
             <span className="text-xs text-amber-600 font-medium mt-1 inline-flex items-center">
               Requires authoring
             </span>
@@ -104,10 +104,10 @@ export function Dashboard({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0a1727] rounded-2xl p-4 border border-[#1a3854] flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">Ready for Upload</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{readyCourses}</p>
+            <p className="text-3xl font-black text-white mt-1">{readyCourses}</p>
             <span className="text-xs text-emerald-600 font-medium mt-1 inline-flex items-center">
               Export ready
             </span>
@@ -117,10 +117,10 @@ export function Dashboard({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-[#0a1727] rounded-2xl p-4 border border-[#1a3854] flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">Published / Uploaded</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{uploadedCourses}</p>
+            <p className="text-3xl font-black text-white mt-1">{uploadedCourses}</p>
             <span className="text-xs text-purple-600 font-medium mt-1 inline-flex items-center">
               Live on Academy
             </span>
@@ -132,15 +132,15 @@ export function Dashboard({
       </div>
 
       {/* Recently Updated Courses Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+      <div className="bg-[#091728] rounded-[22px] border border-[#1a3854] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#18324b] flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Recently Updated Courses</h3>
+            <h3 className="text-sm font-bold text-white">Recently Updated Courses</h3>
             <p className="text-xs text-slate-500 mt-0.5">Manage modules, lessons, quizzes, and package exports.</p>
           </div>
           <button
             onClick={() => setCurrentView('courses')}
-            className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
+            className="text-sm font-semibold text-[#74d0ff] hover:text-white flex items-center space-x-1"
           >
             <span>View All</span>
             <ArrowUpRight className="w-4 h-4" />
@@ -150,7 +150,7 @@ export function Dashboard({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <tr className="bg-[#07121f] border-b border-[#18324b] text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 <th className="py-3.5 px-6">Course Name</th>
                 <th className="py-3.5 px-6">Application</th>
                 <th className="py-3.5 px-6">Difficulty</th>
@@ -159,9 +159,9 @@ export function Dashboard({
                 <th className="py-3.5 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 text-sm">
+            <tbody className="divide-y divide-[#18324b] text-sm">
               {courses.slice(0, 5).map((course) => (
-                <tr key={course.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={course.id} className="hover:bg-white/[0.018] transition-colors">
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-3">
                       <img
@@ -170,7 +170,7 @@ export function Dashboard({
                         className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
                       />
                       <div>
-                        <p className="font-semibold text-slate-900 line-clamp-1">{course.title}</p>
+                        <p className="font-semibold text-slate-200 line-clamp-1">{course.title}</p>
                         <p className="text-xs text-slate-500 truncate max-w-xs">{course.shortDescription}</p>
                       </div>
                     </div>
