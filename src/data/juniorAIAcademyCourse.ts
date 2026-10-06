@@ -1,4 +1,5 @@
 import { JUNIOR_AI_DEPTH, JUNIOR_AI_EFFICIENCY_QUIZ } from './juniorAIAcademyDepth';
+import { JUNIOR_AI_MASTERY } from './juniorAIAcademyMastery';
 
 type QuizSeed = { question: string; options: string[]; correct: string; explanation: string };
 type MissionSeed = {
@@ -440,7 +441,9 @@ const missions: MissionSeed[] = [
 function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3): string {
   const level = missionNumber <= 5 ? 'Level 1 — AI Explorer' : missionNumber <= 11 ? 'Level 2 — AI Creator' : 'Level 3 — AI Builder';
   const depth = JUNIOR_AI_DEPTH[missionNumber];
+  const mastery = JUNIOR_AI_MASTERY[missionNumber];
   if (!depth) throw new Error(`Missing Junior AI depth curriculum for mission ${missionNumber}`);
+  if (!mastery) throw new Error(`Missing Junior AI mastery curriculum for mission ${missionNumber}`);
 
   const common = [
     '# ' + mission.title,
@@ -465,6 +468,15 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
     return common.concat([
       '## Efficiency skill for this mission',
       '**' + depth.efficiencySkill + '**',
+      '',
+      '## Mental model — why this skill works',
+      ...mastery.mentalModel.map(x => '- ' + x),
+      '',
+      '## What a skilled AI operator does',
+      ...mastery.operatorMoves.map(x => '- ' + x),
+      '',
+      '## Real-world use',
+      mastery.realWorldUse,
       '',
       '## What you need to understand',
       ...mission.discover.map(x => '- ' + x),
@@ -502,6 +514,9 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
       '## Quick teach-back',
       'Explain this mission to a teammate without using the words “because AI said so.” Name the goal, what AI can help with, and what a human still needs to check.',
       '',
+      '## Coach questions',
+      ...mastery.coachQuestions.map(x => '- ' + x),
+      '',
       '## Reflection',
       depth.reflection
     ]).join('\n');
@@ -520,6 +535,9 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
       '',
       '## Guided practice',
       ...depth.guidedPractice.map((x, i) => (i + 1) + '. ' + x),
+      '',
+      '## Micro-drills — build speed without losing quality',
+      ...mastery.microDrill.map((x, i) => (i + 1) + '. ' + x),
       '',
       '## Common failure patterns — and how to fix them',
       ...depth.commonMistakes.flatMap((item, i) => [
@@ -541,6 +559,15 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
       '## Transfer challenge',
       depth.transferChallenge,
       '',
+      '## Independent operator task',
+      mastery.independentTask,
+      '',
+      '## What mastery looks like',
+      ...mastery.evidenceOfMastery.map(x => '- [ ] ' + x),
+      '',
+      '## Efficiency metric',
+      mastery.efficiencyMetric,
+      '',
       '## Quality check before you keep the result',
       ...depth.qualityCheck.map(x => '- [ ] ' + x),
       '',
@@ -560,6 +587,12 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
     depth.efficiencySkill,
     '',
     'Your team must show **process evidence**, not only a polished final file. Include the useful prompt/template/workflow, at least one check, and one human decision.',
+    '',
+    '## Mastery target',
+    ...mastery.evidenceOfMastery.map(x => '- [ ] ' + x),
+    '',
+    '## Efficiency target',
+    mastery.efficiencyMetric,
     '',
     '## Project-management power-up',
     mission.projectSkill,
@@ -606,6 +639,24 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
     '4. What did a human change or decide?',
     '5. What will I reuse next time?',
     '',
+    ...(missionNumber === 16 ? [
+      '## AI Operator Benchmark — final individual challenge',
+      'Complete a brand-new task that was not used as a class example. Your instructor should give you the goal and source material only.',
+      '',
+      'You must independently demonstrate the full **DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE** loop:',
+      '1. **DEFINE** the real result needed.',
+      '2. **CHOOSE** the correct AI operation or choose a non-AI tool where appropriate.',
+      '3. **PROMPT** with relevant context, constraints and a checkable output format.',
+      '4. **CHECK** facts, instructions, privacy, quality and uncertainty.',
+      '5. **IMPROVE** the weak part with a focused follow-up.',
+      '6. **SAVE** one reusable prompt, checklist or workflow pattern.',
+      '',
+      '### Benchmark pass evidence',
+      ...mastery.evidenceOfMastery.map(x => '- [ ] ' + x),
+      '',
+      'The learner must explain the process in their own words. A polished output alone is not enough to pass the benchmark.',
+      ''
+    ] : []),
     '## Submit for review',
     'Open the **AI Studio Team** workspace below. Every learner saves an individual reflection. The current Team Leader submits the Weekly Studio Check-In. Your instructor can approve it or return it as **Needs Changes** so your team can revise and improve.'
   ]).join('\n');
@@ -682,17 +733,19 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     if (!Array.isArray(db[key])) db[key] = [];
   }
 
-  const marker = 'junior-ai-course-seed-v2';
+  const marker = 'junior-ai-course-seed-v3';
   if (db.publishingLogs.some((log: any) => log.id === marker)) return false;
 
   const createdAt = '2026-09-23T18:00:00.000Z';
-  const upgradedAt = '2026-10-06T16:30:00.000Z';
+  const upgradedAt = '2026-10-06T17:30:00.000Z';
   const existingIndex = db.courses.findIndex((course: any) => course.id === JUNIOR_AI_COURSE_ID);
   const existing = existingIndex >= 0 ? db.courses[existingIndex] : null;
 
   const objectives = [
     'Decide when AI is useful, when a simpler tool is better, and when human judgment must lead',
     'Prompt efficiently using goals, context, constraints, examples, audience and structured output formats',
+    'Manage conversation context by knowing when to continue, compress context or start a clean new chat',
+    'Choose the correct AI operation: generate, summarize, extract, transform, compare, explain, critique or plan',
     'Use focused follow-up prompts and iteration instead of restarting work blindly',
     'Summarize, extract, transform, compare, brainstorm and explain information with appropriate human review',
     'Research with AI as an assistant while verifying important claims with trustworthy external sources',
@@ -700,7 +753,8 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     'Create and refine images, writing, audio, video, presentations and promotional content',
     'Break complex tasks into reusable AI-assisted workflows with clear human quality gates',
     'Save reusable prompts, checklists and workflows in a personal/team AI Playbook',
-    'Evaluate AI output using explicit quality criteria rather than accepting confident or polished answers',
+    'Evaluate AI output using explicit quality criteria, uncertainty checks and evidence boundaries rather than accepting confident or polished answers',
+    'Complete an independent AI Operator Benchmark on a brand-new task using DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE',
     'Work effectively in a team with rotating leadership, task ownership, risk planning and conflict resolution',
     'Build and present a finished project while explaining what AI did, what humans decided and how results were checked'
   ];
@@ -714,7 +768,7 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     category: 'General',
     difficultyLevel: 'Beginner',
     instructor: 'V79 Academy',
-    courseVersion: '2.0.0',
+    courseVersion: '3.0.0',
     thumbnail: '/junior-ai/images/mission-01-cover.svg',
     estimatedDuration: '16 weeks',
     prerequisites: [
@@ -849,8 +903,8 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     performedBy: 'Admin',
     timestamp: upgradedAt,
     details: existing
-      ? 'Upgraded Junior AI Academy to curriculum v2 with deeper AI efficiency instruction while preserving course IDs, progress keys, pricing and publication state.'
-      : 'Added Junior AI Academy curriculum v2 with 16 missions, deep AI efficiency instruction, team projects and reusable AI Playbook evidence.'
+      ? 'Upgraded Junior AI Academy to curriculum v3 with lesson-by-lesson mental models, operator drills, measurable mastery targets and an independent AI Operator Benchmark while preserving course IDs, progress keys, pricing and publication state.'
+      : 'Added Junior AI Academy curriculum v3 with 16 missions, deep AI efficiency instruction, lesson-level mastery drills, team projects, reusable AI Playbook evidence and a final AI Operator Benchmark.'
   });
 
   return true;
