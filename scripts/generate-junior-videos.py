@@ -35,22 +35,22 @@ FONT = find_font("DejaVuSans.ttf")
 FONT_BOLD = find_font("DejaVuSans-Bold.ttf")
 
 MISSIONS = [
-    ("Welcome to the World of AI", "AI can be helpful, creative, and wrong.", "Meet your team and decide how humans and AI should work together."),
-    ("Prompt Power", "Clear instructions help AI understand what you want.", "Use MAGIC, then check and improve your prompt."),
-    ("Safe, Smart & Ethical AI", "Protect private information and use AI honestly.", "Use STOP Before You Prompt and build your team safety plan."),
-    ("Become a Fact Detective", "AI can sound confident even when it is mistaken.", "Ask who says it, find evidence, and check if it is current."),
-    ("AI Everywhere", "AI skills can support many different careers.", "Choose who your project will help and why it matters."),
-    ("AI Image Studio", "Strong image prompts use subject, action, place, style, mood and details.", "Create a visual that fits your audience without misleading them."),
-    ("Story & Writing Lab", "AI can brainstorm, but your team chooses, edits and adds meaning.", "Create a story or script in your own voice."),
-    ("AI Audio Studio", "Good audio needs a clear message, good timing and permission.", "Create or plan an audio piece and test the sound before final recording."),
-    ("AI Video Studio", "A storyboard helps your team plan before production.", "Turn your idea into a short, clear and honest video."),
-    ("Presentation Power", "One main idea per slide helps people follow your message.", "Build a short presentation and rehearse it as a team."),
-    ("Content Creator & Promotion Lab", "Promotion should get attention without tricking people.", "Create a truthful message, call to action and content for your audience."),
-    ("AI Workflow Wizard", "A workflow connects the steps from idea to finished product.", "Map your tools, owners, checks and dependencies."),
-    ("AI Problem Solver", "Understand the real problem before you build the solution.", "Test your project with another team and use feedback to improve."),
-    ("Young AI Entrepreneur", "Useful projects create value for a real audience.", "Explain what your team offers, who it helps and why they would care."),
-    ("Final Production Sprint", "Finishing means checking quality, safety, risks and deadlines.", "Complete the product, close important risks and rehearse the demo."),
-    ("AI Creator Showcase & Portfolio", "A showcase explains the product, process, teamwork and learning.", "Present your final product, give credit and reflect on what you would improve."),
+    ("Welcome to the World of AI", "AI is a useful pattern-based tool, not an all-knowing person.", "Decide what small job AI should do, what information it really needs, and what a human must still check.", "Choose one real task and explain whether AI, a simpler tool, or human judgment should lead."),
+    ("Prompt Power", "Efficient prompts combine a goal, useful context, constraints and a clear output format.", "Use focused follow-ups to fix one weak part instead of rewriting everything.", "Create reusable prompt patterns for generate, summarize, extract, transform and compare."),
+    ("Safe, Smart & Ethical AI", "Good AI work protects privacy, permission, identity and honesty.", "Share the minimum information needed and remove private details before prompting.", "Turn a risky prompt into a safe version and explain what you removed."),
+    ("Become a Fact Detective", "AI can organize research, but external sources provide the evidence.", "Separate claims from evidence, check dates, and compare sources before trusting an important answer.", "Fact-check one surprising AI claim and document the evidence."),
+    ("AI Everywhere", "Efficient AI users choose tools by the job, not because AI is available.", "Compare AI with calculators, search, trusted sources and human judgment, including the time needed to check AI output.", "Build an AI-or-not decision card for future tasks."),
+    ("AI Image Studio", "Strong image work starts with purpose, audience, composition and a few important visual constraints.", "Change one visual variable at a time and inspect generated images for errors or misleading implications.", "Adapt one visual idea for a thumbnail, poster and presentation format."),
+    ("Story & Writing Lab", "Use AI in stages: ideas, outline, draft, critique and revision.", "Keep authorship by asking AI for options and feedback instead of one finished piece you cannot explain.", "Show a before-and-after revision and identify what the human changed."),
+    ("AI Audio Studio", "Plan message, timing and script before choosing voices, music or effects.", "Translate duration into a practical script length, test a short sample and listen through the full result.", "Turn one message into a short announcement, podcast intro and narration script."),
+    ("AI Video Studio", "Efficient video creation begins with a storyboard and shot list.", "Give every scene one job, keep factual material verified and maintain visual continuity across generated assets.", "Build a six-scene storyboard before generating the final clips."),
+    ("Presentation Power", "Plan the story and evidence before designing slides.", "Use AI to organize verified notes, shorten text and suggest visuals without inventing statistics or sources.", "Turn verified notes into a six-slide outline with one purpose per slide."),
+    ("Content Creator & Promotion Lab", "Repurpose one verified core message across formats without changing the facts.", "Generate variants, score them for clarity and audience fit, then publish only the strongest human-edited version.", "Adapt one approved message into a poster, caption and short script."),
+    ("AI Workflow Wizard", "Complex AI work becomes reliable when it is broken into steps with clear handoffs and quality gates.", "Specify each step's input, owner, output format and check, then save prompts that are worth reusing.", "Map a reusable workflow and identify where an error could spread."),
+    ("AI Problem Solver", "AI is good at widening options; humans should choose with real constraints and evidence.", "Define the problem before the solution, generate meaningfully different approaches, score them against criteria and test a small prototype.", "Solve the same problem under a new constraint and compare the best option."),
+    ("Young AI Entrepreneur", "AI can support business thinking, but customer demand, prices and promises must stay grounded.", "Use AI to organize assumptions and questions, not to invent customers, reviews or financial evidence.", "Create a simple offer and list the assumptions that still need real-world testing."),
+    ("Final Production Sprint", "Final quality comes from explicit acceptance criteria, not asking AI whether something 'looks good'.", "Audit accuracy, privacy, accessibility, consistency and requirements, then fix the highest-impact problems first.", "Run a structured quality audit and verify the AI's flags yourself."),
+    ("AI Creator Showcase & Portfolio", "Real AI skill is visible in the process: choices, prompts, checks, revisions and reusable methods.", "Build a personal AI Playbook with prompt templates, workflows, verification rules and situations where you will not use AI.", "Use your playbook on a new task and explain what transferred and what had to change."),
 ]
 
 PALETTES = [
@@ -112,14 +112,15 @@ def write_vtt(path: Path, cues: list[tuple[float,float,str]]) -> None:
         lines += [str(i), f"{stamp(start)} --> {stamp(end)}", text, ""]
     path.write_text("\n".join(lines), encoding="utf-8")
 
-def generate_mission(index: int, title: str, key: str, challenge: str) -> None:
+def generate_mission(index: int, title: str, key: str, efficiency: str, challenge: str) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     dest = OUT / f"mission-{index:02d}-intro.mp4"
     c1,_ = PALETTES[index-1]
     slides = [
         ("Welcome", title, f"Mission {index}. {title}."),
         ("Big Idea", "Today's Big Idea", key),
-        ("Team Skill", "Work as a Studio Team", "Plan together. Give everyone a job. Check your risks. Use CALM when you disagree."),
+        ("Efficiency", "Work Smarter With AI", efficiency),
+        ("Check", "Human Check", "Before keeping an AI result, check whether it followed the instructions, whether important claims are supported, and what a human still needs to decide."),
         ("Challenge", "Your Mission", challenge),
     ]
     with tempfile.TemporaryDirectory(prefix=f"jai-{index:02d}-") as td:
@@ -149,6 +150,6 @@ def generate_mission(index: int, title: str, key: str, challenge: str) -> None:
 if __name__ == "__main__":
     require("ffmpeg")
     require("espeak")
-    for i,(title,key,challenge) in enumerate(MISSIONS,1):
-        generate_mission(i,title,key,challenge)
+    for i,(title,key,efficiency,challenge) in enumerate(MISSIONS,1):
+        generate_mission(i,title,key,efficiency,challenge)
     print(f"Generated {len(MISSIONS)} Junior AI Academy videos in {OUT}")
