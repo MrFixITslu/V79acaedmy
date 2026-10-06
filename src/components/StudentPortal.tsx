@@ -399,52 +399,72 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     setCurrentAssignmentText('');
   };
 
-  // Custom Markdown renderer for visual elegance
+  // Lightweight Markdown renderer used by seeded course lessons.
+  // Supports the subset our curriculum intentionally uses, including inline
+  // emphasis and checklist items so instructional hierarchy is visible.
   const renderMarkdown = (text: string) => {
     if (!text) return null;
+
+    const renderInline = (value: string) => {
+      const parts = value.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean);
+      return parts.map((part, partIndex) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={partIndex} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+          return <code key={partIndex} className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[0.92em] text-indigo-900">{part.slice(1, -1)}</code>;
+        }
+        return <React.Fragment key={partIndex}>{part}</React.Fragment>;
+      });
+    };
+
     const lines = text.split('\n');
     return (
       <div className="space-y-4 text-slate-700 leading-relaxed text-sm font-normal">
         {lines.map((line, idx) => {
-          // Headers
           if (line.startsWith('### ')) {
-            return <h4 key={idx} className="text-sm font-bold text-slate-900 mt-5 mb-2 flex items-center gap-1.5">{line.replace('### ', '')}</h4>;
+            return <h4 key={idx} className="text-sm font-bold text-slate-900 mt-5 mb-2 flex items-center gap-1.5">{renderInline(line.replace('### ', ''))}</h4>;
           }
           if (line.startsWith('## ')) {
-            return <h3 key={idx} className="text-base font-bold text-slate-900 mt-6 mb-3 border-b border-slate-100 pb-1.5">{line.replace('## ', '')}</h3>;
+            return <h3 key={idx} className="text-base font-bold text-slate-900 mt-6 mb-3 border-b border-slate-100 pb-1.5">{renderInline(line.replace('## ', ''))}</h3>;
           }
           if (line.startsWith('# ')) {
-            return <h2 key={idx} className="text-lg font-bold text-indigo-950 mt-8 mb-4">{line.replace('# ', '')}</h2>;
+            return <h2 key={idx} className="text-lg font-bold text-indigo-950 mt-8 mb-4">{renderInline(line.replace('# ', ''))}</h2>;
           }
-          // Blockquote
           if (line.startsWith('> ')) {
             return (
               <blockquote key={idx} className="border-l-4 border-indigo-500 bg-indigo-50/50 p-4 rounded-r-xl italic text-indigo-900 my-4 text-xs font-medium">
-                {line.replace('> ', '')}
+                {renderInline(line.replace('> ', ''))}
               </blockquote>
             );
           }
-          // Bullets
+          if (line.startsWith('- [ ] ') || line.toLowerCase().startsWith('- [x] ')) {
+            const checked = line.toLowerCase().startsWith('- [x] ');
+            return (
+              <div key={idx} className="flex items-start gap-2.5 pl-1 my-2 text-slate-600">
+                <span aria-hidden="true" className={checked ? 'text-emerald-600 font-bold' : 'text-slate-400'}>{checked ? '☑' : '☐'}</span>
+                <span>{renderInline(line.substring(6))}</span>
+              </div>
+            );
+          }
           if (line.startsWith('- ') || line.startsWith('* ')) {
             return (
               <ul key={idx} className="list-disc pl-5 space-y-1.5 my-2 text-slate-600">
-                <li>{line.substring(2)}</li>
+                <li>{renderInline(line.substring(2))}</li>
               </ul>
             );
           }
           if (/^\d+\.\s/.test(line)) {
             return (
               <ol key={idx} className="list-decimal pl-5 space-y-1.5 my-2 text-slate-600">
-                <li>{line.replace(/^\d+\.\s/, '')}</li>
+                <li>{renderInline(line.replace(/^\d+\.\s/, ''))}</li>
               </ol>
             );
           }
-          // Blank line
           if (!line.trim()) {
             return <div key={idx} className="h-1" />;
           }
-          // Default paragraph
-          return <p key={idx} className="mb-2.5 text-slate-600">{line}</p>;
+          return <p key={idx} className="mb-2.5 text-slate-600">{renderInline(line)}</p>;
         })}
       </div>
     );
