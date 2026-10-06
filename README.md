@@ -74,10 +74,12 @@ The Junior Academy contains 16 weekly missions across **AI Explorer**, **AI Crea
 Key programme features:
 
 - Two age paths inside the same missions: **AI Explorers (6–8)** and **AI Creators (9–12)**.
-- **Curriculum v2 efficiency standard:** DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE.
+- **Curriculum v3 mastery standard:** DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE.
 - Transferable AI skills: task/tool selection, context and constraints, structured outputs, focused follow-ups, prompting, verification, privacy, ethics, images, writing, audio, video, presentations, promotion, workflows, problem solving and supervised entrepreneurship.
-- Every mission teaches a weak-vs-strong worked example, reusable prompt/workflow pattern, failure modes, guided practice, transfer challenge and explicit quality checklist.
+- Every mission teaches a mental model, operator moves, real-world use, weak-vs-strong worked example, reusable prompt/workflow pattern, failure modes, deliberate micro-drills, independent transfer task, measurable mastery evidence and an efficiency metric.
 - Learners build a reusable **AI Playbook** containing prompt templates, workflows, verification habits, privacy rules and examples of when not to use AI.
+- Learners practice conversation/context management: continue when context helps, compress long context into a clean brief, or start a fresh conversation when instructions become messy.
+- Mission 16 contains an individual **AI Operator Benchmark** on a brand-new task; new final approval is blocked until every learner submits benchmark evidence.
 - Every mission quiz includes scenario questions that test application rather than terminology alone.
 - **AI Studio Teams of exactly three** with Leader, Builder and Checker responsibilities.
 - Leadership rotation so every learner practices accountability and handover.
@@ -99,6 +101,7 @@ docs/junior-ai-academy-missions-02-16.md
 docs/junior-ai-academy-team-project-model.md
 docs/junior-ai-academy-instructor-guardian-guide.md
 docs/junior-ai-academy-v2-learning-standard.md
+docs/junior-ai-academy-v3-learning-standard.md
 ```
 
 Printable learner worksheets are stored in:
