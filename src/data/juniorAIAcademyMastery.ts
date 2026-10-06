@@ -49,7 +49,7 @@ export const JUNIOR_AI_MASTERY: Record<number, AIMasteryLayer> = {
       'Use a prompt skeleton: task → context → constraints → output format → quality check.',
       'Give one example when format or style is hard to describe.',
       'Use focused follow-ups such as “keep X; change Y.”',
-      'Start a new conversation when old instructions are confusing the task.',
+      'Start a clean new conversation when old instructions are confusing the task, and carry forward only the approved context you still need.',
       'Ask for structured output when you need to compare or reuse results.'
     ],
     realWorldUse: 'A learner can turn class notes into a study quiz faster by supplying the notes, limiting the AI to those notes and requesting a fixed question/answer format.',
