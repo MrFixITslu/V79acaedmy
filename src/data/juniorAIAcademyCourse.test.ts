@@ -115,7 +115,12 @@ const requiredStaticAssets = [
   'public/junior-ai/resources/risk-uh-oh-plan.svg',
   'public/junior-ai/resources/weekly-studio-check-in.svg',
   'public/junior-ai/resources/calm-fix-it-card.svg',
-  'public/junior-ai/resources/demo-day-reflection.svg'
+  'public/junior-ai/resources/demo-day-reflection.svg',
+  'public/junior-ai/resources/ai-task-decision-card.svg',
+  'public/junior-ai/resources/prompt-pattern-library.svg',
+  'public/junior-ai/resources/fact-check-evidence-sheet.svg',
+  'public/junior-ai/resources/ai-quality-audit.svg',
+  'public/junior-ai/resources/personal-ai-playbook.svg'
 ];
 for (const asset of requiredStaticAssets) {
   assert.equal(existsSync(path.join(process.cwd(), asset)), true, `missing static Junior asset: ${asset}`);
@@ -130,11 +135,26 @@ assert.ok(mission1Studio.downloads.some((d: any) => d.url.endsWith('/calm-fix-it
 const mission2Create = lessons.find((l: any) => l.id === 'jai-les-2-2');
 assert.ok(mission2Create.downloads.some((d: any) => d.url.endsWith('/magic-prompt-workbench.svg')));
 
+const mission1Discover = lessons.find((l: any) => l.id === 'jai-les-1-1');
+assert.ok(mission1Discover.downloads.some((d: any) => d.url.endsWith('/ai-task-decision-card.svg')));
+
 const mission3Discover = lessons.find((l: any) => l.id === 'jai-les-3-1');
 assert.ok(mission3Discover.downloads.some((d: any) => d.url.endsWith('/stop-safety-check.svg')));
 
+assert.ok(mission2Create.downloads.some((d: any) => d.url.endsWith('/prompt-pattern-library.svg')));
+
+const mission4Create = lessons.find((l: any) => l.id === 'jai-les-4-2');
+assert.ok(mission4Create.downloads.some((d: any) => d.url.endsWith('/fact-check-evidence-sheet.svg')));
+
+const mission15Create = lessons.find((l: any) => l.id === 'jai-les-15-2');
+assert.ok(mission15Create.downloads.some((d: any) => d.url.endsWith('/ai-quality-audit.svg')));
+
+const mission12Studio = lessons.find((l: any) => l.id === 'jai-les-12-3');
+assert.ok(mission12Studio.downloads.some((d: any) => d.url.endsWith('/personal-ai-playbook.svg')));
+
 const mission16Studio = lessons.find((l: any) => l.id === 'jai-les-16-3');
 assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/demo-day-reflection.svg')));
+assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/personal-ai-playbook.svg')));
 
 // Existing v1 installations must receive the richer v2 curriculum without losing
 // operational course settings or changing progress-key IDs.
