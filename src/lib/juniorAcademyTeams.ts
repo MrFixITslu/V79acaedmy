@@ -54,7 +54,15 @@ export interface JuniorSubmission {
   artifactUrls: string[];
   leaderReport: { planned: string; finished: string; help: string };
   riskUpdate: string;
-  individualReflections: Record<string, { helped: string; learned: string; next: string; savedAt: string }>;
+  individualReflections: Record<string, {
+    helped: string;
+    learned: string;
+    next: string;
+    benchmarkTask?: string;
+    benchmarkEvidence?: string;
+    benchmarkExplanation?: string;
+    savedAt: string;
+  }>;
   status: JuniorReviewStatus;
   submittedBy: string;
   submittedAt?: string;
@@ -278,6 +286,9 @@ juniorLearnerRouter.put('/:courseId/reflections/:missionNumber', (req, res) => {
     helped: cleanText(req.body.helped, 800),
     learned: cleanText(req.body.learned, 800),
     next: cleanText(req.body.next, 800),
+    benchmarkTask: missionNumber === 16 ? cleanText(req.body.benchmarkTask, 1600) : undefined,
+    benchmarkEvidence: missionNumber === 16 ? cleanText(req.body.benchmarkEvidence, 2400) : undefined,
+    benchmarkExplanation: missionNumber === 16 ? cleanText(req.body.benchmarkExplanation, 2400) : undefined,
     savedAt: new Date().toISOString()
   };
   submission.updatedAt = new Date().toISOString();
@@ -493,6 +504,22 @@ juniorAdminRouter.put('/submissions/:submissionId/review', (req, res) => {
   const status = req.body.status;
   if (!['Under Review', 'Needs Changes', 'Approved'].includes(status)) {
     return res.status(400).json({ error: 'Review status must be Under Review, Needs Changes or Approved.' });
+  }
+
+  if (status === 'Approved' && submission.courseId === 'course-junior-ai-academy-01' && submission.missionNumber === 16) {
+    const team = store.teams.find(t => t.id === submission.teamId);
+    const missing = (team?.memberIds || []).filter(memberId => {
+      const reflection = submission.individualReflections?.[memberId];
+      return !reflection
+        || !cleanText(reflection.benchmarkTask, 1600)
+        || !cleanText(reflection.benchmarkEvidence, 2400)
+        || !cleanText(reflection.benchmarkExplanation, 2400);
+    });
+    if (missing.length) {
+      return res.status(409).json({
+        error: 'Mission 16 cannot be approved until every learner submits AI Operator Benchmark evidence.'
+      });
+    }
   }
 
   const rubric: Record<string, number> = {};
