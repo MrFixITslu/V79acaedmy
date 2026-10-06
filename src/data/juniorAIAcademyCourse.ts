@@ -667,7 +667,7 @@ function lessonImages(missionNumber: number, lessonIndex: number): string[] {
   const images = [`/junior-ai/images/mission-${n}-cover.svg`];
 
   if (lessonIndex === 0) {
-    if (missionNumber === 1) images.push('/junior-ai/images/character-pixel.svg', '/junior-ai/images/poster-creator-code.svg');
+    if (missionNumber === 1) images.push('/junior-ai/images/character-pixel.svg', '/junior-ai/images/poster-creator-code.svg', '/junior-ai/images/ai-operator-skills-map.svg');
     if (missionNumber === 2) images.push('/junior-ai/images/poster-magic.svg');
     if (missionNumber === 3) images.push('/junior-ai/images/character-shield.svg', '/junior-ai/images/poster-stop.svg');
     if (missionNumber === 4) images.push('/junior-ai/images/character-captain-verify.svg');
@@ -703,7 +703,10 @@ function lessonDownloads(missionNumber: number, lessonIndex: number) {
     add('Risk / Uh-Oh Plan', 'risk-uh-oh-plan.svg');
     add('CALM Fix-It Card', 'calm-fix-it-card.svg');
     if ([12,16].includes(missionNumber)) add('My AI Playbook', 'personal-ai-playbook.svg');
-    if (missionNumber === 16) add('Demo Day Reflection', 'demo-day-reflection.svg');
+    if (missionNumber === 16) {
+      add('Demo Day Reflection', 'demo-day-reflection.svg');
+      add('AI Operator Benchmark', 'ai-operator-benchmark.svg');
+    }
   }
   return resources;
 }
