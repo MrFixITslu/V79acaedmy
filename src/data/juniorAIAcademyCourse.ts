@@ -1,3 +1,5 @@
+import { JUNIOR_AI_DEPTH } from './juniorAIAcademyDepth';
+
 type QuizSeed = { question: string; options: string[]; correct: string; explanation: string };
 type MissionSeed = {
   title: string;
@@ -437,50 +439,116 @@ const missions: MissionSeed[] = [
 
 function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3): string {
   const level = missionNumber <= 5 ? 'Level 1 — AI Explorer' : missionNumber <= 11 ? 'Level 2 — AI Creator' : 'Level 3 — AI Builder';
+  const depth = JUNIOR_AI_DEPTH[missionNumber];
+  if (!depth) throw new Error(`Missing Junior AI depth curriculum for mission ${missionNumber}`);
+
   const common = [
     '# ' + mission.title,
     '',
     '**' + level + ' • Mission ' + missionNumber + ' • Badge: ' + mission.badge + '**',
     '',
     '> Big question: ' + mission.bigQuestion,
+    '',
+    '## The V79 AI Efficiency Loop',
+    '**DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE**',
+    '',
+    '- **DEFINE:** What result do I actually need?',
+    '- **CHOOSE:** Is AI the right tool for this part of the job?',
+    '- **PROMPT:** Give useful context, constraints and an output format.',
+    '- **CHECK:** Inspect facts, safety, quality and whether instructions were followed.',
+    '- **IMPROVE:** Fix the weak part instead of starting over blindly.',
+    '- **SAVE:** Keep useful prompts, checklists or workflows so good work is reusable.',
     ''
   ];
 
   if (part === 1) {
     return common.concat([
-      '## Discover',
-      ...mission.discover.map(x => '- ' + x),
+      '## Efficiency skill for this mission',
+      '**' + depth.efficiencySkill + '**',
       '',
-      '## Why this matters',
-      'AI is most useful when you understand the idea behind the tool. Your job is to think, ask, check, create responsibly and explain your choices.',
+      '## What you need to understand',
+      ...mission.discover.map(x => '- ' + x),
+      ...depth.vocabulary.map(x => '- **Vocabulary:** ' + x),
+      '',
+      '## When AI is a good choice',
+      ...depth.whenToUseAI.map(x => '- ' + x),
+      '',
+      '## When AI is NOT the best choice',
+      ...depth.whenNotToUseAI.map(x => '- ' + x),
+      '',
+      '## Worked example — weak vs stronger',
+      '**Task:** ' + depth.workedExample.task,
+      '',
+      '**Weak approach:**',
+      '> ' + depth.workedExample.weak,
+      '',
+      '**Stronger approach:**',
+      '> ' + depth.workedExample.stronger,
+      '',
+      '**Why the stronger approach works:**',
+      ...depth.workedExample.whyBetter.map(x => '- ' + x),
       '',
       '## AI Explorers — ages 6–8',
       mission.explorerActivity,
+      'Use pictures, speaking, matching and instructor-guided prompts. The learner should still be able to explain what the AI was asked to do and what the human decided.',
       '',
       '## AI Creators — ages 9–12',
       mission.creatorActivity,
+      'Record the prompt or workflow you used, what changed after checking, and at least one reason for your final choice.',
       '',
       '## Ethics & safety check',
       mission.ethics,
       '',
-      '## Team talk',
-      'Before moving on, every teammate gets a turn to explain one thing they understood and one question they still have.'
+      '## Quick teach-back',
+      'Explain this mission to a teammate without using the words “because AI said so.” Name the goal, what AI can help with, and what a human still needs to check.',
+      '',
+      '## Reflection',
+      depth.reflection
     ]).join('\n');
   }
 
   if (part === 2) {
     return common.concat([
+      '## Skill recipe',
+      ...depth.method.map((x, i) => (i + 1) + '. ' + x),
+      '',
+      '## Reusable prompt / workflow pattern',
+      '> ' + depth.promptPattern,
+      '',
       '## Create',
       ...mission.create.map((x, i) => (i + 1) + '. ' + x),
       '',
-      '## MAGIC reminder',
-      '**Mission → Audience → Give details → Imagine the style → Check & Change.**',
+      '## Guided practice',
+      ...depth.guidedPractice.map((x, i) => (i + 1) + '. ' + x),
+      '',
+      '## Common failure patterns — and how to fix them',
+      ...depth.commonMistakes.flatMap((item, i) => [
+        '**' + (i + 1) + '. Problem:** ' + item.mistake,
+        '',
+        '**Fix:** ' + item.fix,
+        ''
+      ]),
+      '## Efficient follow-up prompting',
+      'Do not rewrite a long prompt every time. If most of the result works, keep the useful parts and make a focused follow-up such as:',
+      '- “Keep the structure. Make the examples simpler.”',
+      '- “Do not change the facts. Shorten this to 80 words.”',
+      '- “Return the same information as a table.”',
+      '- “Which instruction did you fail to follow? Fix only that part.”',
+      '',
+      '## Structured-output habit',
+      'When you need to compare, review or reuse an answer, ask for a predictable format such as a checklist, numbered steps or a table. Structured output usually makes checking faster.',
+      '',
+      '## Transfer challenge',
+      depth.transferChallenge,
+      '',
+      '## Quality check before you keep the result',
+      ...depth.qualityCheck.map(x => '- [ ] ' + x),
       '',
       '## Human contribution',
-      'Write down at least one important choice the human creator or team made. Do not treat the AI output as the finished work automatically.',
+      'Record at least one important human choice, correction or improvement. A polished AI output is not evidence of skill unless you can explain why it is suitable.',
       '',
-      '## Pair check',
-      'Ask a teammate: Is it clear? Is it accurate? Is it safe? Does it fit our audience? What should we improve?'
+      '## Pair review',
+      'Ask a teammate to identify one instruction the AI followed well, one thing that still needs checking, and one change that would make the result more useful.'
     ]).join('\n');
   }
 
@@ -488,17 +556,31 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
     '## Studio Team Mission',
     mission.teamMilestone,
     '',
+    '## Apply this week’s efficiency skill',
+    depth.efficiencySkill,
+    '',
+    'Your team must show **process evidence**, not only a polished final file. Include the useful prompt/template/workflow, at least one check, and one human decision.',
+    '',
     '## Project-management power-up',
     mission.projectSkill,
     '',
-    '### PLAN',
-    'What must the team finish this week?',
+    '### PLAN — define the result',
+    'Write one sentence describing what “done” means this week. Then split the work into tasks small enough that one person can clearly own each task.',
     '',
-    '### DO',
-    'Who owns each task? Move work through **To Do → Doing → Done**.',
+    '### CHOOSE — decide where AI belongs',
+    'For each task, choose **Human**, **AI-assisted**, or **Simple tool**. AI should not be the default for every step.',
     '',
-    '### CHECK',
-    'Check facts, safety, quality and whether every teammate contributed.',
+    '### PROMPT / BUILD',
+    'Use the mission’s reusable pattern where useful. Save prompts that work well enough to reuse, and label versions so the team can see improvement.',
+    '',
+    '### CHECK — use criteria, not vibes',
+    ...depth.qualityCheck.map(x => '- [ ] ' + x),
+    '',
+    '### IMPROVE',
+    'Fix the highest-impact problem first. Use a focused follow-up rather than regenerating everything unless the whole direction is wrong.',
+    '',
+    '### SAVE',
+    'Add one useful prompt, checklist, example or workflow to the team **AI Playbook**. By Mission 16 this becomes a reusable toolkit.',
     '',
     '### RISK / UH-OH',
     'What could stop us? What can we do before it happens? What is our backup plan? Who owns the risk?',
@@ -508,6 +590,21 @@ function markdown(mission: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
     '',
     '## Weekly deliverable',
     mission.deliverable,
+    '',
+    '## Efficiency evidence to submit',
+    '- The team’s best prompt/template/workflow from this mission.',
+    '- One before/after example or revision note.',
+    '- One check the team performed.',
+    '- One human decision the team made instead of accepting AI automatically.',
+    '- One item added to the Team AI Playbook.',
+    '',
+    '## Individual exit ticket',
+    'Before submitting, every learner should be able to answer:',
+    '1. What did we ask AI to do?',
+    '2. Why was AI useful for that part?',
+    '3. What did we check?',
+    '4. What did a human change or decide?',
+    '5. What will I reuse next time?',
     '',
     '## Submit for review',
     'Open the **AI Studio Team** workspace below. Every learner saves an individual reflection. The current Team Leader submits the Weekly Studio Check-In. Your instructor can approve it or return it as **Needs Changes** so your team can revise and improve.'
@@ -566,23 +663,51 @@ function makeQuestion(missionNumber: number, index: number, quizId: string, seed
   };
 }
 
+function upsertById(items: any[], record: any) {
+  const index = items.findIndex((item: any) => item.id === record.id);
+  if (index >= 0) items[index] = { ...items[index], ...record };
+  else items.push(record);
+}
+
 export function ensureJuniorAIAcademyCourse(db: any): boolean {
   if (!db || !Array.isArray(db.courses) || !Array.isArray(db.publishingLogs)) return false;
-  const marker = 'junior-ai-course-seed-v1';
+  for (const key of ['modules', 'lessons', 'quizzes', 'assignments']) {
+    if (!Array.isArray(db[key])) db[key] = [];
+  }
+
+  const marker = 'junior-ai-course-seed-v2';
   if (db.publishingLogs.some((log: any) => log.id === marker)) return false;
-  if (db.courses.some((course: any) => course.id === JUNIOR_AI_COURSE_ID)) return false;
 
   const createdAt = '2026-09-23T18:00:00.000Z';
-  const course = {
+  const upgradedAt = '2026-10-06T16:30:00.000Z';
+  const existingIndex = db.courses.findIndex((course: any) => course.id === JUNIOR_AI_COURSE_ID);
+  const existing = existingIndex >= 0 ? db.courses[existingIndex] : null;
+
+  const objectives = [
+    'Decide when AI is useful, when a simpler tool is better, and when human judgment must lead',
+    'Prompt efficiently using goals, context, constraints, examples, audience and structured output formats',
+    'Use focused follow-up prompts and iteration instead of restarting work blindly',
+    'Summarize, extract, transform, compare, brainstorm and explain information with appropriate human review',
+    'Research with AI as an assistant while verifying important claims with trustworthy external sources',
+    'Protect privacy, request permission where needed, and use AI honestly and ethically',
+    'Create and refine images, writing, audio, video, presentations and promotional content',
+    'Break complex tasks into reusable AI-assisted workflows with clear human quality gates',
+    'Save reusable prompts, checklists and workflows in a personal/team AI Playbook',
+    'Evaluate AI output using explicit quality criteria rather than accepting confident or polished answers',
+    'Work effectively in a team with rotating leadership, task ownership, risk planning and conflict resolution',
+    'Build and present a finished project while explaining what AI did, what humans decided and how results were checked'
+  ];
+
+  const courseTemplate = {
     id: JUNIOR_AI_COURSE_ID,
     slug: 'v79-junior-ai-academy',
     title: 'V79 Junior AI Academy: AI Superpowers for Kids',
-    shortDescription: 'A hands-on, team-based AI adventure for ages 6–12 covering safe AI use, research, media creation, presentations, promotion, teamwork and project skills.',
-    fullDescription: 'A 16-mission afterschool and subscription programme where learners build practical AI literacy through projects rather than lectures. Children work in AI Studio Teams of three, rotate leadership, submit weekly work for instructor review, learn age-appropriate planning, risk management and conflict resolution, and grow one team project from Week 1 into a finished Demo Day product. The curriculum covers prompting, verification, safety, images, writing, audio, video, presentations, promotion, workflows, problem solving and supervised entrepreneurship.',
+    shortDescription: 'A practical AI skills academy for ages 6–12 that teaches learners to choose the right AI task, prompt efficiently, verify results, create across media, build reusable workflows and explain their human decisions.',
+    fullDescription: 'A 16-mission project-based academy where learners move from basic AI understanding to efficient, responsible AI use. Students learn to decide when AI is appropriate, provide useful context and constraints, request structured outputs, use focused follow-ups, verify research, create across text/image/audio/video, build reusable workflows, evaluate quality with explicit criteria, and save their best prompts and processes in an AI Playbook. Teams of three apply each skill to a long-running project while practicing leadership, planning, risk management, feedback and responsible use.',
     category: 'General',
     difficultyLevel: 'Beginner',
     instructor: 'V79 Academy',
-    courseVersion: '1.0.0',
+    courseVersion: '2.0.0',
     thumbnail: '/junior-ai/images/mission-01-cover.svg',
     estimatedDuration: '16 weeks',
     prerequisites: [
@@ -591,41 +716,36 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
       'No previous AI experience required',
       'Adult/instructor supervision for age-restricted third-party AI tools'
     ],
-    learningObjectives: [
-      'Use AI efficiently with clear prompts and human review',
-      'Research with AI while verifying important claims',
-      'Protect privacy and use AI ethically and honestly',
-      'Create images, stories, audio, video, presentations and promotional content',
-      'Work effectively in a team of three with rotating leadership',
-      'Use simple goals, milestones, task ownership, deadlines and risk plans',
-      'Resolve normal disagreements using the CALM method and escalate unsafe situations',
-      'Submit weekly project work, respond to instructor feedback and revise',
-      'Build and present a finished team product and individual portfolio'
-    ],
-    learning_objectives: [
-      'Use AI efficiently with clear prompts and human review',
-      'Research with AI while verifying important claims',
-      'Protect privacy and use AI ethically and honestly',
-      'Create images, stories, audio, video, presentations and promotional content',
-      'Work effectively in a team of three with rotating leadership',
-      'Use simple goals, milestones, task ownership, deadlines and risk plans',
-      'Resolve normal disagreements using the CALM method and escalate unsafe situations',
-      'Submit weekly project work, respond to instructor feedback and revise',
-      'Build and present a finished team product and individual portfolio'
-    ],
+    learningObjectives: objectives,
+    learning_objectives: objectives,
     status: 'Published',
     pricingType: 'subscription',
     price: 0,
     createdAt,
-    updatedAt: createdAt
+    updatedAt: upgradedAt
   };
 
-  db.courses.push(course);
+  if (existing) {
+    db.courses[existingIndex] = {
+      ...existing,
+      ...courseTemplate,
+      // Preserve operational/admin choices and live publication metadata.
+      status: existing.status ?? courseTemplate.status,
+      pricingType: existing.pricingType ?? courseTemplate.pricingType,
+      price: existing.price ?? courseTemplate.price,
+      websiteAppId: existing.websiteAppId,
+      websitePublishedAt: existing.websitePublishedAt,
+      createdAt: existing.createdAt || courseTemplate.createdAt,
+      updatedAt: upgradedAt
+    };
+  } else {
+    db.courses.push(courseTemplate);
+  }
 
   missions.forEach((mission, missionIndex) => {
     const missionNumber = missionIndex + 1;
     const moduleId = `jai-mod-${missionNumber}`;
-    db.modules.push({
+    upsertById(db.modules, {
       id: moduleId,
       courseId: JUNIOR_AI_COURSE_ID,
       title: `Mission ${missionNumber}: ${mission.title}`,
@@ -641,31 +761,54 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
 
     lessonTitles.forEach((title, lessonIndex) => {
       const lessonId = `jai-les-${missionNumber}-${lessonIndex + 1}`;
-      db.lessons.push({
+      const depth = JUNIOR_AI_DEPTH[missionNumber];
+      const objectivesForLesson = lessonIndex === 0
+        ? [
+            'Explain the mission concept and key vocabulary',
+            'Decide when AI is and is not appropriate for this type of task',
+            'Compare a weak AI approach with a stronger, more efficient approach'
+          ]
+        : lessonIndex === 1
+          ? [
+              'Apply a reusable AI prompt or workflow pattern',
+              'Improve AI output with focused follow-up instructions and explicit quality checks',
+              'Transfer the skill to a new task rather than copying one example'
+            ]
+          : [
+              'Apply the mission skill to the team project',
+              'Show prompt/workflow, checking and human-decision evidence',
+              'Save a reusable technique in the Team AI Playbook and respond to instructor feedback'
+            ];
+
+      upsertById(db.lessons, {
         id: lessonId,
         moduleId,
         courseId: JUNIOR_AI_COURSE_ID,
         title,
-        description: lessonIndex === 0 ? mission.bigQuestion : lessonIndex === 1 ? 'Practice the mission skill through a hands-on creator activity.' : 'Apply the skill to the team project and submit the weekly Studio Check-In.',
-        learningObjectives: lessonIndex === 2
-          ? ['Apply the mission skill to the team project', 'Use teamwork and project-management habits', 'Submit work for review and respond to feedback']
-          : ['Explain the mission concept in your own words', 'Apply it safely and responsibly', 'Create or improve a practical artifact'],
-        learning_objectives: lessonIndex === 2
-          ? ['Apply the mission skill to the team project', 'Use teamwork and project-management habits', 'Submit work for review and respond to feedback']
-          : ['Explain the mission concept in your own words', 'Apply it safely and responsibly', 'Create or improve a practical artifact'],
-        estimatedTime: lessonIndex === 2 ? '35 mins' : '25 mins',
+        description: lessonIndex === 0
+          ? `Learn the mental model, vocabulary, tool-choice rules and worked examples behind ${depth.efficiencySkill.toLowerCase()}`
+          : lessonIndex === 1
+            ? 'Practice a reusable AI method through guided work, failure-pattern fixes, focused iteration and a transfer challenge.'
+            : 'Apply the efficiency skill to the long-running team project, show process evidence and save the reusable technique in the Team AI Playbook.',
+        learningObjectives: objectivesForLesson,
+        learning_objectives: objectivesForLesson,
+        estimatedTime: lessonIndex === 0 ? '30 mins' : lessonIndex === 1 ? '35 mins' : '35 mins',
         lessonContent: markdown(mission, missionNumber, (lessonIndex + 1) as 1 | 2 | 3),
         videoUrl: lessonIndex === 0 ? `/junior-ai/media/mission-${String(missionNumber).padStart(2, '0')}-intro.mp4` : '',
         audioUrl: '',
         imageUrls: lessonImages(missionNumber, lessonIndex),
         downloads: lessonDownloads(missionNumber, lessonIndex),
-        exercisePrompt: lessonIndex === 2 ? mission.deliverable : lessonIndex === 0 ? mission.explorerActivity + ' / ' + mission.creatorActivity : mission.create.join(' '),
+        exercisePrompt: lessonIndex === 2
+          ? `${mission.deliverable} Include the team's best reusable prompt/workflow, one before/after improvement, one verification step, one human decision and one AI Playbook entry.`
+          : lessonIndex === 0
+            ? `${mission.explorerActivity} / ${mission.creatorActivity} Explain when AI is useful for this task and what a human must still check.`
+            : `${depth.guidedPractice.join(' ')} Transfer challenge: ${depth.transferChallenge}`,
         orderNumber: lessonIndex + 1
       });
     });
 
     const quizId = `jai-quiz-${missionNumber}`;
-    db.quizzes.push({
+    upsertById(db.quizzes, {
       id: quizId,
       lessonId: `jai-les-${missionNumber}-3`,
       title: `${mission.badge} Knowledge Check`,
@@ -673,32 +816,35 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
       questions: mission.quiz.map((q, index) => makeQuestion(missionNumber, index, quizId, q))
     });
 
-    db.assignments.push({
+    upsertById(db.assignments, {
       id: `jai-assign-${missionNumber}`,
       courseId: JUNIOR_AI_COURSE_ID,
       moduleId,
       lessonId: `jai-les-${missionNumber}-3`,
       title: `Mission ${missionNumber} Weekly Studio Check-In`,
-      description: mission.deliverable + ' Submit through the AI Studio Team workspace for instructor review. Every learner must also save an individual contribution reflection.',
+      description: mission.deliverable + ' Submit through the AI Studio Team workspace. Include prompt/workflow evidence, one before/after improvement, one check, one human decision and one reusable Team AI Playbook entry. Every learner must also save an individual contribution reflection.',
       maxPoints: 100,
       submissionType: 'none',
       required: false,
-      createdAt,
-      updatedAt: createdAt
+      createdAt: existing?.createdAt || createdAt,
+      updatedAt: upgradedAt
     });
   });
 
   db.publishingLogs.push({
     id: marker,
     courseId: JUNIOR_AI_COURSE_ID,
-    courseTitle: course.title,
-    event: 'Course Seeded',
-    fromStatus: 'None',
-    toStatus: 'Published',
+    courseTitle: courseTemplate.title,
+    event: existing ? 'Course Upgraded' : 'Course Seeded',
+    fromStatus: existing?.status || 'None',
+    toStatus: existing?.status || courseTemplate.status,
     performedBy: 'Admin',
-    timestamp: createdAt,
-    details: 'Added the 16-mission V79 Junior AI Academy with team project milestones, weekly review, project management and conflict-resolution learning.'
+    timestamp: upgradedAt,
+    details: existing
+      ? 'Upgraded Junior AI Academy to curriculum v2 with deeper AI efficiency instruction while preserving course IDs, progress keys, pricing and publication state.'
+      : 'Added Junior AI Academy curriculum v2 with 16 missions, deep AI efficiency instruction, team projects and reusable AI Playbook evidence.'
   });
 
   return true;
 }
+
