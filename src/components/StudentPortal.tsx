@@ -998,3 +998,702 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                             <span className="text-[10px] text-slate-400 font-semibold">
                               {mLessons.length} Lessons
                             </span>
+                          </div>
+                          {m.description && (
+                            <p className="text-[11px] text-slate-500 leading-snug">{m.description}</p>
+                          )}
+                          <div className="pt-2 space-y-1">
+                            {mLessons.map((les, lIdx) => {
+                              const accessible = canAccessLesson(les, lIdx, mIdx);
+                              const isIntro = isLessonIntro(les, lIdx, mIdx);
+                              return (
+                                <button
+                                  key={les.id}
+                                  onClick={() => {
+                                    if (accessible) {
+                                      setCurrentLesson(les);
+                                      setCurrentModuleIndex(mIdx);
+                                      setShowProgrammeHub(false);
+                                    } else {
+                                      setShowPaymentModal(true);
+                                    }
+                                  }}
+                                  className={`w-full text-left p-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
+                                    accessible 
+                                      ? 'bg-white hover:bg-indigo-50/70 text-slate-700 border border-slate-200/80' 
+                                      : 'bg-slate-100/80 text-slate-400 border border-slate-200/50 cursor-pointer'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 truncate">
+                                    {!accessible ? (
+                                      <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                    ) : (
+                                      <FileText className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                                    )}
+                                    <span className="truncate">{lIdx + 1}. {les.title}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    {!isEnrolled && isIntro && (
+                                      <span className="text-[8px] font-extrabold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded uppercase">
+                                        Free Intro Preview
+                                      </span>
+                                    )}
+                                    {!accessible && (
+                                      <span className="text-[8px] font-extrabold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded uppercase">
+                                        Locked
+                                      </span>
+                                    )}
+                                    <span className="text-[10px] text-slate-400">{les.estimatedTime}</span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Sidebar Info Column */}
+              <div className="space-y-6">
+                
+                {/* Prerequisites */}
+                {course.prerequisites && course.prerequisites.length > 0 && (
+                  <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-3">
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                      <Info className="w-4 h-4 text-indigo-600" />
+                      <span>Course Prerequisites</span>
+                    </h4>
+                    <ul className="space-y-2 text-xs text-slate-600">
+                      {course.prerequisites.map((req, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0"></span>
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Enrollment Benefits Card */}
+                <div className="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl p-6 shadow-lg space-y-4">
+                  <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Included in Enrollment</span>
+                  </div>
+                  <ul className="space-y-2.5 text-xs text-indigo-100 font-medium">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Full access to all course modules</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Interactive quizzes & practical tasks</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Downloadable resources & worksheets</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Official Certificate of Completion</span>
+                    </li>
+                  </ul>
+
+                  {!isEnrolled && paidCourse && (
+                    <button
+                      onClick={() => setShowPaymentModal(true)}
+                      className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-colors"
+                    >
+                      View membership options
+                    </button>
+                  )}
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        ) : (
+          /* ACTIVE LESSON VIEW PANEL */
+          <div className="p-8 max-w-3xl mx-auto w-full space-y-8 flex-1">
+            
+            {/* Unenrolled Banner warning if viewing Intro lesson */}
+            {!isEnrolled && paidCourse && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2.5 text-amber-900">
+                  <Info className="w-5 h-5 text-amber-600 shrink-0" />
+                  <div>
+                    <p className="font-bold">Viewing Free Course Introduction Preview</p>
+                    <p className="text-[11px] text-amber-800">An active membership is required for this course. Online subscriptions are coming soon.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shrink-0 shadow-xs"
+                >
+                  View membership options
+                </button>
+              </div>
+            )}
+
+            {/* 1. Core Lecture Metadata */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600">
+                <Clock className="w-3.5 h-3.5" />
+                <span>Estimated Lecture Time: {currentLesson.estimatedTime}</span>
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900">{currentLesson.title}</h1>
+              {currentLesson.description && (
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                  {currentLesson.description}
+                </p>
+              )}
+            </div>
+
+            {Array.isArray(currentLesson.imageUrls) && currentLesson.imageUrls.length > 0 && (
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                <p className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                  Mission Visuals
+                </p>
+                <div className={`grid gap-3 ${currentLesson.imageUrls.length > 1 ? 'sm:grid-cols-2' : 'grid-cols-1'}`}>
+                  {currentLesson.imageUrls.map((url, index) => (
+                    <figure key={url + index} className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                      <img
+                        src={url}
+                        alt={`${currentLesson.title} learning visual ${index + 1}`}
+                        loading="lazy"
+                        className="w-full h-auto object-contain"
+                      />
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 2. Audio/Video Block */}
+            {(currentLesson.videoUrl || currentLesson.audioUrl) && (
+              <div className="space-y-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                {currentLesson.videoUrl && (
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
+                      <Play className="w-3 h-3 text-indigo-600 fill-indigo-600" />
+                      Classroom Video Lecture
+                    </p>
+                    <div className="rounded-xl overflow-hidden bg-black aspect-video border border-slate-900 relative">
+                      <video
+                        src={currentLesson.videoUrl}
+                        controls
+                        className="w-full h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      >
+                        {currentLesson.videoUrl.endsWith('.mp4') && (
+                          <track
+                            kind="captions"
+                            srcLang="en"
+                            label="English"
+                            src={currentLesson.videoUrl.replace(/\.mp4$/, '.vtt')}
+                            default
+                          />
+                        )}
+                      </video>
+                    </div>
+                  </div>
+                )}
+
+                {currentLesson.audioUrl && (
+                  <div className="space-y-1.5 pt-2">
+                    <p className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
+                      <Volume2 className="w-3.5 h-3.5 text-indigo-600" />
+                      Podcast Audio Companion
+                    </p>
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                      <audio
+                        src={currentLesson.audioUrl}
+                        controls
+                        className="w-full"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 3. Lesson Core content */}
+            {currentLesson.lessonContent && (
+              <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-2xs">
+                {renderMarkdown(currentLesson.lessonContent)}
+              </div>
+            )}
+
+            {course.id === 'course-junior-ai-academy-01' && currentLesson && currentLesson.orderNumber === (lessonsMap[currentLesson.moduleId]?.length || 0) && (
+              <JuniorTeamStudio courseId={course.id} missionNumber={currentModuleIndex + 1} learnerId={learnerId} />
+            )}
+
+            {course.id === 'course-junior-networking-academy-01' && currentLesson?.orderNumber === 2 && (
+              <NetworkingLab missionNumber={currentModuleIndex + 1} />
+            )}
+
+            {/* 4. Lesson Content Blocks (Visual Blocks) */}
+            {contentBlocks.length > 0 && (
+              <div className="space-y-5">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  Extended Learning Blocks ({contentBlocks.length})
+                </h3>
+                {contentBlocks.map((block) => {
+                  const data = block.contentData || {};
+                  return (
+                    <div key={block.id} className="bg-white border border-slate-200 p-6 rounded-2xl shadow-2xs space-y-3">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-indigo-900/80 uppercase pb-2 border-b border-slate-100">
+                        <span>{block.type} BLOCK</span>
+                        <span>v1.0</span>
+                      </div>
+                      
+                      {block.type === 'Markdown' && data.markdown && renderMarkdown(data.markdown)}
+                      
+                      {block.type === 'Rich Text' && data.html && (
+                        <iframe title="Lesson reading" sandbox="" srcDoc={data.html} className="w-full min-h-96 border-0" />
+                      )}
+
+                      {block.type === 'Video' && data.videoUrl && (
+                        <div className="space-y-1.5">
+                          <p className="font-bold text-xs text-slate-800">{data.title || 'Instructional Video'}</p>
+                          <div className="rounded-xl overflow-hidden bg-black border border-slate-800 aspect-video">
+                            <video src={data.videoUrl} controls className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                          </div>
+                        </div>
+                      )}
+
+                      {block.type === 'Audio' && data.audioUrl && (
+                        <div className="space-y-1.5">
+                          <p className="font-bold text-xs text-slate-800">{data.title || 'Audio Narrative'}</p>
+                          <audio src={data.audioUrl} controls className="w-full" referrerPolicy="no-referrer" />
+                        </div>
+                      )}
+
+                      {block.type === 'Image' && data.imageUrl && (
+                        <div className="space-y-2 text-center">
+                          <img 
+                            src={data.imageUrl} 
+                            alt={data.altText || 'Lecture graphic'} 
+                            className="rounded-xl border border-slate-200 max-h-96 mx-auto object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                          {data.caption && <p className="text-xs text-slate-400 italic">{data.caption}</p>}
+                        </div>
+                      )}
+
+                      {block.type === 'Code' && data.code && (
+                        <div className="space-y-1.5 text-left">
+                          <p className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-semibold uppercase inline-block">
+                            {data.language || 'typescript'}
+                          </p>
+                          <pre className="bg-slate-950 text-indigo-200 p-4 rounded-xl text-xs font-mono overflow-x-auto leading-relaxed border border-slate-800">
+                            <code>{data.code}</code>
+                          </pre>
+                        </div>
+                      )}
+
+                      {block.type === 'Callout' && data.text && (
+                        <div className={`p-4 rounded-xl border text-xs font-semibold flex items-start gap-2.5 ${
+                          data.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                          data.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' :
+                          data.type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' :
+                          'bg-indigo-50 border-indigo-200 text-indigo-800'
+                        }`}>
+                          <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-indigo-600" />
+                          <div>
+                            {data.title && <p className="font-bold uppercase tracking-wider text-[10px] mb-0.5">{data.title}</p>}
+                            <p className="font-medium">{data.text}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {block.type === 'Checklist' && Array.isArray(data.items) && (
+                        <div className="space-y-2">
+                          <p className="font-bold text-xs text-slate-800">Operational Checklist</p>
+                          <div className="space-y-1.5 pl-1.5">
+                            {data.items.map((it: any) => (
+                              <div key={it.id} className="flex items-center gap-2.5 text-xs text-slate-600">
+                                <CheckSquare className="w-4 h-4 text-indigo-600" />
+                                <span>{it.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* 5. Downloads / Assets */}
+            {((currentLesson.downloads && currentLesson.downloads.length > 0) || (downloads.filter(d => d.lessonId === currentLesson.id).length > 0)) && (
+              <div className="bg-white border border-slate-200 p-6 rounded-2xl space-y-4 shadow-2xs">
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <Download className="w-4 h-4 text-indigo-600" />
+                  <span>Lesson Resources & Templates</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Render inline course downloads */}
+                  {currentLesson.downloads?.map((dl, idx) => (
+                    <a
+                      key={`inline-${idx}`}
+                      href={dl.url}
+                      className="p-3.5 rounded-xl border border-slate-200 hover:border-indigo-400 bg-slate-50/50 hover:bg-white flex items-center justify-between transition-all group"
+                    >
+                      <div className="truncate">
+                        <p className="font-semibold text-xs text-slate-800 group-hover:text-indigo-900 truncate">{dl.name}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{dl.size || '1.0 MB'} • {dl.type || 'PDF'}</p>
+                      </div>
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                        <Download className="w-4 h-4" />
+                      </div>
+                    </a>
+                  ))}
+
+                  {/* Render linked course-wide downloads specifically for this lesson */}
+                  {downloads.filter(d => d.lessonId === currentLesson.id).map((dl) => (
+                    <a
+                      key={dl.id}
+                      href={dl.url}
+                      className="p-3.5 rounded-xl border border-slate-200 hover:border-indigo-400 bg-slate-50/50 hover:bg-white flex items-center justify-between transition-all group"
+                    >
+                      <div className="truncate">
+                        <p className="font-semibold text-xs text-slate-800 group-hover:text-indigo-900 truncate">{dl.name}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{dl.fileSize || '1.0 MB'} • {dl.fileType || 'PDF'}</p>
+                      </div>
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                        <Download className="w-4 h-4" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 6. Quiz Assessments */}
+            {activeQuiz && (
+              <div className="bg-white border border-slate-200 p-8 rounded-2xl space-y-6 shadow-2xs">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+                      LECTURE ASSESSMENT
+                    </span>
+                    <h3 className="text-lg font-bold text-slate-900 mt-1">{activeQuiz.title}</h3>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                    Passing Threshold: {activeQuiz.passingScore}%
+                  </span>
+                </div>
+
+                {quizSubmitted ? (
+                  <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-4">
+                    <div className={`w-14 h-14 rounded-full mx-auto flex items-center justify-center font-bold text-lg ${
+                      quizScore! >= activeQuiz.passingScore
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-rose-50 text-rose-700 border border-rose-200'
+                    }`}>
+                      {quizScore}%
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-base">
+                        {quizScore! >= activeQuiz.passingScore ? 'Assessment Passed! 🎉' : 'Assessment Not Passed'}
+                      </h4>
+                      <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                        {quizScore! >= activeQuiz.passingScore
+                          ? 'Outstanding! You have met the mastery threshold for this lecture. Progress saved.'
+                          : `You scored ${quizScore}%. The required passing score is ${activeQuiz.passingScore}%. Retake the quiz once you've reviewed the material.`}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setQuizSubmitted(false);
+                        setQuizAnswers({});
+                        setQuizScore(null);
+                      }}
+                      className="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+                    >
+                      Retake Assessment
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {activeQuiz.questions.map((q, qIdx) => (
+                      <div key={q.id} className="space-y-3 p-5 rounded-xl bg-slate-50/50 border border-slate-200">
+                        <p className="font-bold text-xs text-slate-900">
+                          Question {qIdx + 1}: {q.questionText}
+                        </p>
+                        <div className="space-y-2 pl-2">
+                          {q.options.map((opt, oIdx) => (
+                            <label
+                              key={oIdx}
+                              className={`flex items-center space-x-3 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                                quizAnswers[q.id] === opt
+                                  ? 'bg-indigo-50 border-indigo-400 text-indigo-900 font-semibold'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name={`question-${q.id}`}
+                                value={opt}
+                                checked={quizAnswers[q.id] === opt}
+                                onChange={() => setQuizAnswers({ ...quizAnswers, [q.id]: opt })}
+                                className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                              />
+                              <span>{opt}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        onClick={handleQuizSubmit}
+                        disabled={activeQuiz.questions.some(q => !quizAnswers[q.id])}
+                        className="px-5 py-2.5 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 shadow-sm transition-all disabled:opacity-50"
+                      >
+                        Submit Assessment Answers
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 7. Assignments */}
+            {course.id !== 'course-junior-ai-academy-01' && assignments.filter(a => a.lessonId === currentLesson.id).map((assign) => {
+              const submission = assignmentSubmissions[assign.id];
+              return (
+                <div key={assign.id} className="bg-white border border-slate-200 p-8 rounded-2xl space-y-5 shadow-2xs">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">
+                        PRACTICAL ASSIGNMENT
+                      </span>
+                      <h3 className="text-base font-bold text-slate-900 mt-1">{assign.title}</h3>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                      Max Points: {assign.maxPoints} pts
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 space-y-2 leading-relaxed">
+                    <p className="font-bold text-slate-800">Prompt & Instructions:</p>
+                    <p>{assign.description}</p>
+                  </div>
+
+                  {submission ? (
+                    <div className="p-5 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-3">
+                      <div className="flex items-center justify-between text-xs text-emerald-800">
+                        <span className="font-bold flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          Assignment Submitted Successfully!
+                        </span>
+                        <span className="text-[10px] font-medium opacity-80">Submitted {submission.submittedAt}</span>
+                      </div>
+                      
+                      {submission.text && (
+                        <div className="p-3 bg-white rounded-lg border border-emerald-100 text-xs text-slate-700 whitespace-pre-wrap font-mono">
+                          {submission.text}
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center pt-1">
+                        <p className="text-[10px] text-emerald-800/80">
+                          Status: <span className="font-bold">Response saved</span> · Self-directed activity
+                        </p>
+                        <button
+                          onClick={() => {
+                            const nextSubs = { ...assignmentSubmissions };
+                            delete nextSubs[assign.id];
+                            setAssignmentSubmissions(nextSubs);
+                            localStorage.setItem(`v79_student_submissions_${learnerId || "guest"}_${course.id}`, JSON.stringify(nextSubs));
+                          }}
+                          className="text-[10px] font-bold text-rose-600 hover:text-rose-800 underline"
+                        >
+                          Delete and Resubmit
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {assign.submissionType !== 'none' && (
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Your Text Response / Submission Notes
+                          </label>
+                          <textarea
+                            value={currentAssignmentText}
+                            onChange={(e) => setCurrentAssignmentText(e.target.value)}
+                            placeholder="Enter your comprehensive response, formulas, or repository links here..."
+                            rows={4}
+                            className="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-lg p-3 text-xs text-slate-800 focus:border-indigo-500 focus:outline-none"
+                          />
+                        </div>
+                      )}
+
+                      {assign.submissionType === 'file' && (
+                        <div className="p-5 rounded-xl border-2 border-dashed border-slate-200 hover:border-indigo-400 text-center space-y-1 transition-all">
+                          <FileCode className="w-8 h-8 text-slate-300 mx-auto" />
+                          <p className="text-xs font-semibold text-slate-700">Include a link to your work in the response above</p>
+                          <p className="text-[10px] text-slate-400">Use a shareable document link that your instructor can open.</p>
+
+                        </div>
+                      )}
+
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleAssignmentSubmit(assign.id)}
+                          disabled={assign.submissionType !== 'none' && !currentAssignmentText.trim()}
+                          className="px-5 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 shadow-sm transition-all disabled:opacity-50 flex items-center gap-1.5"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Submit Assignment Work</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Bottom Nav helper */}
+            <div className="pt-6 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500 font-medium">
+              <span className="flex items-center gap-1">
+                <HelpCircle className="w-4 h-4 text-indigo-500" />
+                Use the course outline to review earlier lessons.
+              </span>
+              <p className="text-[11px] text-slate-400">Course version {course.courseVersion}</p>
+            </div>
+
+          </div>
+        )}
+      </div>
+
+      {/* 3. Certificate of Completion Modal */}
+      {showCertificate && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-4xl p-6 md:p-8 space-y-6 relative border border-slate-100 shadow-2xl">
+            
+            <button
+              onClick={() => setShowCertificate(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Cert customization */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-600">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Student Name</label>
+                <input
+                  type="text"
+                  value={studentName}
+                  readOnly
+                  className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Issue Date</label>
+                <input
+                  type="text"
+                  value={certDate}
+                  readOnly
+                  className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold text-slate-800"
+                />
+              </div>
+              <div className="flex items-end justify-end">
+                <button
+                  onClick={() => window.print()}
+                  disabled={!studentName.trim()}
+                  className="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-sm flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print / Save as PDF
+                </button>
+              </div>
+            </div>
+
+            {/* CERTIFICATE GRAPHIC */}
+            <div 
+              id="v79-certificate-canvas"
+              className="border-8 border-amber-500/35 bg-white p-12 text-center space-y-8 relative overflow-hidden"
+              style={{ minHeight: '440px' }}
+            >
+              {/* Decorative corners */}
+              <div className="absolute top-2 left-2 w-12 h-12 border-t-2 border-l-2 border-amber-500/60"></div>
+              <div className="absolute top-2 right-2 w-12 h-12 border-t-2 border-r-2 border-amber-500/60"></div>
+              <div className="absolute bottom-2 left-2 w-12 h-12 border-b-2 border-l-2 border-amber-500/60"></div>
+              <div className="absolute bottom-2 right-2 w-12 h-12 border-b-2 border-r-2 border-amber-500/60"></div>
+
+              <div className="space-y-1.5 pt-4">
+                <GraduationCap className="w-12 h-12 text-amber-500 mx-auto" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">
+                  V79 Academy Programme Award
+                </span>
+                <h1 className="text-3xl font-extrabold text-indigo-950 font-serif tracking-tight mt-3">
+                  {course.programme?.certificate.title || 'Certificate of Completion'}
+                </h1>
+                <p className="text-xs text-slate-400 italic">This is proudly presented to</p>
+              </div>
+
+              <div className="py-4">
+                <h2 className="text-2xl font-black text-slate-900 border-b-2 border-amber-500/20 max-w-md mx-auto pb-2 font-serif uppercase tracking-wider">
+                  {studentName}
+                </h2>
+                <p className="text-[11px] text-slate-500 max-w-lg mx-auto leading-relaxed mt-4">
+                  {course.programme
+                    ? `for successfully completing all required lessons and practical assignments and passing the final examination with a score of ${programmeStatus?.bestExamScore || 0}%.`
+                    : 'for successfully completing the curriculum and required learning activities in the course:'}
+                </p>
+                <p className="text-base font-bold text-indigo-900 uppercase tracking-wide mt-2">
+                  {course.title}
+                </p>
+                <p className="text-[10px] text-slate-400 font-semibold mt-1">
+                  {course.programme ? 'Practical Business Success for Caribbean Entrepreneurs' : `V79 Application Core Focus: ${course.category}`}
+                </p>
+                {issuedCertificateId && (
+                  <p className="text-[9px] text-slate-500 font-mono mt-2">Credential ID: {issuedCertificateId}</p>
+                )}
+              </div>
+
+              {/* Badges and Signatures */}
+              <div className="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-slate-100 max-w-2xl mx-auto text-xs text-slate-500">
+                <div className="text-center sm:text-left space-y-0.5 mb-4 sm:mb-0">
+                  <p className="text-[10px] text-slate-400">Date of Award</p>
+                  <p className="font-bold text-slate-800">{certDate}</p>
+                </div>
+
+                {/* Gold Seal */}
+                <div className="relative w-16 h-16 rounded-full border-4 border-amber-400/80 bg-amber-50 flex items-center justify-center select-none shadow-sm shrink-0">
+                  <span className="text-[8px] font-black text-amber-600 text-center uppercase leading-none">
+                    V79<br />ACADEMY<br />SEAL
+                  </span>
+                </div>
+
+                <div className="text-center sm:text-right space-y-0.5">
+                  <p className="text-[10px] text-slate-400">Issued by</p>
+                  <p className="font-serif italic text-slate-800 font-semibold text-sm">V79 Academy</p>
+                  <p className="text-[8px] text-slate-400 font-bold uppercase">Programme Administration</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">Academy membership</h2><p className="text-slate-600">This course requires an active subscription. Online subscriptions are coming soon.</p><p className="text-sm text-slate-500">Already a member? Sign in with your learner account. Contact the academy administrator if you need access.</p><a href="/academy" className="academy-primary inline-block">Go to my account</a><p className="text-xs text-slate-500">No payment has been taken.</p></section></div>}
+
+    </div>
+  );
+}
