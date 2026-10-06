@@ -85,7 +85,8 @@ for (let mission = 1; mission <= 16; mission++) {
   assert.match(studio.lessonContent, /Weekly deliverable/);
   const quiz = quizzes.find((q: any) => q.lessonId === studio.id);
   assert.ok(quiz, `mission ${mission} quiz missing`);
-  assert.equal(quiz.questions.length, 3);
+  assert.equal(quiz.questions.length, 5, `mission ${mission} should include concept and scenario questions`);
+  assert.ok(quiz.questions.slice(3).every((q: any) => q.explanation?.length > 20), `mission ${mission} scenario questions need teaching explanations`);
   const assignment = assignments.find((a: any) => a.lessonId === studio.id);
   assert.ok(assignment, `mission ${mission} review assignment missing`);
   assert.equal(assignment.required, false, 'team workflow—not legacy individual assignment text—gates Junior completion');
