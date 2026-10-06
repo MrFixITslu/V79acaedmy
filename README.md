@@ -74,7 +74,11 @@ The Junior Academy contains 16 weekly missions across **AI Explorer**, **AI Crea
 Key programme features:
 
 - Two age paths inside the same missions: **AI Explorers (6–8)** and **AI Creators (9–12)**.
-- Transferable AI skills: prompting, verification, privacy, ethics, images, writing, audio, video, presentations, promotion, workflows, problem solving and supervised entrepreneurship.
+- **Curriculum v2 efficiency standard:** DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE.
+- Transferable AI skills: task/tool selection, context and constraints, structured outputs, focused follow-ups, prompting, verification, privacy, ethics, images, writing, audio, video, presentations, promotion, workflows, problem solving and supervised entrepreneurship.
+- Every mission teaches a weak-vs-strong worked example, reusable prompt/workflow pattern, failure modes, guided practice, transfer challenge and explicit quality checklist.
+- Learners build a reusable **AI Playbook** containing prompt templates, workflows, verification habits, privacy rules and examples of when not to use AI.
+- Every mission quiz includes scenario questions that test application rather than terminology alone.
 - **AI Studio Teams of exactly three** with Leader, Builder and Checker responsibilities.
 - Leadership rotation so every learner practices accountability and handover.
 - A long-running team project that begins in Mission 1 and becomes the final Demo Day product.
@@ -94,6 +98,7 @@ docs/junior-ai-academy-mission-01.md
 docs/junior-ai-academy-missions-02-16.md
 docs/junior-ai-academy-team-project-model.md
 docs/junior-ai-academy-instructor-guardian-guide.md
+docs/junior-ai-academy-v2-learning-standard.md
 ```
 
 Printable learner worksheets are stored in:
