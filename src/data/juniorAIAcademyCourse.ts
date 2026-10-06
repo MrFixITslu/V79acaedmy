@@ -1,4 +1,4 @@
-import { JUNIOR_AI_DEPTH } from './juniorAIAcademyDepth';
+import { JUNIOR_AI_DEPTH, JUNIOR_AI_EFFICIENCY_QUIZ } from './juniorAIAcademyDepth';
 
 type QuizSeed = { question: string; options: string[]; correct: string; explanation: string };
 type MissionSeed = {
@@ -820,7 +820,8 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
       lessonId: `jai-les-${missionNumber}-3`,
       title: `${mission.badge} Knowledge Check`,
       passingScore: 67,
-      questions: mission.quiz.map((q, index) => makeQuestion(missionNumber, index, quizId, q))
+      questions: [...mission.quiz, ...(JUNIOR_AI_EFFICIENCY_QUIZ[missionNumber] || [])]
+        .map((q, index) => makeQuestion(missionNumber, index, quizId, q))
     });
 
     upsertById(db.assignments, {
