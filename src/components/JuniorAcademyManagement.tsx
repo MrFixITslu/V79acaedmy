@@ -193,7 +193,17 @@ export function JuniorAcademyManagement() {
                     const reflection=s.individualReflections?.[m.id];
                     return <div key={m.id} className="rounded-lg bg-white border p-2 text-[11px]">
                       <p className="font-bold">{m.name}</p>
-                      {reflection ? <><p className="mt-1"><b>Helped:</b> {reflection.helped || '—'}</p><p><b>Learned:</b> {reflection.learned || '—'}</p><p><b>Next:</b> {reflection.next || '—'}</p></> : <p className="mt-1 text-amber-700">Reflection not saved yet.</p>}
+                      {reflection ? <>
+                        <p className="mt-1"><b>Helped:</b> {reflection.helped || '—'}</p>
+                        <p><b>Learned:</b> {reflection.learned || '—'}</p>
+                        <p><b>Next:</b> {reflection.next || '—'}</p>
+                        {s.missionNumber === 16 && <div className="mt-2 rounded-lg border border-teal-200 bg-teal-50 p-2 space-y-1 text-[10px] text-teal-950">
+                          <p className="font-black uppercase tracking-wide">AI Operator Benchmark</p>
+                          <p><b>Task / tool choice:</b> {reflection.benchmarkTask || 'Not submitted'}</p>
+                          <p><b>Process evidence:</b> {reflection.benchmarkEvidence || 'Not submitted'}</p>
+                          <p><b>Own explanation:</b> {reflection.benchmarkExplanation || 'Not submitted'}</p>
+                        </div>}
+                      </> : <p className="mt-1 text-amber-700">Reflection not saved yet.</p>}
                     </div>;
                   })}
                 </div>

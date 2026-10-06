@@ -8,6 +8,18 @@
 
 ## 1. Course promise
 
+### Curriculum v3 graduate standard
+
+The course is designed so completion means more than “made something with AI.” A graduate should be able to use AI efficiently on a **new task** by applying:
+
+**DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE**
+
+They should be able to choose the correct operation—**generate, summarize, extract, transform, compare, explain, critique or plan**—manage conversation context, verify important claims, use focused follow-ups instead of blind retries, evaluate output against explicit criteria, and save reusable prompts/workflows in an AI Playbook.
+
+Each Discover/Create/Studio lesson has a distinct learning job and must include measurable learner value. Mission 16 includes an individual **AI Operator Benchmark** that must be completed before a new final approval.
+
+See `docs/junior-ai-academy-v3-learning-standard.md` for the enforced lesson-value and graduate-mastery standard.
+
 By the end of the core program, learners should be able to:
 
 - Explain AI in age-appropriate language and recognize common ways AI is used.

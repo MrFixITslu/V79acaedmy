@@ -130,6 +130,24 @@ try {
   assert.equal(checkIn.revision,2);
   checkIn=(await api(`/api/junior-admin/submissions/${checkIn.id}/review`,{method:'PUT',cookie:admin,body:{status:'Approved',strong:'Revision addressed the feedback.',improve:'No required changes.',next:'Move to the Prompt Bank.',rubric:{learning:4,quality:4,teamwork:4,responsibility:4,safety:4}}})).data.submission;
   assert.equal(checkIn.status,'Approved');
+  // Mission 16 requires individual AI Operator Benchmark evidence before approval.
+  for (const [id,cookie] of cookieById) {
+    await api(`/api/learner/junior/${junior.id}/reflections/16`,{method:'PUT',cookie,body:{helped:`Final contribution by ${id}`,learned:'I learned to define, prompt, check and improve.',next:'Reuse my AI playbook.'}});
+  }
+  let finalCheckIn=(await api(`/api/learner/junior/${junior.id}/submissions/16`,{method:'POST',cookie:leaderCookie,body:{artifactText:'Final team product and portfolio.',leaderReport:{planned:'Complete final project.',finished:'Project and demo ready.',help:'None.'},riskUpdate:'Final checks complete.'}})).data.submission;
+  await api(`/api/junior-admin/submissions/${finalCheckIn.id}/review`,{method:'PUT',cookie:admin,status:409,body:{status:'Approved',strong:'Strong final project.',improve:'None.',next:'Graduate.',rubric:{learning:4,quality:4,teamwork:4,responsibility:4,safety:4}}});
+  for (const [id,cookie] of cookieById) {
+    await api(`/api/learner/junior/${junior.id}/reflections/16`,{method:'PUT',cookie,body:{
+      helped:`Final contribution by ${id}`,
+      learned:'I learned to define, choose, prompt, check, improve and save.',
+      next:'Reuse my AI playbook on a new task.',
+      benchmarkTask:'I received a new task, defined the required result and chose the appropriate AI operation.',
+      benchmarkEvidence:'I wrote a bounded prompt, checked the output against criteria, corrected one weak part with a focused follow-up and saved a reusable pattern.',
+      benchmarkExplanation:'AI generated and organized options; I chose the tool, checked the evidence, made the final decision and explained when a non-AI tool would be better.'
+    }});
+  }
+  finalCheckIn=(await api(`/api/junior-admin/submissions/${finalCheckIn.id}/review`,{method:'PUT',cookie:admin,body:{status:'Approved',strong:'Independent benchmark evidence is complete.',improve:'None.',next:'Graduate.',rubric:{learning:4,quality:4,teamwork:4,responsibility:4,safety:4}}})).data.submission;
+  assert.equal(finalCheckIn.status,'Approved');
   await api(`/api/learner/junior/${junior.id}/conflicts`,{method:'POST',cookie:mate2.cookie,body:{week:1,happened:'We wanted different project names.',feelings:'Both ideas mattered.',calmStep:'Look for fair choices',agreement:'Combine the strongest words.',nextTime:'Listen fully before voting.'},status:201});
   const conflictRows=(await api(`/api/junior-admin/${junior.id}/conflicts`,{cookie:admin})).data.conflictReflections;
   assert.equal(conflictRows.length,1);

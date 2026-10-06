@@ -11,7 +11,15 @@ type Submission = {
   artifactUrls: string[];
   leaderReport: { planned: string; finished: string; help: string };
   riskUpdate: string;
-  individualReflections: Record<string, { helped: string; learned: string; next: string; savedAt: string }>;
+  individualReflections: Record<string, {
+    helped: string;
+    learned: string;
+    next: string;
+    benchmarkTask?: string;
+    benchmarkEvidence?: string;
+    benchmarkExplanation?: string;
+    savedAt: string;
+  }>;
   status: 'Draft' | 'Submitted' | 'Under Review' | 'Needs Changes' | 'Approved';
   revision: number;
   reviews: Array<{ id: string; status: string; rubric: Record<string, number>; strong: string; improve: string; next: string; reviewedAt: string }>;
@@ -53,7 +61,14 @@ export function JuniorTeamStudio({ courseId, missionNumber, learnerId }: Props) 
   const [artifactUrl, setArtifactUrl] = useState('');
   const [leaderReport, setLeaderReport] = useState(emptyLeader);
   const [riskUpdate, setRiskUpdate] = useState('');
-  const [reflection, setReflection] = useState({ helped: '', learned: '', next: '' });
+  const [reflection, setReflection] = useState({
+    helped: '',
+    learned: '',
+    next: '',
+    benchmarkTask: '',
+    benchmarkEvidence: '',
+    benchmarkExplanation: ''
+  });
   const [conflict, setConflict] = useState({ happened: '', feelings: '', calmStep: '', agreement: '', nextTime: '' });
 
   const submission = useMemo(() => team?.submissions?.find(s => s.missionNumber === missionNumber), [team, missionNumber]);
@@ -77,7 +92,15 @@ export function JuniorTeamStudio({ courseId, missionNumber, learnerId }: Props) 
     setArtifactUrl(submission.artifactUrls?.[0] || '');
     setLeaderReport(submission.leaderReport || emptyLeader);
     setRiskUpdate(submission.riskUpdate || '');
-    setReflection(submission.individualReflections?.[learnerId] || { helped: '', learned: '', next: '' });
+    const savedReflection = submission.individualReflections?.[learnerId];
+    setReflection({
+      helped: savedReflection?.helped || '',
+      learned: savedReflection?.learned || '',
+      next: savedReflection?.next || '',
+      benchmarkTask: savedReflection?.benchmarkTask || '',
+      benchmarkEvidence: savedReflection?.benchmarkEvidence || '',
+      benchmarkExplanation: savedReflection?.benchmarkExplanation || ''
+    });
   }, [submission?.id, submission?.revision, learnerId]);
 
   async function saveTasks(tasks: Task[]) {
@@ -341,7 +364,33 @@ export function JuniorTeamStudio({ courseId, missionNumber, learnerId }: Props) 
           <textarea value={reflection.learned} onChange={e=>setReflection({...reflection,learned:e.target.value})} placeholder="What did I learn?" className="academy-input min-h-24"/>
           <textarea value={reflection.next} onChange={e=>setReflection({...reflection,next:e.target.value})} placeholder="What will I do next?" className="academy-input min-h-24"/>
         </div>
-        <button disabled={busy} onClick={saveReflection} className="academy-primary">Save My Reflection</button>
+        {missionNumber === 16 && (
+          <div className="rounded-2xl border border-teal-200 bg-white p-4 space-y-3">
+            <div>
+              <p className="text-sm font-black text-teal-900">AI Operator Benchmark — individual evidence</p>
+              <p className="mt-1 text-xs text-slate-600">Complete a brand-new task independently. Your instructor cannot approve Mission 16 until every learner records benchmark evidence.</p>
+            </div>
+            <textarea
+              value={reflection.benchmarkTask}
+              onChange={e=>setReflection({...reflection,benchmarkTask:e.target.value})}
+              placeholder="1. What brand-new task did you receive? What result did you define, and why did you choose AI or another tool?"
+              className="academy-input min-h-24 w-full"
+            />
+            <textarea
+              value={reflection.benchmarkEvidence}
+              onChange={e=>setReflection({...reflection,benchmarkEvidence:e.target.value})}
+              placeholder="2. Show your process evidence: prompt/brief, what you checked, the focused improvement you made, and what you saved for reuse."
+              className="academy-input min-h-28 w-full"
+            />
+            <textarea
+              value={reflection.benchmarkExplanation}
+              onChange={e=>setReflection({...reflection,benchmarkExplanation:e.target.value})}
+              placeholder="3. Explain in your own words: what did AI do, what did you decide, how do you know the result is good enough, and when would you NOT use AI for this?"
+              className="academy-input min-h-28 w-full"
+            />
+          </div>
+        )}
+        <button disabled={busy} onClick={saveReflection} className="academy-primary">{missionNumber === 16 ? 'Save Reflection & Benchmark' : 'Save My Reflection'}</button>
       </div>
 
       <div className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4 space-y-3">
