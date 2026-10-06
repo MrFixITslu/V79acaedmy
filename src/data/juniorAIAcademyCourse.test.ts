@@ -29,6 +29,9 @@ assert.ok(course, 'Junior AI course should exist');
 assert.equal(course.pricingType, 'subscription');
 assert.equal(course.status, 'Published');
 assert.equal(course.difficultyLevel, 'Beginner');
+assert.equal(course.courseVersion, '2.0.0');
+assert.ok(course.learningObjectives.some((x: string) => /structured output/i.test(x)));
+assert.ok(course.learningObjectives.some((x: string) => /playbook/i.test(x)));
 
 const modules = db.modules.filter((m: any) => m.courseId === JUNIOR_AI_COURSE_ID);
 const lessons = db.lessons.filter((l: any) => l.courseId === JUNIOR_AI_COURSE_ID);
@@ -53,8 +56,31 @@ for (let mission = 1; mission <= 16; mission++) {
   assert.ok(intro.imageUrls.includes(`/junior-ai/images/mission-${n}-cover.svg`), `mission ${mission} cover missing`);
   assert.ok(missionLessons[1].imageUrls.includes(`/junior-ai/images/mission-${n}-badge.svg`), `mission ${mission} badge missing from create lesson`);
   assert.ok(missionLessons[2].imageUrls.includes('/junior-ai/images/poster-calm.svg'), `mission ${mission} CALM visual missing from studio lesson`);
+  const discover = missionLessons[0];
+  const create = missionLessons[1];
   const studio = missionLessons[2];
+
+  assert.match(discover.lessonContent, /V79 AI Efficiency Loop/);
+  assert.match(discover.lessonContent, /Efficiency skill for this mission/);
+  assert.match(discover.lessonContent, /When AI is a good choice/);
+  assert.match(discover.lessonContent, /When AI is NOT the best choice/);
+  assert.match(discover.lessonContent, /Worked example — weak vs stronger/);
+  assert.match(discover.lessonContent, /Reflection/);
+
+  assert.match(create.lessonContent, /Skill recipe/);
+  assert.match(create.lessonContent, /Reusable prompt \/ workflow pattern/);
+  assert.match(create.lessonContent, /Guided practice/);
+  assert.match(create.lessonContent, /Common failure patterns/);
+  assert.match(create.lessonContent, /Efficient follow-up prompting/);
+  assert.match(create.lessonContent, /Structured-output habit/);
+  assert.match(create.lessonContent, /Transfer challenge/);
+  assert.match(create.lessonContent, /Quality check before you keep the result/);
+
   assert.match(studio.lessonContent, /Studio Team Mission/);
+  assert.match(studio.lessonContent, /Apply this week’s efficiency skill/);
+  assert.match(studio.lessonContent, /AI Playbook/);
+  assert.match(studio.lessonContent, /Efficiency evidence to submit/);
+  assert.match(studio.lessonContent, /Individual exit ticket/);
   assert.match(studio.lessonContent, /CALM/);
   assert.match(studio.lessonContent, /Weekly deliverable/);
   const quiz = quizzes.find((q: any) => q.lessonId === studio.id);
@@ -110,4 +136,45 @@ assert.ok(mission3Discover.downloads.some((d: any) => d.url.endsWith('/stop-safe
 const mission16Studio = lessons.find((l: any) => l.id === 'jai-les-16-3');
 assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/demo-day-reflection.svg')));
 
-console.log('Junior AI Academy curriculum integrity tests passed.');
+// Existing v1 installations must receive the richer v2 curriculum without losing
+// operational course settings or changing progress-key IDs.
+const legacyDb: any = freshDb();
+legacyDb.courses.push({
+  id: JUNIOR_AI_COURSE_ID,
+  title: 'Old Junior AI title',
+  status: 'Published',
+  pricingType: 'subscription',
+  price: 37.5,
+  websiteAppId: 'live-app-123',
+  websitePublishedAt: '2026-10-01T12:00:00.000Z',
+  createdAt: '2026-09-01T12:00:00.000Z'
+});
+legacyDb.modules.push({ id: 'jai-mod-1', courseId: JUNIOR_AI_COURSE_ID, title: 'Old module' });
+legacyDb.lessons.push({
+  id: 'jai-les-1-1',
+  moduleId: 'jai-mod-1',
+  courseId: JUNIOR_AI_COURSE_ID,
+  title: 'Old lesson',
+  lessonContent: 'Thin v1 lesson content',
+  orderNumber: 1
+});
+legacyDb.publishingLogs.push({ id: 'junior-ai-course-seed-v1', courseId: JUNIOR_AI_COURSE_ID });
+
+assert.equal(ensureJuniorAIAcademyCourse(legacyDb), true, 'v1 install should upgrade to v2');
+const upgradedCourse = legacyDb.courses.find((c: any) => c.id === JUNIOR_AI_COURSE_ID);
+assert.equal(upgradedCourse.courseVersion, '2.0.0');
+assert.equal(upgradedCourse.status, 'Published');
+assert.equal(upgradedCourse.pricingType, 'subscription');
+assert.equal(upgradedCourse.price, 37.5);
+assert.equal(upgradedCourse.websiteAppId, 'live-app-123');
+assert.equal(upgradedCourse.createdAt, '2026-09-01T12:00:00.000Z');
+
+const upgradedLessons = legacyDb.lessons.filter((l: any) => l.courseId === JUNIOR_AI_COURSE_ID);
+assert.equal(upgradedLessons.length, 48);
+assert.equal(new Set(upgradedLessons.map((l: any) => l.id)).size, 48, 'upgrade must not duplicate lesson IDs');
+const upgradedFirstLesson = upgradedLessons.find((l: any) => l.id === 'jai-les-1-1');
+assert.match(upgradedFirstLesson.lessonContent, /V79 AI Efficiency Loop/);
+assert.match(upgradedFirstLesson.lessonContent, /Worked example — weak vs stronger/);
+assert.equal(ensureJuniorAIAcademyCourse(legacyDb), false, 'v2 upgrade must be idempotent');
+
+console.log('Junior AI Academy curriculum v2 integrity and migration tests passed.');
