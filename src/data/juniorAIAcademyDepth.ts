@@ -588,3 +588,78 @@ export const JUNIOR_AI_DEPTH: Record<number, AIDepthLesson> = {
     reflection: 'What is the one AI habit you expect to use most often after this course?'
   }
 };
+
+
+export type AIEfficiencyQuizSeed = {
+  question: string;
+  options: string[];
+  correct: string;
+  explanation: string;
+};
+
+export const JUNIOR_AI_EFFICIENCY_QUIZ: Record<number, AIEfficiencyQuizSeed[]> = {
+  1: [
+    { question: 'You need the exact total of three prices and five slogan ideas. What is the most efficient plan?', options: ['Use AI for both without checking', 'Use a calculator for the total and AI for slogan options', 'Do both tasks by guessing'], correct: 'Use a calculator for the total and AI for slogan options', explanation: 'Efficient AI use starts by choosing the best tool for each part of a task.' },
+    { question: 'Which AI request keeps the most important human thinking?', options: ['Do my whole project for me', 'Give me four project ideas I can compare using my class criteria', 'Make every decision for my team'], correct: 'Give me four project ideas I can compare using my class criteria', explanation: 'AI can widen options while the learner keeps judgment and ownership.' }
+  ],
+  2: [
+    { question: 'Which prompt is easiest to check?', options: ['Tell me something good about turtles', 'Using my notes only, make a 5-question quiz for age 10 and put the answer key last', 'Be creative'], correct: 'Using my notes only, make a 5-question quiz for age 10 and put the answer key last', explanation: 'It defines source, audience, task and output format.' },
+    { question: 'The answer is good except it is too long. What is the efficient follow-up?', options: ['Rewrite the entire prompt from scratch', 'Keep the content and shorten it to 80 words', 'Accept it because AI already answered'], correct: 'Keep the content and shorten it to 80 words', explanation: 'Focused follow-ups preserve what already works.' }
+  ],
+  3: [
+    { question: 'A prompt includes a classmate’s home address even though the task is to improve grammar. What should you do?', options: ['Leave it in for more context', 'Remove the address because it is unnecessary', 'Add their phone number too'], correct: 'Remove the address because it is unnecessary', explanation: 'Data minimization means sharing only what the task actually needs.' },
+    { question: 'When is it appropriate to use another person’s voice in an AI project?', options: ['Whenever the tool allows it', 'When appropriate permission exists and the use is honest', 'If nobody notices'], correct: 'When appropriate permission exists and the use is honest', explanation: 'Identity use requires permission and responsible disclosure.' }
+  ],
+  4: [
+    { question: 'AI gives a surprising factual claim. What should happen next?', options: ['Use the claim because the wording is confident', 'Find and read trustworthy sources that support or contradict it', 'Ask AI to repeat it three times'], correct: 'Find and read trustworthy sources that support or contradict it', explanation: 'Confidence is not evidence; external sources must support important claims.' },
+    { question: 'Which research prompt is strongest?', options: ['Give me facts and sources I can trust automatically', 'Give me search questions and keywords; I will bring sources back for comparison', 'Decide what is true for me'], correct: 'Give me search questions and keywords; I will bring sources back for comparison', explanation: 'AI can organize research while evidence comes from verifiable sources.' }
+  ],
+  5: [
+    { question: 'When might AI be an inefficient choice?', options: ['When checking the output takes longer than doing a simple task directly', 'Whenever there are multiple options', 'Whenever a task involves words'], correct: 'When checking the output takes longer than doing a simple task directly', explanation: 'Efficient use includes the cost of verification.' },
+    { question: 'How should you choose an AI tool?', options: ['By the loudest advertisement', 'By the capability needed for the task and the checks you can perform', 'Use the same tool for every job'], correct: 'By the capability needed for the task and the checks you can perform', explanation: 'Tool choice starts with the job, not the brand.' }
+  ],
+  6: [
+    { question: 'A generated poster image has good style but poor composition. What is the best next step?', options: ['Regenerate randomly', 'Keep the good details and change the composition instruction', 'Use it without checking'], correct: 'Keep the good details and change the composition instruction', explanation: 'Focused iteration changes the weak variable instead of discarding everything.' },
+    { question: 'Why should important wording usually be added outside an AI image generator?', options: ['Generated text may be inaccurate or distorted', 'Images cannot contain colour', 'AI cannot create pictures'], correct: 'Generated text may be inaccurate or distorted', explanation: 'Important text is easier to control and verify in a design tool.' }
+  ],
+  7: [
+    { question: 'Which writing workflow keeps the learner most involved?', options: ['AI writes the final piece immediately', 'Learner idea → AI options → learner outline choice → draft → AI critique → learner revision', 'Copy the longest answer'], correct: 'Learner idea → AI options → learner outline choice → draft → AI critique → learner revision', explanation: 'Staged use keeps authorship and judgment visible.' },
+    { question: 'What is a strong editing prompt?', options: ['Rewrite everything perfectly', 'Check my draft against clarity and structure criteria and give three suggestions without rewriting it', 'Make it sound like a famous living author'], correct: 'Check my draft against clarity and structure criteria and give three suggestions without rewriting it', explanation: 'A critique prompt can improve work while preserving the learner’s voice.' }
+  ],
+  8: [
+    { question: 'What should happen before generating a 30-second audio piece?', options: ['Choose random sound effects first', 'Define the message, write the script and check its timing', 'Clone a celebrity voice'], correct: 'Define the message, write the script and check its timing', explanation: 'Planning message and duration prevents wasted audio production.' },
+    { question: 'Why read a script aloud with a timer?', options: ['To test whether it fits the real duration and sounds natural', 'To make the file larger', 'To avoid checking pronunciation'], correct: 'To test whether it fits the real duration and sounds natural', explanation: 'Spoken timing reveals issues that silent reading misses.' }
+  ],
+  9: [
+    { question: 'What is the most efficient first step for a multi-scene AI video?', options: ['Generate many clips immediately', 'Create a storyboard where each scene has one job', 'Add background music first'], correct: 'Create a storyboard where each scene has one job', explanation: 'Storyboarding reduces wasted generation and editing.' },
+    { question: 'Why keep a continuity sheet?', options: ['To keep recurring characters and visual details consistent', 'To store passwords', 'To replace captions'], correct: 'To keep recurring characters and visual details consistent', explanation: 'Generated scenes can drift unless important details are repeated consistently.' }
+  ],
+  10: [
+    { question: 'What should come before slide design?', options: ['A story/outline based on verified evidence', 'Choosing animations', 'Generating ten decorative images'], correct: 'A story/outline based on verified evidence', explanation: 'Structure and evidence should drive slides.' },
+    { question: 'AI suggests a statistic not in your research notes. What should you do?', options: ['Use it because it sounds convincing', 'Verify it with a trustworthy source or remove it', 'Increase the number to make it impressive'], correct: 'Verify it with a trustworthy source or remove it', explanation: 'Presentation evidence must be traceable.' }
+  ],
+  11: [
+    { question: 'How do you repurpose content efficiently?', options: ['Lock the verified core message, then adapt format and tone', 'Change the facts for each platform', 'Publish every generated version'], correct: 'Lock the verified core message, then adapt format and tone', explanation: 'Repurposing changes presentation, not verified facts.' },
+    { question: 'What should you do with five generated headline variants?', options: ['Publish all five', 'Score them against clarity, truthfulness and audience fit, then edit the best', 'Choose the longest automatically'], correct: 'Score them against clarity, truthfulness and audience fit, then edit the best', explanation: 'Generation creates options; human evaluation selects quality.' }
+  ],
+  12: [
+    { question: 'What is a quality gate in an AI workflow?', options: ['A check before output moves to the next risky step', 'A password', 'A tool that removes all humans'], correct: 'A check before output moves to the next risky step', explanation: 'Quality gates prevent errors from spreading through a workflow.' },
+    { question: 'What makes a workflow handoff reusable?', options: ['A clear expected input and structured output format', 'Random formatting every time', 'No owner for the next step'], correct: 'A clear expected input and structured output format', explanation: 'Predictable handoffs reduce repeated explanation and checking.' }
+  ],
+  13: [
+    { question: 'What should happen before asking AI for solutions?', options: ['Define the problem, users and constraints', 'Choose the flashiest technology', 'Assume the first idea is correct'], correct: 'Define the problem, users and constraints', explanation: 'Good solution generation depends on accurate problem framing.' },
+    { question: 'Why use a decision matrix?', options: ['To compare options against human-chosen criteria', 'To make AI choose without explanation', 'To avoid testing'], correct: 'To compare options against human-chosen criteria', explanation: 'Criteria make the selection process explicit and explainable.' }
+  ],
+  14: [
+    { question: 'AI says “customers will definitely buy this.” What is the correct response?', options: ['Treat it as proven demand', 'Treat it as an assumption that needs real evidence', 'Use it as a testimonial'], correct: 'Treat it as an assumption that needs real evidence', explanation: 'AI-generated business ideas are not customer validation.' },
+    { question: 'Which use of AI is appropriate in a mini-business exercise?', options: ['Invent five fake customer reviews', 'Help draft customer interview questions and organize real feedback', 'Promise results the team cannot deliver'], correct: 'Help draft customer interview questions and organize real feedback', explanation: 'AI can structure research without fabricating evidence.' }
+  ],
+  15: [
+    { question: 'Which final-review prompt is strongest?', options: ['Is this good?', 'Audit this work against our six acceptance criteria and show pass/needs-work evidence for each', 'Say something positive'], correct: 'Audit this work against our six acceptance criteria and show pass/needs-work evidence for each', explanation: 'Explicit criteria produce more actionable quality checks.' },
+    { question: 'AI says a factual claim “looks correct.” What should the team do?', options: ['Treat that as verification', 'Check the original source or evidence', 'Remove the source note'], correct: 'Check the original source or evidence', explanation: 'AI cannot replace external verification of important facts.' }
+  ],
+  16: [
+    { question: 'What best demonstrates AI skill in a portfolio?', options: ['Only polished final outputs', 'Goals, prompt/workflow evidence, checks, human revisions and final results', 'A list of AI tool names'], correct: 'Goals, prompt/workflow evidence, checks, human revisions and final results', explanation: 'Process evidence shows transferable skill and judgment.' },
+    { question: 'What makes a saved prompt truly reusable?', options: ['It explains its purpose, required inputs, adjustable details and quality check', 'It is very long', 'It is copied without understanding'], correct: 'It explains its purpose, required inputs, adjustable details and quality check', explanation: 'A reusable prompt is a template with a known job and checking method.' }
+  ]
+};
