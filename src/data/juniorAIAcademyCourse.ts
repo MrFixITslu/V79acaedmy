@@ -637,14 +637,21 @@ function lessonDownloads(missionNumber: number, lessonIndex: number) {
     type: 'SVG worksheet'
   });
 
-  if (missionNumber === 2 && lessonIndex === 1) add('MAGIC Prompt Workbench', 'magic-prompt-workbench.svg');
+  if (missionNumber === 1 && lessonIndex === 0) add('Should I Use AI? Decision Card', 'ai-task-decision-card.svg');
+  if (missionNumber === 2 && lessonIndex === 1) {
+    add('MAGIC Prompt Workbench', 'magic-prompt-workbench.svg');
+    add('Reusable Prompt Pattern Library', 'prompt-pattern-library.svg');
+  }
   if (missionNumber === 3 && lessonIndex === 0) add('STOP Safety Check', 'stop-safety-check.svg');
+  if (missionNumber === 4 && lessonIndex === 1) add('Captain Verify Evidence Sheet', 'fact-check-evidence-sheet.svg');
+  if (missionNumber === 15 && lessonIndex === 1) add('AI Output Quality Audit', 'ai-quality-audit.svg');
 
   if (lessonIndex === 2) {
     if (missionNumber === 1) add('AI Studio Team Charter', 'team-charter.svg');
     add('Weekly Studio Check-In', 'weekly-studio-check-in.svg');
     add('Risk / Uh-Oh Plan', 'risk-uh-oh-plan.svg');
     add('CALM Fix-It Card', 'calm-fix-it-card.svg');
+    if ([12,16].includes(missionNumber)) add('My AI Playbook', 'personal-ai-playbook.svg');
     if (missionNumber === 16) add('Demo Day Reflection', 'demo-day-reflection.svg');
   }
   return resources;
