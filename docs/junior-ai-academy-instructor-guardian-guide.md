@@ -180,6 +180,20 @@ A learner must have:
 - all 16 weekly Studio Check-Ins approved; and
 - their own individual reflection saved for all 16 missions.
 
+### Mission 16 AI Operator Benchmark
+
+For new Mission 16 approvals, each learner must also submit individual benchmark evidence showing they can use the full **DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE** process on a brand-new task.
+
+Instructors should inspect:
+- the task and why the learner chose AI or another tool;
+- the prompt/brief and operation used;
+- what the learner checked;
+- the focused improvement made;
+- what reusable pattern was saved; and
+- the learner’s own explanation of what AI did, what the human decided and when AI would not be appropriate.
+
+Mission 16 approval is blocked until all three team members have submitted this evidence. Do not approve based only on a polished team product.
+
 This protects individual accountability inside team work.
 
 ## 12. Printable classroom resources
@@ -193,6 +207,8 @@ The learner portal can offer these printable resources:
 - Weekly Studio Check-In
 - CALM Fix-It Card
 - Demo Day Reflection
+- AI Operator Skills Map
+- AI Operator Benchmark worksheet
 
 They live under:
 
