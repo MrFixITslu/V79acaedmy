@@ -50,6 +50,11 @@ for (let mission = 1; mission <= 16; mission++) {
   const missionLessons = lessons.filter((l: any) => l.moduleId === module.id).sort((a: any,b: any)=>a.orderNumber-b.orderNumber);
   assert.equal(missionLessons.length, 3, `mission ${mission} must have 3 lessons`);
   assert.deepEqual(missionLessons.map((l: any) => l.orderNumber), [1,2,3]);
+  for (const lesson of missionLessons) {
+    assert.ok(lesson.lessonContent.length > 1800, `mission ${mission} lesson ${lesson.orderNumber} is too thin to meet the v2 lesson-value standard`);
+    assert.ok(lesson.description.length > 80, `mission ${mission} lesson ${lesson.orderNumber} needs a meaningful learner-facing description`);
+    assert.ok(Array.isArray(lesson.learningObjectives) && lesson.learningObjectives.length >= 3, `mission ${mission} lesson ${lesson.orderNumber} needs at least three learning objectives`);
+  }
   const intro = missionLessons[0];
   const n = String(mission).padStart(2, '0');
   assert.equal(intro.videoUrl, `/junior-ai/media/mission-${n}-intro.mp4`);
@@ -98,6 +103,9 @@ assert.ok(!curriculumText.includes('build your first web app'), 'Level 4 coding 
 assert.match(curriculumText, /risk/);
 assert.match(curriculumText, /conflict/);
 assert.match(curriculumText, /team leader/);
+for (const capability of ['structured-output', 'focused follow-up', 'summarize', 'extract', 'transform', 'compare', 'quality gate', 'ai playbook', 'when ai is not']) {
+  assert.ok(curriculumText.includes(capability), `v2 curriculum missing graduate efficiency capability: ${capability}`);
+}
 
 const requiredStaticAssets = [
   ...Array.from({ length: 16 }, (_, i) => `public/junior-ai/images/mission-${String(i + 1).padStart(2, '0')}-cover.svg`),
