@@ -674,10 +674,45 @@ export class CourseBuilderService {
       courseObj.id = courseId;
       courseObj.status = 'Imported'; // Required Course Status on successful imports
 
-      // Wipe the previous course footprint cleanly before replacement.
+      // Reject package IDs that belong to another course. IDs are used as
+      // global lookup keys throughout the admin APIs, so a collision could
+      // otherwise shadow or delete unrelated course records during import.
       const existingLessonIds = new Set(
         db.lessons.filter((l) => l.courseId === courseId).map((l) => l.id)
       );
+      const otherModuleIds = new Set(db.modules.filter((m) => m.courseId !== courseId).map((m) => m.id));
+      const otherLessonIds = new Set(db.lessons.filter((l) => l.courseId !== courseId).map((l) => l.id));
+      const otherContentBlockIds = new Set(db.contentBlocks.filter((cb) => !existingLessonIds.has(cb.lessonId)).map((cb) => cb.id));
+      const otherQuizIds = new Set(db.quizzes.filter((q) => !existingLessonIds.has(q.lessonId)).map((q) => q.id));
+      const otherAssignmentIds = new Set(db.assignments.filter((a) => a.courseId !== courseId).map((a) => a.id));
+      const otherDownloadIds = new Set(db.downloads.filter((d) => d.courseId !== courseId).map((d) => d.id));
+
+      const packageModulesForValidation = Array.isArray(packageData.modules) ? packageData.modules : [];
+      for (const mod of packageModulesForValidation) {
+        if (mod?.id && otherModuleIds.has(mod.id)) throw new Error('Invalid course package: module ID collides with another course');
+        const lessons = Array.isArray(mod?.lessons) ? mod.lessons : [];
+        for (const les of lessons) {
+          if (les?.id && otherLessonIds.has(les.id)) throw new Error('Invalid course package: lesson ID collides with another course');
+          const blocks = Array.isArray(les?.contentBlocks) ? les.contentBlocks : [];
+          if (blocks.some((cb: any) => cb?.id && otherContentBlockIds.has(cb.id))) {
+            throw new Error('Invalid course package: content block ID collides with another course');
+          }
+        }
+      }
+      const packageQuizzesForValidation = Array.isArray(packageData.quizzes) ? packageData.quizzes : [];
+      if (packageQuizzesForValidation.some((q: any) => q?.id && otherQuizIds.has(q.id))) {
+        throw new Error('Invalid course package: quiz ID collides with another course');
+      }
+      const packageAssignmentsForValidation = Array.isArray(packageData.assignments) ? packageData.assignments : [];
+      if (packageAssignmentsForValidation.some((a: any) => a?.id && otherAssignmentIds.has(a.id))) {
+        throw new Error('Invalid course package: assignment ID collides with another course');
+      }
+      const packageDownloadsForValidation = Array.isArray(packageData.downloads) ? packageData.downloads : [];
+      if (packageDownloadsForValidation.some((d: any) => d?.id && otherDownloadIds.has(d.id))) {
+        throw new Error('Invalid course package: download ID collides with another course');
+      }
+
+      // Wipe the previous course footprint cleanly before replacement.
       db.courses = db.courses.filter((c) => c.id !== courseId);
       db.modules = db.modules.filter((m) => m.courseId !== courseId);
       db.lessons = db.lessons.filter((l) => l.courseId !== courseId);
