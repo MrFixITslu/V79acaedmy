@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Course } from '../types';
-import { ArrowLeft, BookOpen, LayoutDashboard, Settings, GraduationCap, PlusCircle, UploadCloud, Image, FileCheck } from 'lucide-react';
+import { ArrowLeft, BookOpen, LayoutDashboard, Settings, GraduationCap, PlusCircle, UploadCloud, Image, FileCheck, Menu, X } from 'lucide-react';
 
 interface SidebarProps {
   courses: Course[];
@@ -12,32 +12,46 @@ interface SidebarProps {
 }
 
 export function Sidebar({ courses, currentView, setCurrentView, selectedAppCategory, setSelectedAppCategory, userRole }: SidebarProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const categories = ['All Applications', ...Array.from(new Set(courses.map(c => c.category || 'General'))).sort()];
+  const navigate = (view: string) => {
+    setCurrentView(view);
+    setMobileOpen(false);
+  };
 
   const canEdit = userRole === 'Admin' || userRole === 'Instructor';
   const isAdmin = userRole === 'Admin';
 
   return (
-    <aside className="w-[252px] bg-[#06101d] text-slate-300 flex flex-col border-r border-[#17324d]/70 shrink-0 relative overflow-hidden">
+    <aside className="academy-admin-nav w-full md:w-[252px] bg-[#06101d] text-slate-300 flex flex-col border-r border-[#17324d]/70 shrink-0 relative overflow-hidden">
       {/* Brand Header */}
-      <div className="p-5 border-b border-[#17324d]/70 flex items-center space-x-3 relative">
+      <div className="p-3 md:p-5 border-b border-[#17324d]/70 flex items-center space-x-3 relative">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] flex items-center justify-center text-white shadow-[0_0_24px_rgba(20,184,166,.15)]">
           <GraduationCap className="w-6 h-6" />
         </div>
-        <div>
-          <h1 className="font-black text-white text-base tracking-wide">V79 Digital Academy</h1>
-          <p className="text-[9px] text-[#68e6d4] font-black uppercase tracking-[0.14em]">Authoring studio</p>
+        <div className="min-w-0">
+          <h1 className="font-black text-white text-sm md:text-base tracking-wide truncate">V79 Digital Academy</h1>
+          <p className="text-[10px] text-[#68e6d4] font-black uppercase tracking-[0.14em]">Authoring studio</p>
         </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen(open => !open)}
+          className="ml-auto flex md:hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#1a3854] bg-[#091728] text-slate-200"
+          aria-expanded={mobileOpen}
+          aria-label={mobileOpen ? 'Close Academy navigation' : 'Open Academy navigation'}
+        >
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
 
       {/* Navigation */}
-      <div className="p-4 flex-1 space-y-6 overflow-y-auto">
+      <div className={`${mobileOpen ? 'block' : 'hidden'} md:block p-3 md:p-4 flex-1 space-y-6 overflow-y-auto max-h-[70dvh] md:max-h-none`}>
         {/* Authoring Section */}
         <div className="space-y-1">
           <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Authoring Engine</p>
           
           <button
-            onClick={() => setCurrentView('dashboard')}
+            onClick={() => navigate('dashboard')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
               currentView === 'dashboard'
                 ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -51,7 +65,7 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
           {canEdit && (
             <>
               <button
-                onClick={() => setCurrentView('courses')}
+                onClick={() => navigate('courses')}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                   currentView === 'courses' || currentView === 'editor'
                     ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -63,7 +77,7 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
               </button>
 
               <button
-                onClick={() => setCurrentView('create-course')}
+                onClick={() => navigate('create-course')}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                   currentView === 'create-course'
                     ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -75,7 +89,7 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
               </button>
 
               <button
-                onClick={() => setCurrentView('import-curriculum')}
+                onClick={() => navigate('import-curriculum')}
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                   currentView === 'import-curriculum'
                     ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -113,7 +127,7 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
                   onClick={() => {
                     setSelectedAppCategory(cat);
                     if (currentView !== 'courses') {
-                      setCurrentView('courses');
+                      navigate('courses');
                     }
                   }}
                   className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between ${
@@ -130,15 +144,15 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
           </div>
         )}
 
-        <button onClick={() => setCurrentView('learners')} className={`w-full text-left px-3 py-3 rounded-xl text-sm font-semibold ${currentView === 'learners' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}>Learners & memberships</button>
-        {canEdit && <button onClick={() => setCurrentView('junior-academy')} className={`w-full text-left px-3 py-3 rounded-xl text-sm font-semibold ${currentView === 'junior-academy' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}>Junior Academy Teams</button>}
+        <button onClick={() => navigate('learners')} className={`w-full text-left px-3 py-3 rounded-xl text-sm font-semibold ${currentView === 'learners' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}>Learners & memberships</button>
+        {canEdit && <button onClick={() => navigate('junior-academy')} className={`w-full text-left px-3 py-3 rounded-xl text-sm font-semibold ${currentView === 'junior-academy' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800'}`}>Junior Academy Teams</button>}
         {/* Assets & Deployments */}
         {canEdit && (
           <div className="space-y-1">
             <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Systems</p>
             
             <button
-              onClick={() => setCurrentView('media-library')}
+              onClick={() => navigate('media-library')}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 currentView === 'media-library'
                   ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -150,7 +164,7 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
             </button>
 
             <button
-              onClick={() => setCurrentView('publishing')}
+              onClick={() => navigate('publishing')}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 currentView === 'publishing'
                   ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -162,7 +176,7 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
             </button>
 
             <button
-              onClick={() => setCurrentView('settings')}
+              onClick={() => navigate('settings')}
               className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 currentView === 'settings'
                   ? 'bg-gradient-to-r from-[#14B8A6]/25 to-[#0A86FF]/12 text-white border border-[#14B8A6]/35'
@@ -177,14 +191,14 @@ export function Sidebar({ courses, currentView, setCurrentView, selectedAppCateg
       </div>
 
       {/* Footer Info */}
-      <div className="px-3.5 pb-3 bg-[#050d17]">
+      <div className={`${mobileOpen ? 'block' : 'hidden'} md:block px-3.5 pb-3 bg-[#050d17]`}>
         <a href="https://hub.v79sl.com/" className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-[#0A86FF]/30 bg-[#0A86FF]/10 text-[10px] font-bold text-[#74d0ff] hover:bg-[#0A86FF]/18 transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to V79 Digital Hub
         </a>
       </div>
 
-      <div className="p-3.5 border-t border-[#17324d]/70 bg-[#050d17]">
+      <div className={`${mobileOpen ? 'block' : 'hidden'} md:block p-3.5 border-t border-[#17324d]/70 bg-[#050d17]`}>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] flex items-center justify-center text-[10px] font-black text-white">
             {userRole === 'Admin' ? 'AD' : userRole === 'Instructor' ? 'IN' : 'ST'}

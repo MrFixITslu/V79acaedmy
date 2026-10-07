@@ -595,8 +595,8 @@ export default function AdminApp() {
           )}
 
           {currentView === 'assets' && (
-            <div className="p-8 space-y-6 max-w-7xl mx-auto">
-              <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs flex items-center justify-between">
+            <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 shadow-xs flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">Global Asset Management Repository</h2>
                   <p className="text-xs text-slate-500 mt-0.5">Central media registry for all V79 Academy courses across Fire Finance Pro, SIWM, Tiquet, and KashDash.</p>
@@ -606,7 +606,7 @@ export default function AdminApp() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4 shadow-xs">
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 text-center space-y-4 shadow-xs">
                 <Database className="w-12 h-12 text-slate-300 mx-auto" />
                 <h3 className="font-bold text-slate-800 text-base">Integrated with Course Authoring</h3>
                 <p className="text-xs text-slate-500 max-w-md mx-auto">
@@ -625,8 +625,8 @@ export default function AdminApp() {
           {currentView === 'learners' && <LearnerManagement />}
           {currentView === 'junior-academy' && <JuniorAcademyManagement />}
           {currentView === 'settings' && (
-            <div className="p-8 space-y-6 max-w-4xl mx-auto">
-              <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs flex items-center justify-between">
+            <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 shadow-xs flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">Academy Platform Settings</h2>
                   <p className="text-xs text-slate-500 mt-0.5">Configure V79 Academy integration webhooks, database credentials, and roles.</p>
@@ -636,7 +636,7 @@ export default function AdminApp() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200 p-8 space-y-6 shadow-xs">
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 space-y-6 shadow-xs">
                 <div className="flex items-center space-x-3 pb-4 border-b border-slate-200">
                   <ShieldCheck className="w-6 h-6 text-emerald-600" />
                   <div>
