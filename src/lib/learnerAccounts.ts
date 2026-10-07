@@ -8,7 +8,7 @@ import { canReadCourse, hasMembership, requiresSubscription } from './academyAcc
 import { queueAcademyEvent } from './platformEvents';
 import { issueLearnerSession, learnerSessionUserId, revokeLearnerSession, revokeLearnerSessionsForUser } from './learnerSessions';
 import { issueCertificate } from './certificateRegistry';
-import { academyBillingConfigured, createAcademyCourseOrder, getAcademyOrderStatus } from './billingClient';
+import { createAcademyCourseOrder, getAcademyBillingCapabilities, getAcademyOrderStatus } from './billingClient';
 
 const file = path.join(process.cwd(), 'data', 'learners.json');
 function read(): any[] { return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : []; }
@@ -46,7 +46,23 @@ export function learner(req: express.Request) {
 function publicUser(u: any) { return { id: u.id, email: u.email, name: u.name, membershipStatus: hasMembership(u) ? 'active' : 'inactive', membershipExpiresAt: u.membershipExpiresAt, enrolledCourseIds: u.enrolledCourseIds || [] }; }
 function cookie(req: express.Request, value: string, age: number) { return `academy_session=${value}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${age}${req.secure || process.env.NODE_ENV === 'production' ? '; Secure' : ''}`; }
 export const learnerRouter = express.Router();
-learnerRouter.get('/session', (req, res) => { const u = learner(req); res.json({ user: u ? publicUser(u) : null, billing: { provider: 'wipay', managedBy: 'v79-hub', available: academyBillingConfigured() } }); });
+learnerRouter.get('/session', async (req, res) => {
+  const u = learner(req);
+  let billing = { provider: 'wipay', managedBy: 'v79-hub', available: false, environment: null as string | null, currency: null as string | null };
+  try {
+    const capabilities = await getAcademyBillingCapabilities();
+    billing = {
+      provider: 'wipay',
+      managedBy: 'v79-hub',
+      available: Boolean(capabilities?.checkoutAvailable),
+      environment: capabilities?.provider?.environment || null,
+      currency: capabilities?.provider?.currency || null,
+    };
+  } catch {
+    // Billing capability failure must never break learner sign-in/session access.
+  }
+  res.json({ user: u ? publicUser(u) : null, billing });
+});
 for (const action of ['register', 'login']) learnerRouter.post('/' + action, (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
