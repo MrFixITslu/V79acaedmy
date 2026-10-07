@@ -34,9 +34,20 @@ if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (process.env.NODE_ENV === 'production') res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   if (req.path.startsWith('/api/')) res.setHeader('Cache-Control', 'no-store');
-  if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && req.headers.origin) {
-    try { if (new URL(req.headers.origin).host !== req.get('host')) return res.status(403).json({ error: 'Cross-origin request rejected.' }); } catch { return res.sendStatus(403); }
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    const origin = req.headers.origin;
+    if (origin) {
+      try { if (new URL(origin).host !== req.get('host')) return res.status(403).json({ error: 'Cross-origin request rejected.' }); } catch { return res.sendStatus(403); }
+    }
+    const fetchSite = String(req.get('sec-fetch-site') || '');
+    if (fetchSite && !['same-origin', 'same-site', 'none'].includes(fetchSite)) {
+      return res.status(403).json({ error: 'Cross-site request rejected.' });
+    }
   }
   next();
 });
@@ -50,6 +61,14 @@ app.use(['/api/admin/login', '/api/admin/reset-password', '/api/learner/login', 
 });
 setInterval(() => { for (const [key, entry] of attempts) if (entry.expires < Date.now()) attempts.delete(key); }, 60000).unref();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const STANDALONE_ADMIN_ENABLED = process.env.ACADEMY_STANDALONE_ADMIN_ENABLED === '1';
+
+function standaloneAdminOnly(_req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!STANDALONE_ADMIN_ENABLED) {
+    return res.status(404).json({ error: 'Standalone Academy administration is disabled. Use Hub Admin.' });
+  }
+  next();
+}
 
 app.use(express.json({
   limit: "2mb",
@@ -57,6 +76,28 @@ app.use(express.json({
     req.rawBody = Buffer.from(body);
   }
 }));
+
+// The production store is file-backed. Serialize state-changing API requests so
+// asynchronous publish/integration calls cannot overwrite a newer write made
+// while an earlier request is awaiting an external service.
+let writeQueue: Promise<void> = Promise.resolve();
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api/') || ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  const previous = writeQueue;
+  let release!: () => void;
+  writeQueue = new Promise<void>((resolve) => { release = resolve; });
+  previous.then(() => {
+    let released = false;
+    const done = () => {
+      if (released) return;
+      released = true;
+      release();
+    };
+    res.once('finish', done);
+    res.once('close', done);
+    next();
+  }).catch(next);
+});
 
 // Lightweight unauthenticated health endpoint for container/orchestrator checks.
 // It intentionally returns no application data or secrets.
@@ -236,7 +277,7 @@ function clearSessionCookie(res: express.Response) {
   res.setHeader("Set-Cookie", `${SESSION_COOKIE_NAME}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`);
 }
 
-app.post("/api/admin/login", (req, res) => {
+app.post("/api/admin/login", standaloneAdminOnly, (req, res) => {
   const submitted = cleanEnvValue(req.body?.password);
   if (submitted.length > 0 && verifyAdminPassword(submitted, adminAuth)) {
     const token = issueSession(adminAuth.mustChangePassword);
@@ -246,7 +287,7 @@ app.post("/api/admin/login", (req, res) => {
   return res.status(401).json({ error: "Incorrect password." });
 });
 
-app.post("/api/admin/logout", (req, res) => {
+app.post("/api/admin/logout", standaloneAdminOnly, (req, res) => {
   const token = parseCookies(req)[SESSION_COOKIE_NAME];
   if (token) adminSessions.delete(token);
   clearSessionCookie(res);
@@ -255,13 +296,13 @@ app.post("/api/admin/logout", (req, res) => {
 
 // Lets the frontend silently check "am I still logged in?" on page load
 // without needing to hit a real data endpoint first.
-app.get("/api/admin/session", (req, res) => {
+app.get("/api/admin/session", standaloneAdminOnly, (req, res) => {
   const session = getSession(parseCookies(req)[SESSION_COOKIE_NAME]);
   if (!session) return res.json({ authenticated: false });
   res.json({ authenticated: true, mustChangePassword: session.mustChangePassword });
 });
 
-app.post("/api/admin/change-password", (req, res) => {
+app.post("/api/admin/change-password", standaloneAdminOnly, (req, res) => {
   const session = getSession(parseCookies(req)[SESSION_COOKIE_NAME]);
   if (!session) {
     return res.status(401).json({ error: "Unauthorized: a valid session is required." });
@@ -292,7 +333,7 @@ app.post("/api/admin/change-password", (req, res) => {
 });
 
 // Provides recovery hint / token presence info to the frontend
-app.get("/api/admin/recovery-info", (req, res) => {
+app.get("/api/admin/recovery-info", standaloneAdminOnly, (req, res) => {
   res.json({
     hasResetToken: true,
     recoveryInstructions: "Ask the server administrator for the recovery key."
@@ -300,7 +341,7 @@ app.get("/api/admin/recovery-info", (req, res) => {
 });
 
 // Unauthenticated endpoint to reset admin password using the secure recovery token
-app.post("/api/admin/reset-password", (req, res) => {
+app.post("/api/admin/reset-password", standaloneAdminOnly, (req, res) => {
   const submittedToken = cleanEnvValue(req.body?.token);
   const newPassword = cleanEnvValue(req.body?.newPassword);
 
@@ -572,6 +613,9 @@ setInterval(() => {
 // a valid Academy admin session or a valid Hub Admin service signature.
 app.use("/api", (req, res, next) => {
   if (verifyHubAdminRequest(req)) return next();
+  if (!STANDALONE_ADMIN_ENABLED) {
+    return res.status(401).json({ error: "Academy administration is available through Hub Admin only." });
+  }
   const session = getSession(parseCookies(req)[SESSION_COOKIE_NAME]);
   if (!session) {
     return res.status(401).json({ error: "Unauthorized: please log in." });
