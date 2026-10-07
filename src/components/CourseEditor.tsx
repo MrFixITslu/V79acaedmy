@@ -115,7 +115,7 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
   };
 
   return (
-    <div className="p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Top Header & Navigation */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
         <div className="flex items-center space-x-4">
@@ -315,7 +315,7 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
           )}
 
           {activeTab === 'overview' && (
-            <form onSubmit={handleSaveOverview} className="bg-white rounded-2xl border border-slate-200 p-8 space-y-6 shadow-xs max-w-4xl mx-auto">
+            <form onSubmit={handleSaveOverview} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 space-y-6 shadow-xs max-w-4xl mx-auto">
               <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                 <h3 className="text-lg font-bold text-slate-900">Course Metadata & Overview</h3>
                 <button
@@ -462,7 +462,7 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
           )}
 
           {activeTab === 'settings' && (
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 space-y-6 max-w-4xl mx-auto shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto shadow-xs">
               <h3 className="text-lg font-bold text-slate-900">Publishing & Workflow Status</h3>
               <p className="text-xs text-slate-500">Update the internal workflow status, then publish for real once it's ready.</p>
 
