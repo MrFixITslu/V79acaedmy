@@ -1,0 +1,7 @@
+# Robots.txt for V79 Digital Academy (https://academy.v79sl.com)
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /verify/
+
+Sitemap: https://academy.v79sl.com/sitemap.xml
