@@ -13,6 +13,29 @@ interface ModuleLessonManagerProps {
   onOpenQuizBuilder: (lesson: Lesson) => void;
 }
 
+function sanitizeRichTextHtml(html: string): string {
+  if (typeof window === 'undefined' || typeof DOMParser === 'undefined') return '';
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const allowedTags = new Set(['P','BR','STRONG','B','EM','I','U','UL','OL','LI','H1','H2','H3','H4','BLOCKQUOTE','CODE','PRE','A','SPAN']);
+  const elements = Array.from(doc.body.querySelectorAll('*'));
+  for (const element of elements) {
+    if (!allowedTags.has(element.tagName)) {
+      element.replaceWith(...Array.from(element.childNodes));
+      continue;
+    }
+    for (const attr of Array.from(element.attributes)) {
+      const keep = element.tagName === 'A' && ['href','title'].includes(attr.name.toLowerCase());
+      if (!keep) element.removeAttribute(attr.name);
+    }
+    if (element.tagName === 'A') {
+      const href = element.getAttribute('href') || '';
+      if (!/^(https?:\/\/|mailto:|\/|#)/i.test(href)) element.removeAttribute('href');
+      element.setAttribute('rel', 'noopener noreferrer');
+    }
+  }
+  return doc.body.innerHTML;
+}
+
 export function ModuleLessonManager({ course, onOpenQuizBuilder }: ModuleLessonManagerProps) {
   const [modules, setModules] = useState<Module[]>([]);
   const [lessonsMap, setLessonsMap] = useState<{ [moduleId: string]: Lesson[] }>({});
@@ -1153,7 +1176,7 @@ export function ModuleLessonManager({ course, onOpenQuizBuilder }: ModuleLessonM
                                     {block.type === 'Rich Text' && (
                                       <div 
                                         className="text-xs space-y-2 leading-relaxed"
-                                        dangerouslySetInnerHTML={{ __html: block.contentData.html || 'No text content.' }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(block.contentData.html || 'No text content.') }}
                                       />
                                     )}
 
