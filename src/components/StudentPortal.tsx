@@ -111,12 +111,6 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
 
   useEffect(() => {
     fetchAllPublished();
-    try {
-      const savedStudent = JSON.parse(localStorage.getItem('v79_student_user') || 'null');
-      if (savedStudent?.name) setStudentName(savedStudent.name);
-    } catch {
-      // Keep the editable fallback when no student profile exists.
-    }
   }, []);
 
   useEffect(() => {
@@ -134,13 +128,13 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     const timer = setTimeout(async () => {
       try {
         const raw = localStorage.getItem(`v79_programme_state_${learnerId}_${course.id}`);
-        const response = await fetch(`/api/learner/progress/${course.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ completedLessons, assignmentSubmissions, programmeState: raw ? JSON.parse(raw) : undefined }) });
+        const response = await fetch(`/api/learner/progress/${course.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ programmeState: raw ? JSON.parse(raw) : undefined }) });
         if (!response.ok) throw new Error('Progress could not sync. Sign in again to save to your account.');
         setSyncMessage('Progress saved to your account');
       } catch (e: any) { setSyncMessage(e.message); }
     }, 700);
     return () => clearTimeout(timer);
-  }, [course, learnerId, loading, completedLessons, assignmentSubmissions, programmeStatus, programmeRevision]);
+  }, [course, learnerId, loading, programmeStatus, programmeRevision]);
 
   const isCoursePaid = (c: Course | null) => {
     if (!c) return false;
@@ -296,11 +290,24 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   }, [currentLesson]);
 
   // Persist completion status when updated
-  const toggleLessonCompletion = (lessonId: string) => {
+  const toggleLessonCompletion = async (lessonId: string) => {
     if (!course) return;
-    const nextCompleted = { ...completedLessons, [lessonId]: !completedLessons[lessonId] };
-    setCompletedLessons(nextCompleted);
-    localStorage.setItem(`v79_student_progress_${learnerId || "guest"}_${course.id}`, JSON.stringify(nextCompleted));
+    if (!learnerId) {
+      const nextCompleted = { ...completedLessons, [lessonId]: !completedLessons[lessonId] };
+      setCompletedLessons(nextCompleted);
+      localStorage.setItem(`v79_student_progress_guest_${course.id}`, JSON.stringify(nextCompleted));
+      return;
+    }
+    if (completedLessons[lessonId]) return;
+    try {
+      const response = await fetch(`/api/learner/lessons/${lessonId}/complete`, { method: 'POST' });
+      const progress = await response.json();
+      if (!response.ok) throw new Error(progress.error || 'Lesson completion could not be recorded.');
+      setCompletedLessons(progress.completedLessons || {});
+      setSyncMessage('Lesson completion verified and saved');
+    } catch (e: any) {
+      setSyncMessage(e.message);
+    }
   };
 
   // Check if a specific lesson is completed
@@ -367,7 +374,10 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
       const response = await fetch(`/api/public/lessons/${currentLesson.id}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: quizAnswers }) });
       const result = await response.json(); if (!response.ok) throw new Error(result.error);
       setQuizScore(result.score); setQuizSubmitted(true);
-      if (result.score >= activeQuiz.passingScore) setCompletedLessons(current => ({ ...current, [currentLesson.id]: true }));
+      if (result.score >= activeQuiz.passingScore) {
+        setCompletedLessons(current => ({ ...current, [currentLesson.id]: true }));
+        if (learnerId && result.completionRecorded) setSyncMessage('Quiz passed — lesson completion verified and saved');
+      }
     } catch (e: any) { setSyncMessage(e.message); }
   };
   const claimCertificate = async () => {
@@ -381,29 +391,45 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   };
 
   // Handle Assignment Submissions
-  const handleAssignmentSubmit = (assignId: string) => {
-    if (!course || !currentLesson) return;
-    
-    const newSubmission = {
-      text: currentAssignmentText,
-      fileSubmitted: false,
-      submittedAt: new Date().toLocaleDateString()
-    };
+  const handleAssignmentSubmit = async (assignId: string) => {
+    if (!course || !currentLesson || !currentAssignmentText.trim()) return;
 
-    const nextSubmissions = {
-      ...assignmentSubmissions,
-      [assignId]: newSubmission
-    };
+    if (!learnerId) {
+      const newSubmission = {
+        text: currentAssignmentText.trim(),
+        fileSubmitted: false,
+        submittedAt: new Date().toISOString()
+      };
+      const nextSubmissions = { ...assignmentSubmissions, [assignId]: newSubmission };
+      setAssignmentSubmissions(nextSubmissions);
+      localStorage.setItem(`v79_student_submissions_guest_${course.id}`, JSON.stringify(nextSubmissions));
+      const nextCompleted = { ...completedLessons, [currentLesson.id]: true };
+      setCompletedLessons(nextCompleted);
+      localStorage.setItem(`v79_student_progress_guest_${course.id}`, JSON.stringify(nextCompleted));
+      setCurrentAssignmentText('');
+      return;
+    }
 
-    setAssignmentSubmissions(nextSubmissions);
-    localStorage.setItem(`v79_student_submissions_${learnerId || "guest"}_${course.id}`, JSON.stringify(nextSubmissions));
-    
-    // Auto-mark lesson complete upon submitting assignments
-    const nextCompleted = { ...completedLessons, [currentLesson.id]: true };
-    setCompletedLessons(nextCompleted);
-    localStorage.setItem(`v79_student_progress_${learnerId || "guest"}_${course.id}`, JSON.stringify(nextCompleted));
+    try {
+      const response = await fetch(`/api/learner/assignments/${assignId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: currentAssignmentText })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Assignment could not be submitted.');
+      setAssignmentSubmissions(result.progress?.assignmentSubmissions || assignmentSubmissions);
+      setCurrentAssignmentText('');
+      setSyncMessage('Assignment submitted and saved');
 
-    setCurrentAssignmentText('');
+      const completionResponse = await fetch(`/api/learner/lessons/${currentLesson.id}/complete`, { method: 'POST' });
+      if (completionResponse.ok) {
+        const progress = await completionResponse.json();
+        setCompletedLessons(progress.completedLessons || {});
+      }
+    } catch (e: any) {
+      setSyncMessage(e.message);
+    }
   };
 
   // Lightweight Markdown renderer used by seeded course lessons.
@@ -856,7 +882,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         className="flex-1 overflow-y-auto flex flex-col h-full bg-slate-50"
       >
         
-        <div role="status" className="px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex justify-between gap-3"><a href="/academy">← Course catalogue</a><span>{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
+        <div role="status" className="px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex justify-between gap-3"><a href="/">← Course catalogue</a><span>{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
         {/* Dynamic Header */}
         <header className="h-16 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d] px-5 sm:px-8 flex items-center justify-between shrink-0 sticky top-0 z-10 text-slate-200">
           <div className="flex items-center gap-2">
@@ -1755,7 +1781,17 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                   {course.programme ? 'Practical Business Success for Caribbean Entrepreneurs' : `V79 Application Core Focus: ${course.category}`}
                 </p>
                 {issuedCertificateId && (
-                  <p className="text-[9px] text-slate-500 font-mono mt-2">Credential ID: {issuedCertificateId}</p>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-[9px] text-slate-500 font-mono">Credential ID: {issuedCertificateId}</p>
+                    <a
+                      href={`/verify/${encodeURIComponent(issuedCertificateId)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[9px] font-bold text-indigo-700 underline underline-offset-2"
+                    >
+                      Verify this certificate at {window.location.host}/verify/{issuedCertificateId}
+                    </a>
+                  </div>
                 )}
               </div>
 
@@ -1785,7 +1821,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         </div>
       )}
 
-      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">Academy membership</h2><p className="text-slate-600">This course requires an active subscription. Online subscriptions are coming soon.</p><p className="text-sm text-slate-500">Already a member? Sign in with your learner account. Contact the academy administrator if you need access.</p><a href="/academy" className="academy-primary inline-block">Go to my account</a><p className="text-xs text-slate-500">No payment has been taken.</p></section></div>}
+      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">Academy membership</h2><p className="text-slate-600">This course requires an active subscription. Online subscriptions are coming soon.</p><p className="text-sm text-slate-500">Already a member? Sign in with your learner account. Contact the academy administrator if you need access.</p><a href="/" className="academy-primary inline-block">Go to my account</a><p className="text-xs text-slate-500">No payment has been taken.</p></section></div>}
 
     </div>
   );

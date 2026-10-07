@@ -211,7 +211,7 @@ docs/idea-to-advantage-v2-learning-standard.md
 
 
 
-To deploy the Course Builder with PostgreSQL and Nginx Proxy Manager (OpenResty) for **cb.v79sl.duckdns.org**:
+To deploy V79 Academy behind Nginx Proxy Manager at **academy.v79sl.com**:
 
 1. **Ensure `proxy_network` exists**:
    ```bash
@@ -223,34 +223,33 @@ To deploy the Course Builder with PostgreSQL and Nginx Proxy Manager (OpenResty)
    docker compose up --build -d
    ```
 
-3. **Configure Nginx Proxy Manager UI (for `cb.v79sl.duckdns.org`)**:
+3. **Configure Nginx Proxy Manager UI (for `academy.v79sl.com`)**:
    - In your **Nginx Proxy Manager UI**:
-     - **Domain Names**: `cb.v79sl.duckdns.org`
+     - **Domain Names**: `academy.v79sl.com`
      - **Scheme**: `http`
      - **Forward Hostname / IP**: `v79_course_builder` (or server IP)
      - **Forward Port**: `3030`
      - **Websockets Support**: **Enabled** (ON)
      - **Block Common Exploits**: **Enabled** (ON)
 
-> 💡 **Port 3030 & Domain Setup (`cb.v79sl.duckdns.org`)**:
+> 💡 **Port 3030 & Domain Setup (`academy.v79sl.com`)**:
 > - The production Docker image defaults to **port 3030** and exposes **3030**.
 > - Docker Compose also sets `PORT=3030`.
-> - Direct host access is available at `http://cb.v79sl.duckdns.org:3030` or `http://localhost:3030`.
+> - Public traffic should reach the app only through Nginx Proxy Manager. The container is available internally as `v79_course_builder:3030` on `proxy_network`.
 > - If forwarding in Nginx Proxy Manager to container `v79_course_builder`, set **Forward Port** to `3030`.
 > - Container/orchestrator health checks may use `/healthz`; a healthy app returns `{"status":"ok"}`.
 
 ### Academy portal and memberships
 
-The public learning catalogue is at `/academy`; the authoring studio remains at `/`.
+The public learning catalogue is at `/`. Academy authoring and administration live in Hub Admin; the standalone Course Builder browser UI is disabled in production.
 Application filters and course counts are calculated from the current catalogue. Creating,
 importing, deleting and changing course status refreshes the admin list. The learner catalogue
 refreshes on return to the tab and every 30 seconds. Only Published/Uploaded courses appear.
 Deleting a linked website course removes its remote entry first; if the website cannot be
 reached, deletion returns an error and preserves the local record for retry. Unpublishing a
 linked course follows the same rule. Set the Academy app's `ACADEMY_PUBLIC_URL` to
-`https://v79academy.v79sl.com` (without `/academy`); website course links are built
-at `/course/:id`, while the learner catalogue is `https://v79academy.v79sl.com/academy`.
-Set the Hub app's `ACADEMY_PUBLIC_URL` to that full learner catalogue URL.
+`https://academy.v79sl.com`; website course links are built at `/course/:id`, while the learner catalogue is the domain root.
+Set the Hub app's `ACADEMY_PUBLIC_URL` to `https://academy.v79sl.com`.
 The Academy setting generates website publication links; existing remote entries should be
 republished once to update their links. Curriculum edits still require the explicit Publish action.
 

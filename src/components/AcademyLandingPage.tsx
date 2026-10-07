@@ -56,7 +56,6 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
     try {
       const r = await fetch(`/api/learner/${auth}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) }); const data = await r.json();
       if (!r.ok) throw new Error(data.error); setUser(data.user); setAuth('');
-      localStorage.setItem('v79_student_user', JSON.stringify(data.user));
       if (pending) { await start(pending, data.user); setPending(null); }
     } catch (e: any) { setAuthError(e.message); } finally { setBusy(false); }
   };
@@ -70,12 +69,12 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
     <a href="#course-catalog" className="sr-only focus:not-sr-only">Skip to courses</a>
     <header className="sticky top-0 z-30 border-b border-[#17324d] bg-[#07111f]/95 backdrop-blur-xl px-5 sm:px-10 text-white">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 py-4">
-        <a href="/academy" className="flex items-center gap-3 font-black text-lg"><GraduationCap className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] p-2 text-white"/>V79 Digital Academy</a>
+        <a href="/" className="flex items-center gap-3 font-black text-lg"><GraduationCap className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#14B8A6] to-[#0A86FF] p-2 text-white"/>V79 Digital Academy</a>
         <nav aria-label="Academy navigation" className="flex items-center gap-2 text-sm font-semibold">
           <a href="https://hub.v79sl.com/" className="academy-tab">Back to Hub</a>
           <button className={tab === 'catalog' ? 'academy-tab active' : 'academy-tab'} onClick={() => { setTab('catalog'); setDetail(null); }}>Explore</button>
           {user && <button className={tab === 'learning' ? 'academy-tab active' : 'academy-tab'} onClick={() => { setTab('learning'); setDetail(null); }}>My learning</button>}
-          {user ? <button className="academy-tab" aria-label="Sign out" onClick={async () => { await fetch('/api/learner/logout', { method: 'POST' }); localStorage.removeItem('v79_student_user'); setUser(null); setTab('catalog'); }}><LogOut size={18}/></button> : <button className="academy-primary" onClick={() => { setAuth('login'); setAuthError(''); }}>Sign in</button>}
+          {user ? <button className="academy-tab" aria-label="Sign out" onClick={async () => { await fetch('/api/learner/logout', { method: 'POST' }); setUser(null); setTab('catalog'); }}><LogOut size={18}/></button> : <button className="academy-primary" onClick={() => { setAuth('login'); setAuthError(''); }}>Sign in</button>}
         </nav>
       </div>
     </header>
@@ -121,7 +120,7 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
         </>}
       </>}
     </main>
-    <footer className="border-t px-6 py-8 mt-12 text-sm text-slate-500 flex flex-wrap justify-between gap-4"><span>© {new Date().getFullYear()} V79 Digital Academy - From Idea to Advantage</span><a href="/">Authoring studio</a></footer>
+    <footer className="border-t px-6 py-8 mt-12 text-sm text-slate-500 flex flex-wrap justify-between gap-4"><span>© {new Date().getFullYear()} V79 Digital Academy - From Idea to Advantage</span><a href="https://hub.v79sl.com/">V79 Hub</a></footer>
     {auth && <div className="fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center p-5" onKeyDown={e => { if (e.key === 'Escape') setAuth(''); }}><section role="dialog" aria-modal="true" aria-labelledby="auth-heading" className="bg-white rounded-3xl w-full max-w-md p-8 relative"><button aria-label="Close sign in" className="absolute top-4 right-4 p-2" onClick={() => setAuth('')}><X size={20}/></button><GraduationCap className="text-indigo-600 mb-5" size={36}/><h2 id="auth-heading" className="text-2xl font-bold">{auth === 'login' ? 'Welcome back' : 'Start your learning journey'}</h2><p className="text-sm text-slate-500 mt-2 mb-6">Save your progress and keep your courses together.</p>{authError && <p role="alert" className="bg-rose-50 text-rose-800 p-3 rounded-xl mb-4">{authError}</p>}<form onSubmit={authenticate} className="space-y-4">{auth === 'register' && <label className="block text-sm font-semibold">Full name<input name="name" required autoComplete="name" className="academy-input"/></label>}<label className="block text-sm font-semibold">Email<input name="email" type="email" required autoFocus autoComplete="email" className="academy-input"/></label><label className="block text-sm font-semibold">Password<input name="password" type="password" required minLength={12} maxLength={256} autoComplete={auth === 'login' ? 'current-password' : 'new-password'} className="academy-input"/><span className="text-xs text-slate-500 font-normal">At least 12 characters</span></label><button disabled={busy} className="academy-primary w-full">{busy ? 'Please wait…' : auth === 'login' ? 'Sign in' : 'Create account'}</button></form><button className="text-indigo-700 text-sm font-semibold mt-6" onClick={() => { setAuth(auth === 'login' ? 'register' : 'login'); setAuthError(''); }}>{auth === 'login' ? 'New here? Create an account' : 'Already registered? Sign in'}</button><p className="mt-4 text-xs text-slate-500">Forgot your password? Contact your academy administrator for a reset.</p></section></div>}
   </div>;
 }

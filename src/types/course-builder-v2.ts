@@ -91,6 +91,8 @@ export interface CourseVersion {
     quizzes: any[];
     assignments: any[];
     downloads: any[];
+    assets?: any[];
+    media?: any[];
   };
   exportedBy: string;
   exportedAt: string;

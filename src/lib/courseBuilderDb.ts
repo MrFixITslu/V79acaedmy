@@ -157,9 +157,11 @@ export class CourseRepository {
     const db = loadDb();
     const idx = db.courses.findIndex((c) => c.id === id);
     if (idx === -1) return null;
+    const current = db.courses[idx];
     db.courses[idx] = {
-      ...db.courses[idx],
+      ...current,
       ...updates,
+      id: current.id,
       updatedAt: new Date().toISOString()
     };
     saveDb(db);
@@ -200,7 +202,8 @@ export class ModuleRepository {
     const db = loadDb();
     const idx = db.modules.findIndex((m) => m.id === id);
     if (idx === -1) return null;
-    db.modules[idx] = { ...db.modules[idx], ...updates };
+    const current = db.modules[idx];
+    db.modules[idx] = { ...current, ...updates, id: current.id, courseId: current.courseId };
     saveDb(db);
     return db.modules[idx];
   }
@@ -244,7 +247,8 @@ export class LessonRepository {
     const db = loadDb();
     const idx = db.lessons.findIndex((l) => l.id === id);
     if (idx === -1) return null;
-    db.lessons[idx] = { ...db.lessons[idx], ...updates };
+    const current = db.lessons[idx];
+    db.lessons[idx] = { ...current, ...updates, id: current.id, courseId: current.courseId, moduleId: current.moduleId };
     saveDb(db);
     return db.lessons[idx];
   }
@@ -283,9 +287,12 @@ export class ContentBlockRepository {
     const db = loadDb();
     const idx = db.contentBlocks.findIndex((cb) => cb.id === id);
     if (idx === -1) return null;
+    const current = db.contentBlocks[idx];
     db.contentBlocks[idx] = {
-      ...db.contentBlocks[idx],
+      ...current,
       ...updates,
+      id: current.id,
+      lessonId: current.lessonId,
       updatedAt: new Date().toISOString()
     };
     saveDb(db);
@@ -395,9 +402,14 @@ export class AssignmentRepository {
     const db = loadDb();
     const idx = db.assignments.findIndex((a) => a.id === id);
     if (idx === -1) return null;
+    const current = db.assignments[idx];
     db.assignments[idx] = {
-      ...db.assignments[idx],
+      ...current,
       ...updates,
+      id: current.id,
+      courseId: current.courseId,
+      moduleId: current.moduleId,
+      lessonId: current.lessonId,
       updatedAt: new Date().toISOString()
     };
     saveDb(db);
@@ -436,7 +448,8 @@ export class DownloadRepository {
     const db = loadDb();
     const idx = db.downloads.findIndex((d) => d.id === id);
     if (idx === -1) return null;
-    db.downloads[idx] = { ...db.downloads[idx], ...updates };
+    const current = db.downloads[idx];
+    db.downloads[idx] = { ...current, ...updates, id: current.id, courseId: current.courseId, lessonId: current.lessonId };
     saveDb(db);
     return db.downloads[idx];
   }
@@ -523,6 +536,8 @@ export class CourseBuilderService {
     const quizzes = db.quizzes.filter((q) => lessonIds.includes(q.lessonId));
     const assignments = db.assignments.filter((a) => a.courseId === courseId);
     const downloads = db.downloads.filter((d) => d.courseId === courseId);
+    const assets = db.assets.filter((a: any) => a.courseId === courseId);
+    const media = db.media.filter((m: any) => m.courseId === courseId);
 
     const snapshot = {
       course: JSON.parse(JSON.stringify(course)),
@@ -531,7 +546,9 @@ export class CourseBuilderService {
       contentBlocks: JSON.parse(JSON.stringify(contentBlocks)),
       quizzes: JSON.parse(JSON.stringify(quizzes)),
       assignments: JSON.parse(JSON.stringify(assignments)),
-      downloads: JSON.parse(JSON.stringify(downloads))
+      downloads: JSON.parse(JSON.stringify(downloads)),
+      assets: JSON.parse(JSON.stringify(assets)),
+      media: JSON.parse(JSON.stringify(media))
     };
 
     const newVersion: CourseVersion = {
@@ -559,18 +576,24 @@ export class CourseBuilderService {
 
     const db = loadDb();
 
-    // 1. Remove current elements
+    // 1. Remove the current course footprint. Use the current lesson IDs, not
+    // the snapshot lesson IDs, otherwise content created after the restore point
+    // survives as orphaned records.
+    const currentLessonIds = new Set(
+      db.lessons.filter((l) => l.courseId === courseId).map((l) => l.id)
+    );
     db.courses = db.courses.filter((c) => c.id !== courseId);
     db.modules = db.modules.filter((m) => m.courseId !== courseId);
     db.lessons = db.lessons.filter((l) => l.courseId !== courseId);
-
-    const lessonIds = cv.snapshot.lessons.map((l) => l.id);
-    db.contentBlocks = db.contentBlocks.filter((cb) => !lessonIds.includes(cb.lessonId));
-    db.quizzes = db.quizzes.filter((q) => !lessonIds.includes(q.lessonId));
+    db.contentBlocks = db.contentBlocks.filter((cb) => !currentLessonIds.has(cb.lessonId));
+    db.quizzes = db.quizzes.filter((q) => !currentLessonIds.has(q.lessonId));
     db.assignments = db.assignments.filter((a) => a.courseId !== courseId);
     db.downloads = db.downloads.filter((d) => d.courseId !== courseId);
+    db.assets = db.assets.filter((a: any) => a.courseId !== courseId);
+    db.media = db.media.filter((m: any) => m.courseId !== courseId);
 
-    // 2. Re-insert snapshots
+    // 2. Re-insert snapshots. Older snapshots did not include assets/media,
+    // so treat those collections as optional for backwards compatibility.
     db.courses.push(cv.snapshot.course);
     db.modules.push(...cv.snapshot.modules);
     db.lessons.push(...cv.snapshot.lessons);
@@ -578,6 +601,8 @@ export class CourseBuilderService {
     db.quizzes.push(...cv.snapshot.quizzes);
     db.assignments.push(...cv.snapshot.assignments);
     db.downloads.push(...cv.snapshot.downloads);
+    db.assets.push(...(cv.snapshot.assets || []));
+    db.media.push(...(cv.snapshot.media || []));
 
     // Sync back version string in the course
     const targetIdx = db.courses.findIndex((c) => c.id === courseId);
@@ -662,14 +687,56 @@ export class CourseBuilderService {
       courseObj.id = courseId;
       courseObj.status = 'Imported'; // Required Course Status on successful imports
 
-      // Wipe previous course footprint to cleanly replace
+      // Reject package IDs that belong to another course. IDs are used as
+      // global lookup keys throughout the admin APIs, so a collision could
+      // otherwise shadow or delete unrelated course records during import.
+      const existingLessonIds = new Set(
+        db.lessons.filter((l) => l.courseId === courseId).map((l) => l.id)
+      );
+      const otherModuleIds = new Set(db.modules.filter((m) => m.courseId !== courseId).map((m) => m.id));
+      const otherLessonIds = new Set(db.lessons.filter((l) => l.courseId !== courseId).map((l) => l.id));
+      const otherContentBlockIds = new Set(db.contentBlocks.filter((cb) => !existingLessonIds.has(cb.lessonId)).map((cb) => cb.id));
+      const otherQuizIds = new Set(db.quizzes.filter((q) => !existingLessonIds.has(q.lessonId)).map((q) => q.id));
+      const otherAssignmentIds = new Set(db.assignments.filter((a) => a.courseId !== courseId).map((a) => a.id));
+      const otherDownloadIds = new Set(db.downloads.filter((d) => d.courseId !== courseId).map((d) => d.id));
+
+      const packageModulesForValidation = Array.isArray(packageData.modules) ? packageData.modules : [];
+      for (const mod of packageModulesForValidation) {
+        if (mod?.id && otherModuleIds.has(mod.id)) throw new Error('Invalid course package: module ID collides with another course');
+        const lessons = Array.isArray(mod?.lessons) ? mod.lessons : [];
+        for (const les of lessons) {
+          if (les?.id && otherLessonIds.has(les.id)) throw new Error('Invalid course package: lesson ID collides with another course');
+          const blocks = Array.isArray(les?.contentBlocks) ? les.contentBlocks : [];
+          if (blocks.some((cb: any) => cb?.id && otherContentBlockIds.has(cb.id))) {
+            throw new Error('Invalid course package: content block ID collides with another course');
+          }
+        }
+      }
+      const packageQuizzesForValidation = Array.isArray(packageData.quizzes) ? packageData.quizzes : [];
+      if (packageQuizzesForValidation.some((q: any) => q?.id && otherQuizIds.has(q.id))) {
+        throw new Error('Invalid course package: quiz ID collides with another course');
+      }
+      const packageAssignmentsForValidation = Array.isArray(packageData.assignments) ? packageData.assignments : [];
+      if (packageAssignmentsForValidation.some((a: any) => a?.id && otherAssignmentIds.has(a.id))) {
+        throw new Error('Invalid course package: assignment ID collides with another course');
+      }
+      const packageDownloadsForValidation = Array.isArray(packageData.downloads) ? packageData.downloads : [];
+      if (packageDownloadsForValidation.some((d: any) => d?.id && otherDownloadIds.has(d.id))) {
+        throw new Error('Invalid course package: download ID collides with another course');
+      }
+
+      // Wipe the previous course footprint cleanly before replacement.
       db.courses = db.courses.filter((c) => c.id !== courseId);
       db.modules = db.modules.filter((m) => m.courseId !== courseId);
       db.lessons = db.lessons.filter((l) => l.courseId !== courseId);
+      db.contentBlocks = db.contentBlocks.filter((cb) => !existingLessonIds.has(cb.lessonId));
+      db.quizzes = db.quizzes.filter((q) => !existingLessonIds.has(q.lessonId));
       db.assignments = db.assignments.filter((a) => a.courseId !== courseId);
       db.downloads = db.downloads.filter((d) => d.courseId !== courseId);
+      db.assets = db.assets.filter((a: any) => a.courseId !== courseId);
+      db.media = db.media.filter((m: any) => m.courseId !== courseId);
 
-      db.courses.push(courseObj);
+      db.courses.push({ ...courseObj, id: courseId, status: 'Imported' });
 
       // Import Modules & Lessons cleanly
       const packageModules = packageData.modules || [];
@@ -725,9 +792,16 @@ export class CourseBuilderService {
         });
       });
 
-      // Import standalone Quizzes if present
-      const packageQuizzes = packageData.quizzes || [];
+      const importedModuleIds = new Set(db.modules.filter((m) => m.courseId === courseId).map((m) => m.id));
+      const importedLessonIds = new Set(db.lessons.filter((l) => l.courseId === courseId).map((l) => l.id));
+
+      // Import standalone Quizzes if present. Reject cross-course references:
+      // a malformed package must never overwrite another course's quiz.
+      const packageQuizzes = Array.isArray(packageData.quizzes) ? packageData.quizzes : [];
       packageQuizzes.forEach((quiz: any) => {
+        if (!quiz.lessonId || !importedLessonIds.has(quiz.lessonId)) {
+          throw new Error('Invalid course package: quiz references a lesson outside the imported course');
+        }
         const quizId = quiz.id || `quiz-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
         db.quizzes = db.quizzes.filter((q) => q.id !== quizId && q.lessonId !== quiz.lessonId);
         db.quizzes.push({
@@ -739,9 +813,15 @@ export class CourseBuilderService {
         });
       });
 
-      // Import standalone Assignments if present
-      const packageAssignments = packageData.assignments || [];
+      // Import standalone Assignments if present.
+      const packageAssignments = Array.isArray(packageData.assignments) ? packageData.assignments : [];
       packageAssignments.forEach((assign: any, aIdx: number) => {
+        if (assign.moduleId && !importedModuleIds.has(assign.moduleId)) {
+          throw new Error('Invalid course package: assignment references a module outside the imported course');
+        }
+        if (assign.lessonId && !importedLessonIds.has(assign.lessonId)) {
+          throw new Error('Invalid course package: assignment references a lesson outside the imported course');
+        }
         db.assignments.push({
           id: assign.id || `assign-${Date.now()}-${aIdx}`,
           courseId,
@@ -756,9 +836,12 @@ export class CourseBuilderService {
         });
       });
 
-      // Import standalone Downloads if present
-      const packageDownloads = packageData.downloads || [];
+      // Import standalone Downloads if present.
+      const packageDownloads = Array.isArray(packageData.downloads) ? packageData.downloads : [];
       packageDownloads.forEach((dl: any, dIdx: number) => {
+        if (dl.lessonId && !importedLessonIds.has(dl.lessonId)) {
+          throw new Error('Invalid course package: download references a lesson outside the imported course');
+        }
         db.downloads.push({
           id: dl.id || `dl-${Date.now()}-${dIdx}`,
           courseId,

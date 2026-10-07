@@ -135,8 +135,22 @@ function readLearners(): any[] {
   }
 }
 
-function safeLearner(u: any) {
-  return u ? { id: u.id, name: u.name, email: u.email, enrolledCourseIds: u.enrolledCourseIds || [] } : null;
+function learnerSummary(u: any, includeEmail = false) {
+  if (!u) return null;
+  return {
+    id: u.id,
+    name: u.name,
+    enrolledCourseIds: u.enrolledCourseIds || [],
+    ...(includeEmail ? { email: u.email } : {})
+  };
+}
+
+function learnerSubmission(submission: JuniorSubmission, viewerId: string): JuniorSubmission {
+  const ownReflection = submission.individualReflections?.[viewerId];
+  return {
+    ...submission,
+    individualReflections: ownReflection ? { [viewerId]: ownReflection } : {}
+  };
 }
 
 function cleanText(value: any, max = 4000): string {
@@ -166,13 +180,16 @@ function requireCourseAccess(req: express.Request, res: express.Response) {
   return { user, course };
 }
 
-function decorateTeam(team: JuniorTeam, learners: any[], store: JuniorStore) {
+function decorateTeam(team: JuniorTeam, learners: any[], store: JuniorStore, viewerId?: string) {
   return {
     ...team,
-    members: team.memberIds.map(id => safeLearner(learners.find(l => l.id === id))).filter(Boolean),
+    members: team.memberIds
+      .map(id => learnerSummary(learners.find(l => l.id === id), !viewerId))
+      .filter(Boolean),
     submissions: store.submissions
       .filter(s => s.teamId === team.id)
       .sort((a, b) => a.missionNumber - b.missionNumber)
+      .map(s => viewerId ? learnerSubmission(s, viewerId) : s)
   };
 }
 
@@ -184,7 +201,7 @@ juniorLearnerRouter.get('/:courseId/team', (req, res) => {
   const store = readStore();
   const team = teamForLearner(store, req.params.courseId, access.user.id);
   if (!team) return res.json({ team: null, message: 'Your instructor has not assigned you to a studio team yet.' });
-  res.json({ team: decorateTeam(team, readLearners(), store) });
+  res.json({ team: decorateTeam(team, readLearners(), store, access.user.id) });
 });
 
 juniorLearnerRouter.put('/:courseId/team', (req, res) => {
@@ -208,7 +225,7 @@ juniorLearnerRouter.put('/:courseId/team', (req, res) => {
   }
   team.updatedAt = new Date().toISOString();
   writeStore(store);
-  res.json({ team: decorateTeam(team, readLearners(), store) });
+  res.json({ team: decorateTeam(team, readLearners(), store, access.user.id) });
 });
 
 juniorLearnerRouter.put('/:courseId/tasks', (req, res) => {
@@ -293,7 +310,7 @@ juniorLearnerRouter.put('/:courseId/reflections/:missionNumber', (req, res) => {
   };
   submission.updatedAt = new Date().toISOString();
   writeStore(store);
-  res.json({ submission });
+  res.json({ submission: learnerSubmission(submission, access.user.id) });
 });
 
 juniorLearnerRouter.post('/:courseId/submissions/:missionNumber', (req, res) => {
@@ -352,7 +369,7 @@ juniorLearnerRouter.post('/:courseId/submissions/:missionNumber', (req, res) => 
   submission.updatedAt = submission.submittedAt;
   submission.revision += 1;
   writeStore(store);
-  res.json({ submission });
+  res.json({ submission: learnerSubmission(submission, access.user.id) });
 });
 
 juniorLearnerRouter.post('/:courseId/conflicts', (req, res) => {
@@ -468,7 +485,7 @@ juniorAdminRouter.post('/:courseId/auto-form', (req, res) => {
   }
   store.teams.push(...created);
   writeStore(store);
-  const unassigned = remaining.slice(fullTeamCount * 3).map(safeLearner).filter(Boolean);
+  const unassigned = remaining.slice(fullTeamCount * 3).map(l => learnerSummary(l, true)).filter(Boolean);
   res.json({ created: created.length, teams: created.map(t => decorateTeam(t, learners, store)), unassigned });
 });
 
