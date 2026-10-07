@@ -23,8 +23,8 @@ export function Header({
   setUserRole
 }: HeaderProps) {
   return (
-    <header className="min-h-[72px] flex-wrap gap-3 py-3 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d]/80 px-4 sm:px-5 xl:px-7 flex items-center justify-between sticky top-0 z-30">
-      <div className="flex items-center space-x-4 flex-1 max-w-xl">
+    <header className="min-h-[64px] flex-wrap gap-2 sm:gap-3 py-2 sm:py-3 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d]/80 px-3 sm:px-5 xl:px-7 flex items-center justify-between sticky top-0 z-30">
+      <div className="flex min-w-0 items-center gap-2 sm:space-x-4 flex-1 max-w-xl">
         <div className="relative w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -43,13 +43,13 @@ export function Header({
         )}
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-2 sm:space-x-4">
         <button
           onClick={onOpenAiAssistant}
           className="inline-flex items-center space-x-2 px-3.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-[#14B8A6]/12 text-[#68e6d4] border border-[#14B8A6]/30 hover:bg-[#14B8A6]/20 transition-all shrink-0"
         >
           <Sparkles className="w-4 h-4" />
-          <span>AI Course Architect</span>
+          <span className="hidden sm:inline">AI Course Architect</span>
         </button>
 
         <button
@@ -57,10 +57,10 @@ export function Header({
           className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#14B8A6] to-[#0A86FF] text-white hover:brightness-110 shadow-[0_8px_28px_rgba(20,184,166,.14)] transition-all shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>Create Course</span>
+          <span className="hidden sm:inline">Create Course</span>
         </button>
 
-        <div className="h-6 w-px bg-[#17324d] mx-1 shrink-0"></div>
+        <div className="hidden sm:block h-6 w-px bg-[#17324d] mx-1 shrink-0"></div>
 
 
 
