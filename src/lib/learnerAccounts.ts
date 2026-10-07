@@ -4,10 +4,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { scoreFinalExam } from './programmeScoring';
 import { loadDb } from './courseBuilderDb';
-import { canReadCourse, hasMembership } from './academyAccess';
+import { canReadCourse, hasMembership, requiresSubscription } from './academyAccess';
 import { queueAcademyEvent } from './platformEvents';
 import { issueLearnerSession, learnerSessionUserId, revokeLearnerSession, revokeLearnerSessionsForUser } from './learnerSessions';
 import { issueCertificate } from './certificateRegistry';
+import { createAcademyCourseOrder, getAcademyBillingCapabilities, getAcademyOrderStatus } from './billingClient';
 
 const file = path.join(process.cwd(), 'data', 'learners.json');
 function read(): any[] { return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : []; }
@@ -45,7 +46,23 @@ export function learner(req: express.Request) {
 function publicUser(u: any) { return { id: u.id, email: u.email, name: u.name, membershipStatus: hasMembership(u) ? 'active' : 'inactive', membershipExpiresAt: u.membershipExpiresAt, enrolledCourseIds: u.enrolledCourseIds || [] }; }
 function cookie(req: express.Request, value: string, age: number) { return `academy_session=${value}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${age}${req.secure || process.env.NODE_ENV === 'production' ? '; Secure' : ''}`; }
 export const learnerRouter = express.Router();
-learnerRouter.get('/session', (req, res) => { const u = learner(req); res.json({ user: u ? publicUser(u) : null, billing: { provider: 'stripe', available: false } }); });
+learnerRouter.get('/session', async (req, res) => {
+  const u = learner(req);
+  let billing = { provider: 'wipay', managedBy: 'v79-hub', available: false, environment: null as string | null, currency: null as string | null };
+  try {
+    const capabilities = await getAcademyBillingCapabilities();
+    billing = {
+      provider: 'wipay',
+      managedBy: 'v79-hub',
+      available: Boolean(capabilities?.checkoutAvailable),
+      environment: capabilities?.provider?.environment || null,
+      currency: capabilities?.provider?.currency || null,
+    };
+  } catch {
+    // Billing capability failure must never break learner sign-in/session access.
+  }
+  res.json({ user: u ? publicUser(u) : null, billing });
+});
 for (const action of ['register', 'login']) learnerRouter.post('/' + action, (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
@@ -219,7 +236,87 @@ export function recordLearnerQuizPass(req: express.Request, lessonId: string, sc
   return true;
 }
 
-learnerRouter.post('/checkout', (_req, res) => res.status(503).json({ code: 'BILLING_NOT_CONFIGURED', error: 'Online subscriptions are coming soon. No payment has been taken.' }));
+learnerRouter.post('/checkout', async (req, res) => {
+  const current = learner(req);
+  const users = read();
+  const user = users.find(u => u.id === current.id);
+  const courseId = String(req.body?.courseId || '').trim();
+  const course = loadDb().courses.find((c: any) => c.id === courseId && ['Published', 'Uploaded'].includes(c.status));
+  if (!user || !course) return res.status(404).json({ error: 'Course is no longer available.' });
+  if (!requiresSubscription(course)) return res.status(400).json({ error: 'This course does not require payment.' });
+  if (canReadCourse(course, user)) return res.json({ alreadyHasAccess: true, user: publicUser(user) });
+  if (course.pricingType !== 'premium') {
+    return res.status(409).json({ code: 'RECURRING_BILLING_NOT_ENABLED', error: 'Recurring Academy subscriptions are not enabled yet. No payment has been taken.' });
+  }
+  const amount = Number(course.price);
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 100000) {
+    return res.status(409).json({ code: 'COURSE_PRICE_NOT_CONFIGURED', error: 'This paid course does not have a valid checkout price.' });
+  }
+  try {
+    const result = await createAcademyCourseOrder({
+      learnerId: user.id,
+      courseId: course.id,
+      courseTitle: course.title,
+      amount,
+      returnPath: `/course/${encodeURIComponent(course.id)}`,
+    });
+    return res.status(201).json(result);
+  } catch (error: any) {
+    return res.status(error?.status || 503).json({ code: 'BILLING_UNAVAILABLE', error: error?.message || 'V79 Billing is unavailable. No payment has been taken.' });
+  }
+});
+
+learnerRouter.post('/checkout/confirm', async (req, res) => {
+  const current = learner(req);
+  const orderId = String(req.body?.orderId || '').trim();
+  if (!/^v79_[A-Za-z0-9_]+$/.test(orderId) || orderId.length > 64) return res.status(400).json({ error: 'Invalid billing order.' });
+  try {
+    const result = await getAcademyOrderStatus(orderId);
+    const order = result?.order;
+    if (!order || order.sourceApp !== 'academy' || order.kind !== 'course' || order.subjectReference !== current.id) {
+      return res.status(403).json({ error: 'This payment order does not belong to the signed-in learner.' });
+    }
+    if (order.status !== 'paid') return res.status(409).json({ code: 'PAYMENT_NOT_VERIFIED', error: 'The payment has not been verified by V79 Billing.' });
+    if (order.providerEnvironment !== 'live') {
+      return res.status(409).json({
+        code: 'SANDBOX_PAYMENT_VERIFIED',
+        error: 'WiPay sandbox payment verified successfully. Test payments do not unlock paid courses.'
+      });
+    }
+
+    const users = read();
+    const user = users.find(u => u.id === current.id);
+    const course = loadDb().courses.find((c: any) => c.id === order.externalReference && ['Published', 'Uploaded'].includes(c.status));
+    if (!user || !course) return res.status(404).json({ error: 'The purchased course is no longer available.' });
+
+    user.enrolledCourseIds = [...new Set([...(user.enrolledCourseIds || []), course.id])];
+    user.coursePurchases ||= [];
+    if (!user.coursePurchases.some((purchase: any) => purchase.orderId === order.id)) {
+      user.coursePurchases.push({
+        orderId: order.id,
+        courseId: course.id,
+        amount: order.amount,
+        currency: order.currency,
+        provider: 'wipay',
+        providerEnvironment: order.providerEnvironment,
+        providerTransactionId: order.providerTransactionId || null,
+        paidAt: order.paidAt || new Date().toISOString(),
+      });
+      safeQueueAcademyEvent({
+        type: 'course.purchased',
+        occurredAt: order.paidAt || new Date().toISOString(),
+        organizationRef: user.id,
+        subjectId: user.id,
+        correlationId: order.id,
+        payload: { courseId: course.id, courseTitle: course.title, amount: order.amount, currency: order.currency }
+      });
+    }
+    write(users);
+    return res.json({ success: true, courseId: course.id, user: publicUser(user), order: { id: order.id, amount: order.amount, currency: order.currency, paidAt: order.paidAt } });
+  } catch (error: any) {
+    return res.status(error?.status || 503).json({ code: 'BILLING_UNAVAILABLE', error: error?.message || 'Could not verify the V79 Billing order.' });
+  }
+});
 export const learnerAdminRouter = express.Router();
 learnerAdminRouter.get('/', (_req, res) => res.json(read().map(publicUser)));
 learnerAdminRouter.put('/:id/membership', (req, res) => {

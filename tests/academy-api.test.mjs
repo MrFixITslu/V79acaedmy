@@ -115,7 +115,8 @@ try {
   await api(`/api/public/lessons/${lesson.id}/content-blocks`,{status:403});
   await api(`/api/public/courses/${premium.id}/assignments`,{status:403});
   await api(`/api/learner/enroll/${premium.id}`,{method:'POST',cookie:learner,status:403});
-  await api('/api/learner/checkout',{method:'POST',cookie:learner,status:503});
+  const subscriptionCheckout=await api('/api/learner/checkout',{method:'POST',cookie:learner,body:{courseId:premium.id},status:409});
+  assert.equal(subscriptionCheckout.data.code,'RECURRING_BILLING_NOT_ENABLED');
   await api(`/api/learners/${account.data.user.id}/membership`,{method:'PUT',cookie:admin,body:{status:'active',expiresAt:'2000-01-01'},status:400});
   await api(`/api/learners/${account.data.user.id}/membership`,{method:'PUT',cookie:admin,body:{status:'active',expiresAt:new Date(Date.now()+86400000).toISOString()}});
   await api(`/api/learner/enroll/${premium.id}`,{method:'POST',cookie:learner});
