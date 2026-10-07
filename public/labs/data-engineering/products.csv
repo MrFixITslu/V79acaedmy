@@ -1,0 +1,7 @@
+product_id,product_name,category,unit_cost
+P001,WiFi Access Point,ICT,165.00
+P002,Network Switch,ICT,240.00
+P003,Office Chair,Office,110.00
+P004,Barcode Scanner,Retail,85.00
+P005,POS Tablet,Retail,320.00
+P006,Cloud Support Hour,Service,45.00
