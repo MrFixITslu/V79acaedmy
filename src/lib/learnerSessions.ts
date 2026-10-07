@@ -53,10 +53,8 @@ export function issueLearnerSession(userId: string, ttlMs = 12 * 60 * 60 * 1000)
 export function learnerSessionUserId(token: string | undefined | null) {
   if (!token) return null;
   const now = Date.now();
-  const records = readSessions();
-  const live = active(records, now);
-  if (live.length !== records.length) writeSessions(live);
-  const match = live.find(record => record.tokenHash === hashToken(token));
+  const digest = hashToken(token);
+  const match = readSessions().find(record => record.tokenHash === digest && Date.parse(record.expiresAt) > now);
   return match?.userId || null;
 }
 
