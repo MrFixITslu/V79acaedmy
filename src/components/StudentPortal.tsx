@@ -30,7 +30,8 @@ import {
   Info,
   Layers,
   Sparkle,
-  BarChart3
+  BarChart3,
+  Menu
 } from 'lucide-react';
 import { Course, Module, Lesson, Quiz } from '../types';
 import { ContentBlock, Assignment, Download as DownloadType } from '../types/course-builder-v2';
@@ -51,6 +52,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [currentModuleIndex, setCurrentModuleIndex] = useState<number>(0);
   const [showProgrammeHub, setShowProgrammeHub] = useState<boolean>(false);
+  const [courseNavOpen, setCourseNavOpen] = useState<boolean>(false);
   const [programmeStatus, setProgrammeStatus] = useState<ProgrammeStatus | null>(null);
   
   // Custom public-only sub-collections
@@ -722,13 +724,31 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     : 'Academy membership';
 
   return (
-    <div className="v79-academy-classroom classroom-shell min-h-screen bg-slate-50 flex text-slate-800 font-sans antialiased overflow-hidden h-screen">
+    <div className="v79-academy-classroom classroom-shell min-h-screen h-[100dvh] bg-slate-50 flex text-slate-800 font-sans antialiased overflow-hidden">
       
       {/* 1. Left Navigation Sidebar (Classroom Index) */}
-      <aside className="academy-classroom-nav w-80 bg-[#06101d] border-r border-[#17324d] flex flex-col shrink-0 h-full overflow-hidden text-slate-200">
+      {courseNavOpen && (
+        <button
+          type="button"
+          aria-label="Close course navigation"
+          onClick={() => setCourseNavOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-950/65 backdrop-blur-sm md:hidden"
+        />
+      )}
+      <aside className={`academy-classroom-nav fixed inset-y-0 left-0 z-50 w-[88vw] max-w-sm bg-[#06101d] border-r border-[#17324d] flex flex-col shrink-0 h-[100dvh] overflow-hidden text-slate-200 transform transition-transform duration-200 md:static md:z-auto md:w-80 md:max-w-none md:h-full md:translate-x-0 ${courseNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
         {/* Course Core Header */}
-        <div className="p-6 border-b border-[#17324d] space-y-4 shrink-0 bg-[#07111f]">
+        <div className="p-4 sm:p-6 border-b border-[#17324d] space-y-4 shrink-0 bg-[#07111f]">
+          <div className="flex justify-end md:hidden">
+            <button
+              type="button"
+              onClick={() => setCourseNavOpen(false)}
+              aria-label="Close course navigation"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#1a3854] bg-[#091728] text-slate-200"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <div>
             <div className="flex items-center justify-between">
               <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-bold uppercase tracking-wider">
@@ -768,6 +788,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
               onClick={() => {
                 setShowProgrammeHub(true);
                 setCurrentLesson(null);
+                setCourseNavOpen(false);
               }}
               className={`w-full p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between ${
                 showProgrammeHub
@@ -788,6 +809,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
             onClick={() => {
               setShowProgrammeHub(false);
               setCurrentLesson(null);
+              setCourseNavOpen(false);
             }}
             className={`w-full p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between ${
               currentLesson === null && !showProgrammeHub
@@ -900,6 +922,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                             setCurrentLesson(les);
                             setCurrentModuleIndex(modIdx);
                             setShowProgrammeHub(false);
+                            setCourseNavOpen(false);
                           } else {
                             setShowPaymentModal(true);
                           }
@@ -970,8 +993,16 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         
         <div role="status" className="px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex justify-between gap-3"><a href="/">← Course catalogue</a><span>{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
         {/* Dynamic Header */}
-        <header className="h-16 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d] px-5 sm:px-8 flex items-center justify-between shrink-0 sticky top-0 z-10 text-slate-200">
-          <div className="flex items-center gap-2">
+        <header className="h-16 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d] px-3 sm:px-8 flex items-center justify-between gap-2 shrink-0 sticky top-0 z-10 text-slate-200">
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCourseNavOpen(true)}
+              aria-label="Open course navigation"
+              className="flex md:hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#1a3854] bg-[#091728] text-slate-200"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
             <span className="text-xs font-medium text-slate-400">
               {currentLesson && currentModule ? `Module ${currentModuleIndex + 1}: ${currentModule.title}` : 'Course Overview'}
             </span>
@@ -984,12 +1015,12 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
           <div className="flex items-center gap-3">
             <a
               href="https://hub.v79sl.com/"
-              className="px-3 py-1.5 bg-[#0A86FF]/10 hover:bg-[#0A86FF]/18 border border-[#0A86FF]/30 text-[#74d0ff] rounded-xl text-[10px] font-bold transition-colors"
+              className="hidden sm:inline-flex px-3 py-1.5 bg-[#0A86FF]/10 hover:bg-[#0A86FF]/18 border border-[#0A86FF]/30 text-[#74d0ff] rounded-xl text-[10px] font-bold transition-colors"
             >
               V79 Hub
             </a>
             {currentLesson && isEnrolled && (
-              <label className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl cursor-pointer transition-all text-xs font-semibold">
+              <label className="flex items-center gap-2 px-2 sm:px-3 py-1.5 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl cursor-pointer transition-all text-xs font-semibold">
                 <input
                   type="checkbox"
                   checked={isLessonCompleted(currentLesson.id)}
@@ -997,7 +1028,8 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                   className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className={isLessonCompleted(currentLesson.id) ? 'text-emerald-700' : 'text-slate-600'}>
-                  {isLessonCompleted(currentLesson.id) ? 'Lesson Completed ✓' : 'Mark Lesson Complete'}
+                  <span className="sm:hidden">{isLessonCompleted(currentLesson.id) ? 'Done ✓' : 'Complete'}</span>
+                  <span className="hidden sm:inline">{isLessonCompleted(currentLesson.id) ? 'Lesson Completed ✓' : 'Mark Lesson Complete'}</span>
                 </span>
               </label>
             )}
@@ -1045,7 +1077,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
           />
         ) : currentLesson === null ? (
           /* COURSE INTRODUCTION & OVERVIEW PAGE */
-          <div className="p-8 max-w-4xl mx-auto w-full space-y-8 flex-1">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full space-y-8 flex-1">
             
             {/* Hero Course Introduction Card */}
             <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-6 relative overflow-hidden">
@@ -1324,7 +1356,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
           </div>
         ) : (
           /* ACTIVE LESSON VIEW PANEL */
-          <div className="p-8 max-w-3xl mx-auto w-full space-y-8 flex-1">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto w-full space-y-8 flex-1">
             
             {/* Unenrolled Banner warning if viewing Intro lesson */}
             {!isEnrolled && paidCourse && (
