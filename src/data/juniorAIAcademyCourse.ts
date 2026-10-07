@@ -706,6 +706,7 @@ function lessonDownloads(missionNumber: number, lessonIndex: number) {
     if (missionNumber === 16) {
       add('Demo Day Reflection', 'demo-day-reflection.svg');
       add('AI Operator Benchmark', 'ai-operator-benchmark.svg');
+      add('AI Operator Graduation Rubric', 'ai-operator-graduation-rubric.svg');
     }
   }
   return resources;
@@ -736,11 +737,11 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     if (!Array.isArray(db[key])) db[key] = [];
   }
 
-  const marker = 'junior-ai-course-seed-v3';
+  const marker = 'junior-ai-course-seed-v3.1';
   if (db.publishingLogs.some((log: any) => log.id === marker)) return false;
 
   const createdAt = '2026-09-23T18:00:00.000Z';
-  const upgradedAt = '2026-10-06T17:30:00.000Z';
+  const upgradedAt = '2026-10-07T15:30:00.000Z';
   const existingIndex = db.courses.findIndex((course: any) => course.id === JUNIOR_AI_COURSE_ID);
   const existing = existingIndex >= 0 ? db.courses[existingIndex] : null;
 
@@ -771,7 +772,7 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     category: 'General',
     difficultyLevel: 'Beginner',
     instructor: 'V79 Academy',
-    courseVersion: '3.0.0',
+    courseVersion: '3.1.0',
     thumbnail: '/junior-ai/images/mission-01-cover.svg',
     estimatedDuration: '16 weeks',
     prerequisites: [
@@ -906,8 +907,8 @@ export function ensureJuniorAIAcademyCourse(db: any): boolean {
     performedBy: 'Admin',
     timestamp: upgradedAt,
     details: existing
-      ? 'Upgraded Junior AI Academy to curriculum v3 with lesson-by-lesson mental models, operator drills, measurable mastery targets and an independent AI Operator Benchmark while preserving course IDs, progress keys, pricing and publication state.'
-      : 'Added Junior AI Academy curriculum v3 with 16 missions, deep AI efficiency instruction, lesson-level mastery drills, team projects, reusable AI Playbook evidence and a final AI Operator Benchmark.'
+      ? 'Finalized Junior AI Academy curriculum v3.1 with lesson-by-lesson mastery, the independent AI Operator Benchmark and graduation rubric while preserving course IDs, progress keys, pricing and publication state.'
+      : 'Added Junior AI Academy curriculum v3.1 with 16 missions, deep AI efficiency instruction, lesson-level mastery drills, team projects, reusable AI Playbook evidence, final AI Operator Benchmark and graduation rubric.'
   });
 
   return true;

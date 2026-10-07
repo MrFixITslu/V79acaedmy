@@ -1,5 +1,7 @@
 # V79 Junior AI Academy v2 — AI Efficiency Learning Standard
 
+> **Superseded:** retained for historical reference. The active course standard is `docs/junior-ai-academy-v3-learning-standard.md` (curriculum v3.1).
+
 ## Why v2 exists
 
 The original course had a strong project structure, safety model, media plan and teamwork system, but too many learner lessons stopped at “know the idea” or “make an artifact.”

@@ -29,7 +29,7 @@ assert.ok(course, 'Junior AI course should exist');
 assert.equal(course.pricingType, 'subscription');
 assert.equal(course.status, 'Published');
 assert.equal(course.difficultyLevel, 'Beginner');
-assert.equal(course.courseVersion, '3.0.0');
+assert.equal(course.courseVersion, '3.1.0');
 assert.ok(course.learningObjectives.some((x: string) => /structured output/i.test(x)));
 assert.ok(course.learningObjectives.some((x: string) => /playbook/i.test(x)));
 assert.ok(course.learningObjectives.some((x: string) => /conversation context/i.test(x)));
@@ -143,7 +143,8 @@ const requiredStaticAssets = [
   'public/junior-ai/resources/fact-check-evidence-sheet.svg',
   'public/junior-ai/resources/ai-quality-audit.svg',
   'public/junior-ai/resources/personal-ai-playbook.svg',
-  'public/junior-ai/resources/ai-operator-benchmark.svg'
+  'public/junior-ai/resources/ai-operator-benchmark.svg',
+  'public/junior-ai/resources/ai-operator-graduation-rubric.svg'
 ];
 for (const asset of requiredStaticAssets) {
   assert.equal(existsSync(path.join(process.cwd(), asset)), true, `missing static Junior asset: ${asset}`);
@@ -180,10 +181,11 @@ const mission16Studio = lessons.find((l: any) => l.id === 'jai-les-16-3');
 assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/demo-day-reflection.svg')));
 assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/personal-ai-playbook.svg')));
 assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/ai-operator-benchmark.svg')));
+assert.ok(mission16Studio.downloads.some((d: any) => d.url.endsWith('/ai-operator-graduation-rubric.svg')));
 assert.match(mission16Studio.lessonContent, /AI Operator Benchmark — final individual challenge/);
 assert.match(mission16Studio.lessonContent, /brand-new task/);
 
-// Existing v1/v2 installations must receive the richer v3 curriculum without losing
+// Existing v1/v2/v3 installations must receive the finalized v3.1 curriculum without losing
 // operational course settings or changing progress-key IDs.
 const legacyDb: any = freshDb();
 legacyDb.courses.push({
@@ -207,10 +209,11 @@ legacyDb.lessons.push({
 });
 legacyDb.publishingLogs.push({ id: 'junior-ai-course-seed-v1', courseId: JUNIOR_AI_COURSE_ID });
 legacyDb.publishingLogs.push({ id: 'junior-ai-course-seed-v2', courseId: JUNIOR_AI_COURSE_ID });
+legacyDb.publishingLogs.push({ id: 'junior-ai-course-seed-v3', courseId: JUNIOR_AI_COURSE_ID });
 
-assert.equal(ensureJuniorAIAcademyCourse(legacyDb), true, 'v1/v2 install should upgrade to v3');
+assert.equal(ensureJuniorAIAcademyCourse(legacyDb), true, 'v1/v2/v3 install should upgrade to v3.1');
 const upgradedCourse = legacyDb.courses.find((c: any) => c.id === JUNIOR_AI_COURSE_ID);
-assert.equal(upgradedCourse.courseVersion, '3.0.0');
+assert.equal(upgradedCourse.courseVersion, '3.1.0');
 assert.equal(upgradedCourse.status, 'Published');
 assert.equal(upgradedCourse.pricingType, 'subscription');
 assert.equal(upgradedCourse.price, 37.5);
@@ -224,6 +227,6 @@ const upgradedFirstLesson = upgradedLessons.find((l: any) => l.id === 'jai-les-1
 assert.match(upgradedFirstLesson.lessonContent, /V79 AI Efficiency Loop/);
 assert.match(upgradedFirstLesson.lessonContent, /Worked example — weak vs stronger/);
 assert.match(upgradedFirstLesson.lessonContent, /Mental model — why this skill works/);
-assert.equal(ensureJuniorAIAcademyCourse(legacyDb), false, 'v3 upgrade must be idempotent');
+assert.equal(ensureJuniorAIAcademyCourse(legacyDb), false, 'v3.1 upgrade must be idempotent');
 
-console.log('Junior AI Academy curriculum v3 integrity and migration tests passed.');
+console.log('Junior AI Academy curriculum v3.1 integrity and migration tests passed.');
