@@ -62,6 +62,7 @@ export async function createAcademyCourseOrder(input: {
     subjectReference: input.learnerId,
     description: input.courseTitle,
     amount: input.amount,
+    currency: "XCD",
     returnPath: input.returnPath,
   });
 }
