@@ -16,7 +16,7 @@ try {
   db.courses.push({ id: 'rt-course', title: 'Rollback Test', status: 'Draft', courseVersion: '1.0.0' });
   db.modules.push({ id: 'rt-module', courseId: 'rt-course', title: 'Module', orderNumber: 1 });
   db.lessons.push({ id: 'rt-lesson-old', courseId: 'rt-course', moduleId: 'rt-module', title: 'Old lesson', orderNumber: 1 });
-  db.contentBlocks.push({ id: 'rt-block-old', lessonId: 'rt-lesson-old', type: 'Text', orderNumber: 1, contentData: { html: '<p>old</p>' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  db.contentBlocks.push({ id: 'rt-block-old', lessonId: 'rt-lesson-old', type: 'Rich Text', orderNumber: 1, contentData: { html: '<p>old</p>' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
   db.quizzes.push({ id: 'rt-quiz-old', lessonId: 'rt-lesson-old', title: 'Old quiz', passingScore: 80, questions: [] });
   db.assets.push({ id: 'rt-asset', courseId: 'rt-course', name: 'Asset', url: '/asset.pdf' });
   db.media.push({ id: 'rt-media', courseId: 'rt-course', name: 'Media', fileType: 'image', url: '/image.png', fileSize: '1 KB', createdAt: new Date().toISOString() });
@@ -27,7 +27,7 @@ try {
 
   db = loadDb();
   db.lessons.push({ id: 'rt-lesson-new', courseId: 'rt-course', moduleId: 'rt-module', title: 'New lesson', orderNumber: 2 });
-  db.contentBlocks.push({ id: 'rt-block-new', lessonId: 'rt-lesson-new', type: 'Text', orderNumber: 1, contentData: { html: '<p>new</p>' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  db.contentBlocks.push({ id: 'rt-block-new', lessonId: 'rt-lesson-new', type: 'Rich Text', orderNumber: 1, contentData: { html: '<p>new</p>' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
   db.quizzes.push({ id: 'rt-quiz-new', lessonId: 'rt-lesson-new', title: 'New quiz', passingScore: 80, questions: [] });
   saveDb(db);
 
@@ -43,7 +43,7 @@ try {
   db.courses.push({ id: 'other-course', title: 'Other Course', status: 'Draft', courseVersion: '1.0.0' });
   db.modules.push({ id: 'shared-module-id', courseId: 'other-course', title: 'Protected module', orderNumber: 1 });
   db.lessons.push({ id: 'shared-lesson-id', courseId: 'other-course', moduleId: 'shared-module-id', title: 'Protected lesson', orderNumber: 1 });
-  db.contentBlocks.push({ id: 'shared-block-id', lessonId: 'shared-lesson-id', type: 'Text', orderNumber: 1, contentData: { html: '<p>protected</p>' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  db.contentBlocks.push({ id: 'shared-block-id', lessonId: 'shared-lesson-id', type: 'Rich Text', orderNumber: 1, contentData: { html: '<p>protected</p>' }, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
   saveDb(db);
 
   const failed = CourseBuilderService.importCoursePackage({
