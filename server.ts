@@ -402,6 +402,37 @@ app.get("/api/public/courses", (req, res) => {
   }
 });
 
+app.get("/sitemap.xml", (_req, res) => {
+  try {
+    const data = loadDb();
+    const publishedCourses = (data.courses || []).filter(
+      (c: any) => c.status === "Published" || c.status === "Uploaded"
+    );
+
+    const urls = [
+      "https://academy.v79sl.com/",
+      ...publishedCourses.map((course: any) => {
+        const courseSlug = slugify(course.slug || course.title || course.id);
+        return `https://academy.v79sl.com/course/${courseSlug}`;
+      }),
+    ];
+
+    const xml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      ...urls.map((url) => `  <url><loc>${escapeXml(url)}</loc></url>`),
+      '</urlset>',
+      '',
+    ].join("\n");
+
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(xml);
+  } catch (err: any) {
+    res.status(500).type("text/plain").send("Unable to generate sitemap.");
+  }
+});
+
 app.get("/api/public/courses/by-slug/:slug", (req, res) => {
   try {
     const data = loadDb();
@@ -1436,6 +1467,15 @@ function slugify(title: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "") || "course";
+}
+
+function escapeXml(value: string): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 // Resolve a quiz's correctAnswer (which may be stored as text or as an
