@@ -74,12 +74,12 @@ The Junior Academy contains 16 weekly missions across **AI Explorer**, **AI Crea
 Key programme features:
 
 - Two age paths inside the same missions: **AI Explorers (6–8)** and **AI Creators (9–12)**.
-- **Curriculum v3 mastery standard:** DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE.
+- **Curriculum v3.1 final mastery standard:** DEFINE → CHOOSE → PROMPT → CHECK → IMPROVE → SAVE.
 - Transferable AI skills: task/tool selection, context and constraints, structured outputs, focused follow-ups, prompting, verification, privacy, ethics, images, writing, audio, video, presentations, promotion, workflows, problem solving and supervised entrepreneurship.
 - Every mission teaches a mental model, operator moves, real-world use, weak-vs-strong worked example, reusable prompt/workflow pattern, failure modes, deliberate micro-drills, independent transfer task, measurable mastery evidence and an efficiency metric.
 - Learners build a reusable **AI Playbook** containing prompt templates, workflows, verification habits, privacy rules and examples of when not to use AI.
 - Learners practice conversation/context management: continue when context helps, compress long context into a clean brief, or start a fresh conversation when instructions become messy.
-- Mission 16 contains an individual **AI Operator Benchmark** on a brand-new task; new final approval is blocked until every learner submits benchmark evidence.
+- Mission 16 contains an individual **AI Operator Benchmark** on a brand-new task; new final approval is blocked until every learner submits benchmark evidence. The final review uses a six-part **AI Operator Graduation Rubric** with a recommended minimum of Competent (3/4) in every category.
 - Every mission quiz includes scenario questions that test application rather than terminology alone.
 - **AI Studio Teams of exactly three** with Leader, Builder and Checker responsibilities.
 - Leadership rotation so every learner practices accountability and handover.
@@ -152,7 +152,7 @@ To enable it, set these two environment variables for this app:
 
 If the website's admin account still has a pending one-time password (e.g. right after a password reset), log into its `/admin` panel once to set a permanent password before publishing - the publish action will tell you if this is blocking it.
 
-Publishing again after edits updates the same website entry (tracked via `websiteAppId` on the course) rather than creating a duplicate. Pricing isn't set from the Course Builder yet - newly published courses default to free and can be priced from the website's own admin panel afterwards without affecting curriculum or exam content.
+Publishing again after edits updates the same website entry (tracked via `websiteAppId` on the course) rather than creating a duplicate. Course access can be set to **Free** or **Subscription** in Course Builder, and subscription pricing can be changed before or after launch. For already-linked courses, access/pricing changes are synchronized to the existing website entry before the local update is committed.
 
 ---
 
@@ -259,8 +259,35 @@ printed in application logs. Existing administrator passwords are retained.
 Validation: `npm run lint`, `npm test`, `npm run build`, then `npm run test:api`. The API tests
 use an isolated temporary data directory and never modify production course or learner records.
 
-## Automatic server deployment
+## Manual server deployment
 
-After a validated merge to `main`, the delivery workflow deploys the `course-builder` service through Tailscale and pinned SSH. Publication to GHCR alone never changes the server. In GitHub **Settings → Environments → production**, configure the secrets `TAILSCALE_AUTHKEY`, `DEPLOY_HOST` (the server's Tailscale address), `DEPLOY_USER`, `DEPLOY_SSH_KEY` (private deploy key), and `DEPLOY_KNOWN_HOSTS` (independently verified host key). Restrict who can change the production environment. Configure environment variables `DEPLOY_ROOT` (absolute existing server directory containing this app's Compose file and `.env`), `DEPLOY_PROJECT` (the current Compose project shown by `docker inspect`), and optional `DEPLOY_SSH_PORT` (default 22).
+GitHub Actions validates the repository and the **Package & Publish Image** workflow publishes a validated image to GHCR. It does **not** connect to or restart the production server.
 
-The deploy user needs Docker and `rsync` access and the server must already have `proxy_network`. Before enabling the workflow, back up the application's existing data, encryption keys, uploads, databases and `.env` and verify a restore. The script preserves `.env`, `data`, `uploads`, backups and existing `.git`; it updates the app in place, starts only `course-builder` and checks its HTTP readiness inside the container. It does not remove orphan containers or volumes. Source removed from Git may remain in the server directory because deployment intentionally does not delete unknown local files. A first merge will fail closed if a required secret, mount, project, or server directory is absent. Review Actions → deploy and record the `.deployed_sha` in the server directory after each successful release.
+Deploy manually after reviewing a green `main` CI run.
+
+### Deploy from the repository on the server
+
+```bash
+git pull
+docker compose up --build -d
+```
+
+### Deploy from GHCR
+
+Pull `ghcr.io/mrfixitslu/v79acaedmy:latest` (or the commit-tagged image) and restart the course-builder service using your server's normal Compose/runtime procedure.
+
+After deployment verify:
+
+```bash
+curl http://127.0.0.1:3030/healthz
+```
+
+Expected response:
+
+```json
+{"status":"ok"}
+```
+
+Then sign in to Course Builder and use **Publish to Website** for curriculum changes that should also appear on the public website. Application deployment and course-to-website publication are separate operations.
+
+Before any manual deployment, back up the persistent `data` directory, `.env`, uploads and any external database/storage used by the environment. Do not run `docker compose down -v` unless you explicitly intend to remove volumes.
