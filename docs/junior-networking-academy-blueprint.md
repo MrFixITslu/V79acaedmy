@@ -7,6 +7,14 @@
 
 ## Course promise
 
+### Curriculum v2 graduate standard
+
+Completion means the learner can use **UNDERSTAND → TRACE/TEST → BUILD → VERIFY → DOCUMENT → TRANSFER** on a new networking task. Every mission now includes technician mental models, worked examples, evidence-based drills, failure recovery, measurable mastery and an efficiency target.
+
+Mission 20 contains an individual **Network Technician Benchmark** on an unfamiliar fault and design-change scenario, supported by a graduation rubric. See `docs/junior-networking-academy-v2-learning-standard.md`.
+
+
+
 Learners should finish able to look at a small real-world network and explain:
 
 - what the major hardware does;
