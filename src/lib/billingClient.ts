@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 const ORDER_PATH = "/api/billing/internal/order";
 const STATUS_PATH = "/api/billing/internal/status";
+const CAPABILITIES_PATH = "/api/billing/internal/capabilities";
 
 function config() {
   return {
@@ -16,7 +17,7 @@ function sign(method: string, pathname: string, timestamp: string, body: string,
   return crypto.createHmac("sha256", secret).update(canonical).digest("hex");
 }
 
-async function hubRequest(pathname: string, payload: Record<string, unknown>) {
+async function hubRequest(pathname: string, payload: Record<string, unknown>, timeoutMs = 8000) {
   const { baseUrl, secret } = config();
   if (!/^https?:\/\//.test(baseUrl) || secret.length < 32) {
     throw new Error("Academy billing is not configured.");
@@ -32,7 +33,7 @@ async function hubRequest(pathname: string, payload: Record<string, unknown>) {
       "x-v79-signature": sign("POST", pathname, timestamp, body, secret),
     },
     body,
-    signal: AbortSignal.timeout(8000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -47,6 +48,10 @@ async function hubRequest(pathname: string, payload: Record<string, unknown>) {
 export function academyBillingConfigured() {
   const { baseUrl, secret } = config();
   return /^https?:\/\//.test(baseUrl) && secret.length >= 32;
+}
+
+export async function getAcademyBillingCapabilities() {
+  return hubRequest(CAPABILITIES_PATH, {}, 2000);
 }
 
 export async function createAcademyCourseOrder(input: {
