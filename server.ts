@@ -23,7 +23,8 @@ import {
   PublishingLogRepository
 } from "./src/lib/courseBuilderDb";
 
-import { learner, learnerRouter, learnerAdminRouter } from './src/lib/learnerAccounts';
+import { learner, learnerRouter, learnerAdminRouter, recordLearnerQuizPass } from './src/lib/learnerAccounts';
+import { findCertificate, publicCertificate } from './src/lib/certificateRegistry';
 import { juniorLearnerRouter, juniorAdminRouter } from './src/lib/juniorAcademyTeams';
 import { canReadCourse, courseSummary, lessonSummary, deleteCourseRecords } from './src/lib/academyAccess';
 import platformRouter from './src/lib/platformRoutes';
@@ -380,6 +381,15 @@ app.post("/api/admin/reset-password", standaloneAdminOnly, (req, res) => {
 // Public student endpoints (Exempt from Admin authentication checks)
 // ---------------------------------------------------------------------------
 function isActiveAdmin(req: express.Request) { const session = getSession(parseCookies(req)[SESSION_COOKIE_NAME]); return Boolean(session && !session.mustChangePassword); }
+app.get("/api/public/certificates/:id", (req, res) => {
+  const id = String(req.params.id || '').trim();
+  if (!id || id.length > 120) return res.status(400).json({ error: 'Invalid certificate ID.' });
+  const certificate = findCertificate(id);
+  if (!certificate) return res.status(404).json({ error: 'Certificate not found.' });
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.json(publicCertificate(certificate));
+});
+
 app.get("/api/public/courses", (req, res) => {
   try {
     const data = loadDb();
@@ -541,7 +551,10 @@ app.post('/api/public/lessons/:lessonId/quiz/submit', (req, res) => {
   const answers = req.body.answers || {};
   if (quiz.questions.some((q: any) => !q.options.includes(answers[q.id]))) return res.status(400).json({ error: 'Answer every question before submitting.' });
   const correct = quiz.questions.filter((q: any) => answers[q.id] === (typeof q.correctAnswer === 'number' ? q.options[q.correctAnswer] : q.correctAnswer)).length;
-  res.json({ score: Math.round(correct / quiz.questions.length * 100), correct, total: quiz.questions.length });
+  const score = Math.round(correct / quiz.questions.length * 100);
+  const passingScore = Number.isFinite(Number(quiz.passingScore)) ? Number(quiz.passingScore) : 80;
+  const completionRecorded = recordLearnerQuizPass(req, lesson.id, score, passingScore);
+  res.json({ score, correct, total: quiz.questions.length, passingScore, completionRecorded });
 });
 
 // Hub Admin can operate the Academy management APIs through a signed,
