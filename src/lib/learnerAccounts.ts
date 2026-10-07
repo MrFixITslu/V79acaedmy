@@ -98,7 +98,7 @@ learnerRouter.post('/lessons/:lessonId/complete', (req, res) => {
   const lesson = db.lessons.find((row: any) => row.id === req.params.lessonId);
   const course = lesson && db.courses.find((row: any) => row.id === lesson.courseId && ['Published', 'Uploaded'].includes(row.status));
   if (!lesson || !course || !canReadCourse(course, user)) return res.status(403).json({ error: 'Course access required.' });
-  const quiz = db.quizzes.find((row: any) => row.lessonId === lesson.id);
+  const quiz = db.quizzes.find((row: any) => row.lessonId === lesson.id && Array.isArray(row.questions) && row.questions.length > 0);
   user.progress ||= {};
   const progress = user.progress[course.id] ||= { completedLessons: {}, assignmentSubmissions: {}, quizPasses: {} };
   if (quiz && !progress.quizPasses?.[lesson.id]?.passed) {
