@@ -1,3 +1,5 @@
+import { JUNIOR_NETWORKING_MASTERY } from './juniorNetworkingAcademyMastery';
+
 type QuizSeed = { question: string; options: string[]; correct: string; explanation: string };
 
 type MissionSeed = {
@@ -425,6 +427,9 @@ const missions: MissionSeed[] = [
 
 function lessonMarkdown(m: MissionSeed, missionNumber: number, part: 1 | 2 | 3): string {
   const track = missionNumber <= 6 ? 'Foundation' : missionNumber <= 13 ? 'Network Core' : missionNumber <= 17 ? 'Secure & Operate' : 'Design & Capstone';
+  const mastery = JUNIOR_NETWORKING_MASTERY[missionNumber];
+  if (!mastery) throw new Error(`Missing Networking Academy mastery layer for mission ${missionNumber}`);
+
   const common = [
     `# ${m.title}`,
     '',
@@ -436,17 +441,32 @@ function lessonMarkdown(m: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
 
   if (part === 1) {
     return common.concat([
-      '## Learn the idea',
+      '## Mental model — how a technician should think about this',
+      ...mastery.mentalModel.map(x => '- ' + x),
+      '',
+      '## Core concepts',
       ...m.concepts.map(x => '- ' + x),
       '',
+      '## Technician moves',
+      ...mastery.technicianMoves.map((x, i) => (i + 1) + '. ' + x),
+      '',
+      '## Worked example',
+      mastery.workedExample,
+      '',
       '## Core Path — ages 12–14',
-      'Focus on pictures, physical equipment, guided calculations and explaining the idea in your own words.',
+      'Use diagrams, guided calculations, physical equipment or simulator views, and explain the result in your own words. You should be able to point to the evidence that supports your answer.',
       '',
       '## Engineer Challenge — ages 15–17',
-      'Go deeper into calculations, packet flow, design choices, configuration logic and troubleshooting evidence.',
+      'Go deeper into calculations, packet flow, design tradeoffs, configuration logic, failure domains and troubleshooting evidence. Do not accept a result simply because a tool says it is correct.',
+      '',
+      '## Common failure patterns — and how to recover',
+      ...mastery.failureModes.map(x => '- ' + x),
       '',
       '## Safety & professional habit',
-      m.safety
+      m.safety,
+      '',
+      '## Teach-back check',
+      'Explain the mission in plain language to a teammate. Name the system behavior, the evidence a technician would collect, and one wrong assumption that could waste time.'
     ]).join('\n');
   }
 
@@ -455,13 +475,32 @@ function lessonMarkdown(m: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
       '## Interactive Lab',
       m.coreActivity,
       '',
-      'The interactive challenge below gives immediate feedback. Complete it before moving on.',
+      'The interactive challenge below gives immediate feedback. Use it as evidence practice—not a guessing game.',
+      '',
+      '## Technician method',
+      '1. **OBSERVE** — What exactly is happening?',
+      '2. **BOUND** — Which device, link, VLAN, subnet or service is affected?',
+      '3. **TEST** — Choose one test that can prove or disprove a hypothesis.',
+      '4. **INTERPRET** — What does the result prove, and what does it *not* prove?',
+      '5. **NEXT** — Select the next smallest useful test or change.',
+      '',
+      '## Field drills',
+      ...mastery.fieldDrills.map((x, i) => (i + 1) + '. ' + x),
       '',
       '## Engineer Challenge',
       m.engineerChallenge,
       '',
+      '## Transfer challenge',
+      mastery.transferChallenge,
+      '',
       '## Explain your evidence',
-      'Do not only give an answer. Explain what evidence or networking rule supports your choice.'
+      'Do not only give an answer. State the evidence, the networking rule it supports, and the alternative explanation you ruled out.',
+      '',
+      '## Mastery evidence',
+      ...mastery.masteryEvidence.map(x => '- [ ] ' + x),
+      '',
+      '## Efficiency target',
+      mastery.efficiencyMetric
     ]).join('\n');
   }
 
@@ -470,18 +509,48 @@ function lessonMarkdown(m: MissionSeed, missionNumber: number, part: 1 | 2 | 3):
     m.projectMilestone,
     '',
     '## Technician workflow',
-    '1. **PLAN** — What must work when we finish?',
-    '2. **BUILD / CONFIGURE** — Make one controlled change at a time.',
-    '3. **TEST** — Record expected and actual results.',
-    '4. **DOCUMENT** — Update diagrams, labels and notes.',
-    '5. **RISK CHECK** — What could fail and what is our backup?',
+    '1. **PLAN** — Define the requirement and expected result.',
+    '2. **BUILD / CONFIGURE** — Make one controlled implementation step at a time.',
+    '3. **TEST** — Record expected and actual results, including at least one negative or failure test where relevant.',
+    '4. **DOCUMENT** — Update diagrams, labels, addressing, configuration notes and evidence.',
+    '5. **RISK CHECK** — Identify what could fail, the rollback/backup, and when to stop or escalate.',
+    '',
+    '## Deliverable checklist',
+    ...mastery.masteryEvidence.map(x => '- [ ] ' + x),
+    '- [ ] The project documentation has been updated so another technician could understand what changed.',
+    '- [ ] The team has recorded at least one test result rather than writing “it works.”',
+    '',
+    '## Acceptance test',
+    mastery.transferChallenge,
     '',
     '## Team roles',
-    '- **Network Designer** — diagrams, addressing and design decisions.',
-    '- **Network Technician** — hardware, cabling and configuration work.',
-    '- **Network Tester / Security Lead** — tests, documentation, security and troubleshooting.',
+    '- **Network Designer** — requirements, diagrams, addressing and design decisions.',
+    '- **Network Technician** — hardware, cabling, simulator/device configuration and controlled changes.',
+    '- **Network Tester / Security Lead** — test evidence, documentation, security, risk and troubleshooting.',
     '',
-    'Rotate roles during the course so everyone practices each responsibility.'
+    'Rotate roles during the course so everyone practices each responsibility.',
+    '',
+    '## Professional handoff',
+    'Before submission, the team should be able to tell the next technician: what changed, why it changed, what was tested, what remains risky, and what should happen next.',
+    '',
+    '## Efficiency target',
+    mastery.efficiencyMetric,
+    ...(missionNumber === 20 ? [
+      '',
+      '## Network Technician Benchmark — individual transfer test',
+      'Complete an unfamiliar troubleshooting scenario and one design-change request without being told which device or command to change.',
+      '',
+      'You must show:',
+      '1. the symptom/requirement and scope you defined;',
+      '2. the evidence and tests you used;',
+      '3. the technical decision or root cause;',
+      '4. the controlled change or updated design;',
+      '5. verification evidence, including what should remain blocked or unchanged;',
+      '6. the documentation/handoff you updated; and',
+      '7. where you would stop and escalate if the task became unsafe, unauthorized or beyond scope.',
+      '',
+      'A polished diagram or successful ping alone is not enough. You must explain the evidence trail in your own words.'
+    ] : [])
   ]).join('\n');
 }
 
@@ -535,23 +604,74 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
 
   const seedMarker = 'junior-networking-course-seed-v1';
   const publicationMarker = 'junior-networking-course-publication-v2';
+  const contentMarker = 'junior-networking-course-content-v2';
   const existingCourse = db.courses.find((course: any) => course.id === JUNIOR_NETWORKING_COURSE_ID);
   const publicationMigrated = db.publishingLogs.some((log: any) => log.id === publicationMarker);
+  const contentMigrated = db.publishingLogs.some((log: any) => log.id === contentMarker);
 
-  // Hotfix migration for the first Networking Academy release. That release
-  // was accidentally seeded as Draft, which kept it out of /api/public/courses
-  // even though deployment itself succeeded. Promote only that original Draft
-  // state once. If an administrator has already chosen another status, preserve
-  // it and mark the migration complete so later restarts never override it.
-  if (existingCourse) {
-    if (publicationMigrated) return false;
+  if (existingCourse && contentMigrated && publicationMigrated) return false;
 
-    const previousStatus = existingCourse.status || 'Draft';
-    if (previousStatus === 'Draft') {
-      existingCourse.status = 'Published';
-      existingCourse.updatedAt = new Date().toISOString();
+  // Preserve deliberate deletion behavior. Once the original seed marker exists,
+  // a deleted course is not recreated automatically.
+  if (!existingCourse && db.publishingLogs.some((log: any) => log.id === seedMarker)) return false;
+
+  // Curriculum v2 migration. Preserve operational/admin state while replacing
+  // the seeded curriculum footprint with the stronger mastery version.
+  if (existingCourse && !contentMigrated) {
+    const preserved = {
+      status: existingCourse.status,
+      pricingType: existingCourse.pricingType,
+      price: existingCourse.price,
+      websiteAppId: existingCourse.websiteAppId,
+      websitePublishedAt: existingCourse.websitePublishedAt,
+      createdAt: existingCourse.createdAt
+    };
+    db.courses = db.courses.filter((course: any) => course.id !== JUNIOR_NETWORKING_COURSE_ID);
+    db.modules = db.modules.filter((module: any) => module.courseId !== JUNIOR_NETWORKING_COURSE_ID);
+    db.lessons = db.lessons.filter((lesson: any) => lesson.courseId !== JUNIOR_NETWORKING_COURSE_ID);
+    db.assignments = db.assignments.filter((assignment: any) => assignment.courseId !== JUNIOR_NETWORKING_COURSE_ID);
+    const oldLessonIds = new Set(
+      Array.from({ length: 20 }, (_, missionIndex) =>
+        Array.from({ length: 3 }, (_, lessonIndex) => `jna-les-${missionIndex + 1}-${lessonIndex + 1}`)
+      ).flat()
+    );
+    db.quizzes = db.quizzes.filter((quiz: any) => !oldLessonIds.has(quiz.lessonId));
+
+    const upgradedDb = db;
+    const seedLogIndex = upgradedDb.publishingLogs.findIndex((log: any) => log.id === seedMarker);
+    if (seedLogIndex >= 0) upgradedDb.publishingLogs.splice(seedLogIndex, 1);
+    const publicationLogIndex = upgradedDb.publishingLogs.findIndex((log: any) => log.id === publicationMarker);
+    if (publicationLogIndex >= 0) upgradedDb.publishingLogs.splice(publicationLogIndex, 1);
+
+    ensureJuniorNetworkingAcademyCourse(upgradedDb);
+
+    const upgradedCourse = upgradedDb.courses.find((course: any) => course.id === JUNIOR_NETWORKING_COURSE_ID);
+    if (upgradedCourse) {
+      Object.assign(upgradedCourse, preserved, {
+        courseVersion: '2.0.0',
+        updatedAt: new Date().toISOString()
+      });
     }
+    upgradedDb.publishingLogs.push({
+      id: contentMarker,
+      courseId: JUNIOR_NETWORKING_COURSE_ID,
+      courseTitle: upgradedCourse?.title || existingCourse.title,
+      event: 'Curriculum Upgraded',
+      fromStatus: preserved.status || 'Published',
+      toStatus: preserved.status || 'Published',
+      performedBy: 'System Migration',
+      timestamp: new Date().toISOString(),
+      details: 'Upgraded Networking Academy to curriculum v2 with deeper technician mental models, evidence-based labs, five-question assessments and a final Network Technician Benchmark while preserving IDs, progress keys and operational settings.'
+    });
+    return true;
+  }
 
+  // Original publication hotfix remains for older installations that somehow
+  // receive publication migration before the content migration.
+  if (existingCourse && !publicationMigrated) {
+    const previousStatus = existingCourse.status || 'Draft';
+    if (previousStatus === 'Draft') existingCourse.status = 'Published';
+    existingCourse.updatedAt = new Date().toISOString();
     db.publishingLogs.push({
       id: publicationMarker,
       courseId: JUNIOR_NETWORKING_COURSE_ID,
@@ -568,10 +688,6 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
     return true;
   }
 
-  // Preserve deliberate deletion behavior. Once the original seed marker
-  // exists, a deleted course is not recreated automatically.
-  if (db.publishingLogs.some((log: any) => log.id === seedMarker)) return false;
-
   const createdAt = '2026-09-23T18:45:00.000Z';
   const course = {
     id: JUNIOR_NETWORKING_COURSE_ID,
@@ -582,7 +698,7 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
     category: 'General',
     difficultyLevel: 'Intermediate',
     instructor: 'V79 Academy',
-    courseVersion: '1.0.0',
+    courseVersion: '2.0.0',
     thumbnail: '/junior-networking/images/mission-01-cover.svg',
     estimatedDuration: '20 weeks',
     prerequisites: [
@@ -670,7 +786,8 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
       lessonId: `jna-les-${missionNumber}-3`,
       title: `Mission ${missionNumber} Network Check`,
       passingScore: 67,
-      questions: mission.quiz.map((q, index) => quizQuestion(missionNumber, index, quizId, q))
+      questions: [...mission.quiz, ...JUNIOR_NETWORKING_MASTERY[missionNumber].applicationQuestions]
+        .map((q, index) => quizQuestion(missionNumber, index, quizId, q))
     });
 
     if ([4, 9, 15, 18, 19, 20].includes(missionNumber)) {
@@ -700,6 +817,17 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
     performedBy: 'Admin',
     timestamp: createdAt,
     details: 'Added the 20-mission V79 Junior Networking Academy for ages 12–17.'
+  });
+  db.publishingLogs.push({
+    id: contentMarker,
+    courseId: JUNIOR_NETWORKING_COURSE_ID,
+    courseTitle: course.title,
+    event: 'Curriculum Initialized',
+    fromStatus: 'None',
+    toStatus: 'Published',
+    performedBy: 'System Migration',
+    timestamp: createdAt,
+    details: 'Initialized Networking Academy curriculum v2 with technician mastery and benchmark requirements.'
   });
   db.publishingLogs.push({
     id: publicationMarker,
