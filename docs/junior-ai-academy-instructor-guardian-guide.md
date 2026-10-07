@@ -194,6 +194,8 @@ Instructors should inspect:
 
 Mission 16 approval is blocked until all three team members have submitted this evidence. Do not approve based only on a polished team product.
 
+Use the **AI Operator Graduation Rubric** for the final individual review. The recommended pass standard is no score below **3 — Competent** across DEFINE + CHOOSE, PROMPT + CONTEXT, CHECK + VERIFY, IMPROVE, SAVE + TRANSFER, and EXPLAIN + RESPONSIBILITY. A learner who is still developing in one area should receive a focused retry rather than being passed on presentation polish.
+
 This protects individual accountability inside team work.
 
 ## 12. Printable classroom resources
@@ -209,6 +211,7 @@ The learner portal can offer these printable resources:
 - Demo Day Reflection
 - AI Operator Skills Map
 - AI Operator Benchmark worksheet
+- AI Operator Graduation Rubric
 
 They live under:
 
