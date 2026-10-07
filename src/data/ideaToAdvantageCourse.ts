@@ -1,4 +1,5 @@
 import { CourseProgramme, DiagnosticQuestion, FinalExamQuestion, WorkbookSection } from '../types/programme';
+import { IDEA_TO_ADVANTAGE_MASTERY } from './ideaToAdvantageMastery';
 
 export const IDEA_TO_ADVANTAGE_COURSE_ID = 'course-from-idea-to-advantage-01';
 
@@ -1455,40 +1456,136 @@ function buildLessonContent(
   lesson: LessonSeed,
   lessonIndex: number
 ): string {
+  const mastery = IDEA_TO_ADVANTAGE_MASTERY[moduleNumber];
+  if (!mastery) throw new Error(`Missing From Idea to Advantage mastery layer for module ${moduleNumber}`);
+
   const lines: string[] = [
     `# ${lesson.title}`,
     '',
     lesson.description,
     '',
     '## Why this matters in the Caribbean',
-    'Caribbean entrepreneurs often operate with small teams, limited local scale, imported inputs, seasonal demand, high logistics costs and exposure to severe weather or connectivity disruption. The principle in this lesson should therefore be applied with explicit attention to cash, lead time, trust, capacity and recovery—not copied from a large-market example.',
+    'Caribbean entrepreneurs often operate with small teams, limited local scale, imported inputs, seasonal demand, high logistics costs and exposure to severe weather or connectivity disruption. Apply the lesson with explicit attention to cash, lead time, trust, capacity, owner dependence and recovery—not by copying a large-market example.',
     '',
     '## Learning objectives'
   ];
 
   lesson.objectives.forEach((item) => lines.push(`- ${item}`));
 
-  lines.push('', '## Core principles');
-  lesson.principles.forEach((item) => lines.push(`- ${item}`));
+  if (lessonIndex === 0) {
+    lines.push(
+      '',
+      '## The management decision',
+      mastery.keyDecision,
+      '',
+      '## Mental model — how an operator should think',
+      ...mastery.mentalModel.map(item => '- ' + item),
+      '',
+      '## Core principles'
+    );
+    lesson.principles.forEach((item) => lines.push(`- ${item}`));
+    lines.push(
+      '',
+      '## Worked Caribbean example',
+      mastery.workedExample,
+      '',
+      '## Caribbean business scenario',
+      lesson.scenario,
+      '',
+      '## Red-team the assumption',
+      ...mastery.redTeamQuestions.map((item, index) => `${index + 1}. ${item}`),
+      '',
+      '## Decision note',
+      'Before moving on, write one sentence for each: **what I believe**, **what evidence supports it**, **what is still uncertain**, and **what decision this lesson should improve**.',
+      '',
+      '## Teach-back check',
+      'Explain the decision to another owner without using jargon. Name the evidence you would need before spending money, hiring, changing price or committing to a major action.'
+    );
+  } else if (lessonIndex === 1) {
+    lines.push(
+      '',
+      '## Build the operating system',
+      ...mastery.operatorMoves.map((item, index) => `${index + 1}. ${item}`),
+      '',
+      '## Implementation method',
+      ...mastery.buildSystem.map((item, index) => `${index + 1}. ${item}`),
+      '',
+      '## Core principles'
+    );
+    lesson.principles.forEach((item) => lines.push(`- ${item}`));
+    lines.push('', '## Implement it in your business');
+    lesson.actions.forEach((item, index) => lines.push(`${index + 1}. ${item}`));
 
-  lines.push('', '## Caribbean business scenario', lesson.scenario, '', '## Implement it in your business');
-  lesson.actions.forEach((item, index) => lines.push(`${index + 1}. ${item}`));
+    if (lesson.decisionTools?.length) {
+      lines.push('', '## Decision tools');
+      lesson.decisionTools.forEach((item) => lines.push(`- ${item}`));
+    }
 
-  if (lesson.decisionTools?.length) {
-    lines.push('', '## Decision tools');
-    lesson.decisionTools.forEach((item) => lines.push(`- ${item}`));
+    lines.push(
+      '',
+      '## Implementation drill',
+      'Take one real process, product, campaign, customer flow, financial model or team responsibility from your business. Build the smallest version of the system that can produce evidence within 30 days. Assign an owner, define the trigger, define “done,” and record the first review date.',
+      '',
+      '## Failure-proof the system',
+      ...mastery.redTeamQuestions.map(item => '- ' + item),
+      '',
+      '## Handoff test',
+      'Could another person use this system without asking the owner to explain every step? If not, identify what rule, field, checklist, authority limit or example is missing.'
+    );
+  } else {
+    lines.push(
+      '',
+      '## Control loop — prove that the system works',
+      ...mastery.controlLoop.map((item, index) => `${index + 1}. ${item}`),
+      '',
+      '## Measure whether it works'
+    );
+    lesson.measures.forEach((item) => lines.push(`- ${item}`));
+
+    lines.push(
+      '',
+      '## Common mistake to avoid',
+      `> ${lesson.warning}`,
+      '',
+      '## Red-team review',
+      ...mastery.redTeamQuestions.map((item, index) => `${index + 1}. ${item}`),
+      '',
+      '## Evidence of mastery',
+      ...mastery.masteryEvidence.map(item => '- [ ] ' + item),
+      '',
+      '## Transfer challenge',
+      mastery.transferChallenge,
+      '',
+      '## 30-day proof',
+      mastery.thirtyDayProof,
+      '',
+      '## Apply, do not just read',
+      `Use the practical assignment and Workbook Section ${moduleNumber} to apply this module to your own idea or operating business. Keep calculations, source data, assumptions, owners and decision rules visible so they can be reviewed later.`,
+      '',
+      '## Management evidence pack',
+      'Your submission should show: **baseline → decision → action → measure → result → next decision**. A polished plan without evidence of how it will be used is incomplete.'
+    );
+
+    if (moduleNumber === 12) {
+      lines.push(
+        '',
+        '## Business Operator Benchmark — final transfer test',
+        'Complete a new scenario that is not the same as your own business case. The scenario should contain at least one growth opportunity and one operational, cash, supplier, people or resilience shock.',
+        '',
+        'Demonstrate the full **DEFINE → MODEL → TEST → CONTROL → MEASURE → IMPROVE** loop:',
+        '1. **DEFINE** the actual management decision and constraint.',
+        '2. **MODEL** the important customer, cash, capacity and risk assumptions.',
+        '3. **TEST** the weakest assumption using available evidence or a proposed experiment.',
+        '4. **CONTROL** the process with owners, rules, limits and escalation.',
+        '5. **MEASURE** the result using decision-relevant KPIs.',
+        '6. **IMPROVE** the 90-day plan based on the evidence.',
+        '',
+        'A confident presentation is not enough. The learner must show calculations/assumptions, evidence boundaries, tradeoffs, stop/change rules and the next review date.'
+      );
+    }
   }
 
-  lines.push('', '## Measure whether it works');
-  lesson.measures.forEach((item) => lines.push(`- ${item}`));
-
   lines.push(
-    '',
-    '## Common mistake to avoid',
-    `> ${lesson.warning}`,
-    '',
-    '## Apply, do not just read',
-    `Use the practical assignment and Workbook Section ${moduleNumber} to apply this module to your own idea or operating business. Keep calculations and assumptions visible so they can be reviewed later.`,
     '',
     '## Important boundary',
     'This course provides business education and decision frameworks. It is not country-specific legal, tax, accounting, investment, employment, insurance or regulatory advice. Verify current requirements with the relevant authority or a qualified professional in the country where the business operates.'
@@ -1502,6 +1599,28 @@ function buildLessonContent(
 
   lines.push('', `Module context: ${moduleTitle}`);
   return lines.join('\n');
+}
+
+function ideaLessonDownloads(moduleNumber: number, lessonIndex: number) {
+  const resources: Array<{ name: string; url: string; size: string; type: string }> = [];
+  const add = (name: string, file: string) => resources.push({
+    name,
+    url: `/idea-to-advantage/resources/${file}`,
+    size: 'Printable',
+    type: 'SVG worksheet'
+  });
+
+  if (lessonIndex === 2) add('Decision Evidence Sheet', 'decision-evidence-sheet.svg');
+  if (moduleNumber === 12 && lessonIndex === 2) {
+    add('Business Operator Benchmark', 'business-operator-benchmark.svg');
+    add('Business Operator Graduation Rubric', 'business-operator-graduation-rubric.svg');
+  }
+  return resources;
+}
+
+function ideaLessonImages(moduleNumber: number, lessonIndex: number) {
+  if (moduleNumber === 1 && lessonIndex === 0) return ['/idea-to-advantage/images/business-operator-skills-map.svg'];
+  return [];
 }
 
 function makeQuestion(moduleNumber: number, questionIndex: number, quizId: string, seed: QuizSeed) {
@@ -1528,12 +1647,65 @@ export function ensureIdeaToAdvantageCourse(db: any): boolean {
     !Array.isArray(db.publishingLogs)
   ) return false;
 
-  // The migration marker ensures that an administrator can deliberately delete
-  // the course later without a restart recreating it. Future curriculum releases
-  // should use a new explicit migration rather than silently overwriting edits.
   const migrationId = 'ita-course-seed-log-v1';
-  if (db.publishingLogs.some((log: any) => log.id === migrationId)) return false;
-  if (db.courses.some((course: any) => course.id === IDEA_TO_ADVANTAGE_COURSE_ID)) return false;
+  const contentMarker = 'ita-course-content-v2';
+  const existingCourse = db.courses.find((course: any) => course.id === IDEA_TO_ADVANTAGE_COURSE_ID);
+  const contentMigrated = db.publishingLogs.some((log: any) => log.id === contentMarker);
+
+  if (existingCourse && contentMigrated) return false;
+
+  // Preserve deliberate deletion: once the original seed marker exists, do not
+  // recreate a deliberately deleted course.
+  if (!existingCourse && db.publishingLogs.some((log: any) => log.id === migrationId)) return false;
+
+  if (existingCourse && !contentMigrated) {
+    const preserved = {
+      status: existingCourse.status,
+      pricingType: existingCourse.pricingType,
+      price: existingCourse.price,
+      websiteAppId: existingCourse.websiteAppId,
+      websitePublishedAt: existingCourse.websitePublishedAt,
+      createdAt: existingCourse.createdAt
+    };
+
+    const oldLessonIds = new Set(
+      Array.from({ length: 12 }, (_, moduleIndex) =>
+        Array.from({ length: 3 }, (_, lessonIndex) => `ita-les-${moduleIndex + 1}-${lessonIndex + 1}`)
+      ).flat()
+    );
+
+    db.courses = db.courses.filter((course: any) => course.id !== IDEA_TO_ADVANTAGE_COURSE_ID);
+    db.modules = db.modules.filter((module: any) => module.courseId !== IDEA_TO_ADVANTAGE_COURSE_ID);
+    db.lessons = db.lessons.filter((lesson: any) => lesson.courseId !== IDEA_TO_ADVANTAGE_COURSE_ID);
+    db.assignments = db.assignments.filter((assignment: any) => assignment.courseId !== IDEA_TO_ADVANTAGE_COURSE_ID);
+    db.quizzes = db.quizzes.filter((quiz: any) => !oldLessonIds.has(quiz.lessonId));
+
+    const markerIndex = db.publishingLogs.findIndex((log: any) => log.id === migrationId);
+    if (markerIndex >= 0) db.publishingLogs.splice(markerIndex, 1);
+
+    ensureIdeaToAdvantageCourse(db);
+
+    const upgradedCourse = db.courses.find((course: any) => course.id === IDEA_TO_ADVANTAGE_COURSE_ID);
+    if (upgradedCourse) {
+      Object.assign(upgradedCourse, preserved, {
+        courseVersion: '2.0.0',
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    const contentLog = db.publishingLogs.find((log: any) => log.id === contentMarker);
+    if (contentLog) {
+      Object.assign(contentLog, {
+        event: 'Curriculum Upgraded',
+        fromStatus: preserved.status || 'Published',
+        toStatus: preserved.status || 'Published',
+        performedBy: 'System Migration',
+        timestamp: new Date().toISOString(),
+        details: 'Upgraded From Idea to Advantage to curriculum v2 with distinct decision/build/control lessons, transfer challenges, evidence-based mastery and the Business Operator Benchmark while preserving IDs and operational settings.'
+      });
+    }
+    return true;
+  }
 
   const createdAt = '2026-09-23T15:00:00.000Z';
   const learningObjectives = [
@@ -1558,7 +1730,7 @@ export function ensureIdeaToAdvantageCourse(db: any): boolean {
     category: 'General',
     difficultyLevel: 'Beginner',
     instructor: 'V79 Academy',
-    courseVersion: '1.0.0',
+    courseVersion: '2.0.0',
     thumbnail: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80',
     estimatedDuration: '36 hours',
     prerequisites: [
@@ -1607,8 +1779,8 @@ export function ensureIdeaToAdvantageCourse(db: any): boolean {
         lessonContent: buildLessonContent(moduleNumber, moduleSeed.title, lessonSeed, lessonIndex),
         videoUrl: '',
         audioUrl: '',
-        imageUrls: [],
-        downloads: [],
+        imageUrls: ideaLessonImages(moduleNumber, lessonIndex),
+        downloads: ideaLessonDownloads(moduleNumber, lessonIndex),
         exercisePrompt: lessonSeed.actions.join(' '),
         orderNumber: lessonNumber
       });
@@ -1630,7 +1802,9 @@ export function ensureIdeaToAdvantageCourse(db: any): boolean {
       moduleId,
       lessonId: assessmentLessonId,
       title: moduleSeed.assignmentTitle,
-      description: moduleSeed.assignmentDescription,
+      description: moduleNumber === 12
+        ? moduleSeed.assignmentDescription + ' Complete the individual Business Operator Benchmark on a new growth/shock scenario and use the Business Operator Graduation Rubric. Recommended pass standard: no category below 3/4.'
+        : moduleSeed.assignmentDescription,
       maxPoints: 100,
       submissionType: 'text',
       required: true,
@@ -1638,6 +1812,18 @@ export function ensureIdeaToAdvantageCourse(db: any): boolean {
       createdAt,
       updatedAt: createdAt
     });
+  });
+
+  db.publishingLogs.push({
+    id: contentMarker,
+    courseId: IDEA_TO_ADVANTAGE_COURSE_ID,
+    courseTitle: course.title,
+    event: 'Curriculum Initialized',
+    fromStatus: 'None',
+    toStatus: 'Published',
+    performedBy: 'System Migration',
+    timestamp: createdAt,
+    details: 'Initialized From Idea to Advantage curriculum v2 with business-operator mastery and final benchmark requirements.'
   });
 
   db.publishingLogs.push({
