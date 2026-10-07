@@ -62,7 +62,7 @@ export async function createAcademyCourseOrder(input: {
     subjectReference: input.learnerId,
     description: input.courseTitle,
     amount: input.amount,
-    currency: "XCD",
+    currency: String(process.env.V79_ACADEMY_BILLING_CURRENCY || "XCD").trim().toUpperCase(),
     returnPath: input.returnPath,
   });
 }
