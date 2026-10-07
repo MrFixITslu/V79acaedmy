@@ -607,9 +607,9 @@ const finalExamQuestions: FinalExamQuestion[] = [
 
 export const IDEA_TO_ADVANTAGE_PROGRAMME: CourseProgramme = {
   kind: 'business_advantage',
-  version: 1,
+  version: 2,
   name: 'From Idea to Advantage',
-  framework: 'Understand → Implement → Measure',
+  framework: 'DEFINE → MODEL → TEST → CONTROL → MEASURE → IMPROVE',
   promise: 'Turn a promising idea or an existing Caribbean business into a better organised, financially controlled, digitally enabled and resilient operation.',
   diagnostic: {
     title: 'Business Advantage Diagnostic',
@@ -1717,7 +1717,9 @@ export function ensureIdeaToAdvantageCourse(db: any): boolean {
     'Select AI and digital tools by business problem, fit, risk and measurable return',
     'Clarify roles, delegate responsibly and reduce unnecessary owner dependence',
     'Prepare for severe weather, outages, cyber incidents and other Caribbean business risks',
-    'Complete a practical Business Advantage Plan and 12-month implementation roadmap'
+    'Complete a practical Business Advantage Plan and 12-month implementation roadmap',
+    'Use DEFINE → MODEL → TEST → CONTROL → MEASURE → IMPROVE to make evidence-based business decisions',
+    'Demonstrate independent business-operator judgment on a new growth and disruption scenario'
   ];
 
   const course = {
