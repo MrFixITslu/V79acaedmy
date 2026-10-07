@@ -850,7 +850,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         className="flex-1 overflow-y-auto flex flex-col h-full bg-slate-50"
       >
         
-        <div role="status" className="px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex justify-between gap-3"><a href="/academy">← Course catalogue</a><span>{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
+        <div role="status" className="px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex justify-between gap-3"><a href="/">← Course catalogue</a><span>{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
         {/* Dynamic Header */}
         <header className="h-16 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d] px-5 sm:px-8 flex items-center justify-between shrink-0 sticky top-0 z-10 text-slate-200">
           <div className="flex items-center gap-2">
@@ -1779,7 +1779,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         </div>
       )}
 
-      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">Academy membership</h2><p className="text-slate-600">This course requires an active subscription. Online subscriptions are coming soon.</p><p className="text-sm text-slate-500">Already a member? Sign in with your learner account. Contact the academy administrator if you need access.</p><a href="/academy" className="academy-primary inline-block">Go to my account</a><p className="text-xs text-slate-500">No payment has been taken.</p></section></div>}
+      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">Academy membership</h2><p className="text-slate-600">This course requires an active subscription. Online subscriptions are coming soon.</p><p className="text-sm text-slate-500">Already a member? Sign in with your learner account. Contact the academy administrator if you need access.</p><a href="/" className="academy-primary inline-block">Go to my account</a><p className="text-xs text-slate-500">No payment has been taken.</p></section></div>}
 
     </div>
   );
