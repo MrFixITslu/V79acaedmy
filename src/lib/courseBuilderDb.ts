@@ -157,9 +157,11 @@ export class CourseRepository {
     const db = loadDb();
     const idx = db.courses.findIndex((c) => c.id === id);
     if (idx === -1) return null;
+    const current = db.courses[idx];
     db.courses[idx] = {
-      ...db.courses[idx],
+      ...current,
       ...updates,
+      id: current.id,
       updatedAt: new Date().toISOString()
     };
     saveDb(db);
@@ -200,7 +202,8 @@ export class ModuleRepository {
     const db = loadDb();
     const idx = db.modules.findIndex((m) => m.id === id);
     if (idx === -1) return null;
-    db.modules[idx] = { ...db.modules[idx], ...updates };
+    const current = db.modules[idx];
+    db.modules[idx] = { ...current, ...updates, id: current.id, courseId: current.courseId };
     saveDb(db);
     return db.modules[idx];
   }
@@ -244,7 +247,8 @@ export class LessonRepository {
     const db = loadDb();
     const idx = db.lessons.findIndex((l) => l.id === id);
     if (idx === -1) return null;
-    db.lessons[idx] = { ...db.lessons[idx], ...updates };
+    const current = db.lessons[idx];
+    db.lessons[idx] = { ...current, ...updates, id: current.id, courseId: current.courseId, moduleId: current.moduleId };
     saveDb(db);
     return db.lessons[idx];
   }
@@ -283,9 +287,12 @@ export class ContentBlockRepository {
     const db = loadDb();
     const idx = db.contentBlocks.findIndex((cb) => cb.id === id);
     if (idx === -1) return null;
+    const current = db.contentBlocks[idx];
     db.contentBlocks[idx] = {
-      ...db.contentBlocks[idx],
+      ...current,
       ...updates,
+      id: current.id,
+      lessonId: current.lessonId,
       updatedAt: new Date().toISOString()
     };
     saveDb(db);
@@ -395,9 +402,14 @@ export class AssignmentRepository {
     const db = loadDb();
     const idx = db.assignments.findIndex((a) => a.id === id);
     if (idx === -1) return null;
+    const current = db.assignments[idx];
     db.assignments[idx] = {
-      ...db.assignments[idx],
+      ...current,
       ...updates,
+      id: current.id,
+      courseId: current.courseId,
+      moduleId: current.moduleId,
+      lessonId: current.lessonId,
       updatedAt: new Date().toISOString()
     };
     saveDb(db);
@@ -436,7 +448,8 @@ export class DownloadRepository {
     const db = loadDb();
     const idx = db.downloads.findIndex((d) => d.id === id);
     if (idx === -1) return null;
-    db.downloads[idx] = { ...db.downloads[idx], ...updates };
+    const current = db.downloads[idx];
+    db.downloads[idx] = { ...current, ...updates, id: current.id, courseId: current.courseId, lessonId: current.lessonId };
     saveDb(db);
     return db.downloads[idx];
   }
