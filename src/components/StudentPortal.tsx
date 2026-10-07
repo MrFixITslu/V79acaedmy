@@ -70,6 +70,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   const [programmeRevision, setProgrammeRevision] = useState(0);
   useEffect(() => { const saved = () => setProgrammeRevision(v => v + 1); window.addEventListener('academy-programme-saved', saved); return () => window.removeEventListener('academy-programme-saved', saved); }, []);
   const progressLoaded = useRef(false);
+  const paymentConfirmAttempted = useRef(false);
   // States
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +141,85 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     if (!c) return false;
     return requiresSubscription(c);
   };
+
+  const submitHostedCheckout = (checkout: any) => {
+    const action = new URL(String(checkout?.action || ''));
+    if (action.protocol !== 'https:') throw new Error('The payment provider URL is not secure.');
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = action.toString();
+    form.style.display = 'none';
+    for (const [name, value] of Object.entries(checkout?.fields || {})) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = String(value);
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+  };
+
+  const startCourseCheckout = async () => {
+    if (!course) return;
+    setPaymentProcessing(true);
+    setPaymentSuccessMsg(null);
+    try {
+      const response = await fetch('/api/learner/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId: course.id })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not start checkout.');
+      if (result.alreadyHasAccess) {
+        setIsEnrolled(true);
+        setShowPaymentModal(false);
+        setPaymentSuccessMsg('You already have access to this course.');
+        setPaymentProcessing(false);
+        return;
+      }
+      submitHostedCheckout(result.checkout);
+    } catch (e: any) {
+      setPaymentSuccessMsg(e.message || 'Could not start checkout.');
+      setPaymentProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!course || !learnerId || paymentConfirmAttempted.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const orderId = params.get('order');
+    if (!payment) return;
+
+    paymentConfirmAttempted.current = true;
+    if (payment !== 'success' || !orderId) {
+      setPaymentSuccessMsg('Payment was not verified. No course access was granted.');
+      return;
+    }
+
+    setPaymentProcessing(true);
+    fetch('/api/learner/checkout/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId })
+    })
+      .then(async response => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not verify your course payment.');
+        if (result.courseId !== course.id) throw new Error('The verified payment belongs to a different course.');
+        setIsEnrolled(true);
+        setPaymentSuccessMsg('Payment verified. Your course is unlocked.');
+        params.delete('payment');
+        params.delete('order');
+        params.delete('payment_reason');
+        const query = params.toString();
+        window.history.replaceState({}, '', window.location.pathname + (query ? `?${query}` : ''));
+      })
+      .catch((e: any) => setPaymentSuccessMsg(e.message || 'Could not verify your course payment.'))
+      .finally(() => setPaymentProcessing(false));
+  }, [course, learnerId]);
 
   const isLessonIntro = (_les: Lesson, _lesIdx: number, _modIdx: number) => false;
 
@@ -633,7 +713,9 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   // Find currently active lesson's module name
   const currentModule = modules.find(m => m.id === currentLesson?.moduleId);
   const paidCourse = isCoursePaid(course);
-  const coursePriceFormatted = 'Academy subscription';
+  const coursePriceFormatted = course?.pricingType === 'premium' && Number(course?.price) > 0
+    ? new Intl.NumberFormat('en-LC', { style: 'currency', currency: 'XCD' }).format(Number(course.price))
+    : 'Academy membership';
 
   return (
     <div className="v79-academy-classroom classroom-shell min-h-screen bg-slate-50 flex text-slate-800 font-sans antialiased overflow-hidden h-screen">
@@ -724,9 +806,9 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
               <div className="flex items-start gap-2">
                 <Lock className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                 <div className="text-[11px] text-amber-900 font-medium leading-tight">
-                  <p className="font-bold text-amber-950">Membership required</p>
+                  <p className="font-bold text-amber-950">Course access required</p>
                   <p className="mt-0.5 text-amber-800 text-[10px]">
-                    An active academy membership is needed for this course.
+                    Purchase this course or use an active Academy membership.
                   </p>
                 </div>
               </div>
@@ -735,7 +817,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                 className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5"
               >
                 <CreditCard className="w-3.5 h-3.5" />
-                <span>View membership options</span>
+                <span>Unlock course</span>
               </button>
             </div>
           )}
@@ -1023,10 +1105,10 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                             className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                           >
                             <CreditCard className="w-4 h-4" />
-                            <span>View membership options</span>
+                            <span>Unlock course</span>
                           </button>
                           <p className="text-[10px] text-slate-400">
-                            Online subscriptions are coming soon. Existing members can sign in.
+                            Purchase this premium course securely with WiPay, or sign in if your membership already includes it.
                           </p>
                         </div>
                       )}
@@ -1100,7 +1182,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                     {!isEnrolled && paidCourse && (
                       <span className="text-[10px] text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md font-bold border border-amber-200 flex items-center gap-1">
                         <Lock className="w-3 h-3 text-amber-600" />
-                        <span>Membership required</span>
+                        <span>Course access required</span>
                       </span>
                     )}
                   </div>
@@ -1227,7 +1309,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                       onClick={() => setShowPaymentModal(true)}
                       className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-colors"
                     >
-                      View membership options
+                      Unlock course
                     </button>
                   )}
                 </div>
@@ -1247,14 +1329,14 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                   <Info className="w-5 h-5 text-amber-600 shrink-0" />
                   <div>
                     <p className="font-bold">Viewing Free Course Introduction Preview</p>
-                    <p className="text-[11px] text-amber-800">An active membership is required for this course. Online subscriptions are coming soon.</p>
+                    <p className="text-[11px] text-amber-800">Purchase this course or use an active Academy membership.</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowPaymentModal(true)}
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shrink-0 shadow-xs"
                 >
-                  View membership options
+                  Unlock course
                 </button>
               </div>
             )}
@@ -1821,7 +1903,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         </div>
       )}
 
-      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">Academy membership</h2><p className="text-slate-600">This course requires an active subscription. Online subscriptions are coming soon.</p><p className="text-sm text-slate-500">Already a member? Sign in with your learner account. Contact the academy administrator if you need access.</p><a href="/" className="academy-primary inline-block">Go to my account</a><p className="text-xs text-slate-500">No payment has been taken.</p></section></div>}
+      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">{course.pricingType === 'premium' ? 'Unlock this course' : 'Academy membership'}</h2><p className="text-slate-600">{course.pricingType === 'premium' ? `One-time course access: ${coursePriceFormatted}.` : 'Recurring Academy subscriptions are not enabled yet.'}</p><p className="text-sm text-slate-500">{course.pricingType === 'premium' ? 'You will complete payment on WiPay. Access is granted only after V79 Billing verifies the transaction.' : 'Already a member? Sign in with your learner account. No recurring payment will be attempted.'}</p>{paymentSuccessMsg && <div className="rounded-xl bg-slate-100 border border-slate-200 px-3 py-2 text-xs text-slate-700">{paymentSuccessMsg}</div>}{course.pricingType === 'premium' ? <button type="button" disabled={paymentProcessing} onClick={startCourseCheckout} className="academy-primary w-full disabled:opacity-60">{paymentProcessing ? 'Opening secure checkout…' : `Pay ${coursePriceFormatted} with WiPay`}</button> : <a href="/" className="academy-primary inline-block">Go to my account</a>}<p className="text-xs text-slate-500">Card details are entered on WiPay's hosted page and are not stored by V79 Academy.</p></section></div>}
 
     </div>
   );
