@@ -51,7 +51,9 @@ export function academyBillingConfigured() {
 }
 
 export async function getAcademyBillingCapabilities() {
-  return hubRequest(CAPABILITIES_PATH, {}, 2000);
+  return hubRequest(CAPABILITIES_PATH, {
+    currency: String(process.env.V79_ACADEMY_BILLING_CURRENCY || "XCD").trim().toUpperCase(),
+  }, 2000);
 }
 
 export async function createAcademyCourseOrder(input: {
