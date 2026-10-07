@@ -1,4 +1,4 @@
-# V79 Junior AI Academy — Curriculum v3 Learning Standard
+# V79 Junior AI Academy — Curriculum v3.1 Learning Standard
 
 ## Graduate outcome
 
@@ -114,6 +114,19 @@ The learner must independently demonstrate:
 7. EXPLAIN what AI did, what the human decided and when AI would not be appropriate.
 
 A polished output alone does not pass.
+
+### Graduation rubric
+
+Use the printable **AI Operator Graduation Rubric** during final review. Score six areas from 1–4:
+
+1. **DEFINE + CHOOSE**
+2. **PROMPT + CONTEXT**
+3. **CHECK + VERIFY**
+4. **IMPROVE**
+5. **SAVE + TRANSFER**
+6. **EXPLAIN + RESPONSIBILITY**
+
+Recommended pass standard: **no category below 3 (Competent)**. If a category is still Developing, return **Needs Changes** with one clear next action and allow the learner to demonstrate the skill again.
 
 For new Mission 16 approvals, every learner on the team must submit:
 - the benchmark task/tool-choice description;
