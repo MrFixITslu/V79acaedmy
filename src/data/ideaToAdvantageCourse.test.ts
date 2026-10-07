@@ -35,6 +35,8 @@ assert.equal(course.status, 'Published');
 assert.equal(course.pricingType, 'free');
 assert.equal(course.price, 0);
 assert.equal(course.programme?.kind, 'business_advantage');
+assert.equal(course.programme?.version, 2);
+assert.equal(course.programme?.framework, 'DEFINE → MODEL → TEST → CONTROL → MEASURE → IMPROVE');
 assert.equal(IDEA_TO_ADVANTAGE_PROGRAMME.finalExam.questions.length, 24);
 assert.equal(IDEA_TO_ADVANTAGE_PROGRAMME.certificate.finalExamMinimumScore, 70);
 assert.equal(IDEA_TO_ADVANTAGE_PROGRAMME.certificate.requireAllAssignments, true);
