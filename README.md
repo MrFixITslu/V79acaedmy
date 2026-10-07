@@ -185,6 +185,26 @@ npm run dev
 
 ---
 
+## From Idea to Advantage — curriculum v2
+
+The Caribbean entrepreneurship programme now uses the operator loop **DEFINE → MODEL → TEST → CONTROL → MEASURE → IMPROVE**.
+
+- 12 modules / 36 lessons
+- distinct decision, implementation and control lesson roles
+- Caribbean worked examples and red-team questions
+- evidence-based workbook assignments
+- 30-day proof requirements
+- Business Operator Skills Map
+- Decision Evidence worksheet
+- final Business Operator Benchmark and Graduation Rubric
+- v1 → v2 migration preserves course IDs, learner progress keys, pricing, status and website linkage
+
+Learning standard:
+
+```text
+docs/idea-to-advantage-v2-learning-standard.md
+```
+
 ## Production Deployment (Docker Compose & Nginx Proxy Manager)
 
 > **Important:** The GitHub **Package & Publish Image** workflow validates and publishes the image to GHCR. It does **not** connect to the production server or restart the live containers. Your server/deployment platform must pull/rebuild the new image and start it separately.
