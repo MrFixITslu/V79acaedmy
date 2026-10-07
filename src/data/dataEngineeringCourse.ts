@@ -1059,7 +1059,7 @@ const modules: ModuleSeed[] = [
         concepts: [
           "Monitoring should cover success/failure, duration, volume, freshness and resource pressure.",
           "A technically successful job can still deliver incomplete or stale data.",
-          "Downstream semantic-model refresh status matters when business users depend on the resulting reports.",
+          "Downstream semantic model refresh status matters when business users depend on the resulting reports.",
           "Alerts should include enough context to identify the failing item, run and next action."
         ],
         example: "A pipeline finishes successfully but writes zero rows. A row-count anomaly alert catches the issue even though the orchestration status is green.",
