@@ -123,9 +123,9 @@ try {
   }
   await api(`/api/learner/junior/${junior.id}/submissions/1`,{method:'POST',cookie:nonLeaderCookie,status:403,body:{artifactText:'Should be rejected'}});
   let checkIn=(await api(`/api/learner/junior/${junior.id}/submissions/1`,{method:'POST',cookie:leaderCookie,body:{artifactText:'Mission 1 charter and project plan completed.',leaderReport:{planned:'Form our team and choose a project.',finished:'Charter and project idea.',help:'We need feedback on scope.'},riskUpdate:'Our first risk is checking reef facts.'}})).data.submission;
-  assert.equal(checkIn.status,'Submitted');assert.equal(checkIn.revision,1);assert.equal(Object.keys(checkIn.individualReflections).length,3);
+  assert.equal(checkIn.status,'Submitted');assert.equal(checkIn.revision,1);assert.equal(Object.keys(checkIn.individualReflections).length,1);
   checkIn=(await api(`/api/junior-admin/submissions/${checkIn.id}/review`,{method:'PUT',cookie:admin,body:{status:'Needs Changes',strong:'Clear purpose.',improve:'Make the audience more specific.',next:'Revise and resubmit.',rubric:{learning:3,quality:3,teamwork:4,responsibility:3,safety:4}}})).data.submission;
-  assert.equal(checkIn.status,'Needs Changes');
+  assert.equal(checkIn.status,'Needs Changes');assert.equal(Object.keys(checkIn.individualReflections).length,3);
   checkIn=(await api(`/api/learner/junior/${junior.id}/submissions/1`,{method:'POST',cookie:leaderCookie,body:{artifactText:'Mission 1 revised for primary school reef learners.',leaderReport:{planned:'Revise audience.',finished:'Audience revised.',help:'None.'},riskUpdate:'Fact-check task remains open.'}})).data.submission;
   assert.equal(checkIn.revision,2);
   checkIn=(await api(`/api/junior-admin/submissions/${checkIn.id}/review`,{method:'PUT',cookie:admin,body:{status:'Approved',strong:'Revision addressed the feedback.',improve:'No required changes.',next:'Move to the Prompt Bank.',rubric:{learning:4,quality:4,teamwork:4,responsibility:4,safety:4}}})).data.submission;
