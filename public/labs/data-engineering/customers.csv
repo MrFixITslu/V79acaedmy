@@ -1,0 +1,8 @@
+customer_id,customer_name,region,email,updated_at,source_sequence
+C001,Island Tech Supplies,Gros Islet,SALES@ISLANDTECH.LC,2026-09-01T09:00:00Z,1
+C002,Caribbean Fresh Foods,Castries,orders@caribfresh.lc,2026-09-02T10:15:00Z,1
+C003,Blue Bay Services,Soufriere,hello@bluebay.lc,2026-08-15T12:00:00Z,1
+C003,Blue Bay Services,Vieux Fort,HELLO@BLUEBAY.LC,2026-10-01T08:30:00Z,2
+C004,Piton Office Solutions,Micoud,contact@pitonoffice.lc,2026-09-10T11:20:00Z,1
+C005,Northern Hardware,Gros Islet,sales@northernhardware.lc,2026-09-12T14:05:00Z,1
+C006,Creole Digital,Castries,,2026-09-18T16:45:00Z,1
