@@ -584,6 +584,10 @@ function lessonDownloads(missionNumber: number, lessonIndex: number) {
   if ([13,15].includes(missionNumber)) add('Wi-Fi & Security Plan', 'wireless-security-plan.svg');
   if (missionNumber === 17) add('Network Troubleshooting Report', 'troubleshooting-report.svg');
   if ([18,19,20].includes(missionNumber)) add('Final Network Design Checklist', 'final-design-checklist.svg');
+  if (missionNumber === 20) {
+    add('Network Technician Benchmark', 'network-technician-benchmark.svg');
+    add('Network Technician Graduation Rubric', 'network-technician-graduation-rubric.svg');
+  }
   return resources;
 }
 
@@ -592,6 +596,7 @@ function missionImages(missionNumber: number, lessonIndex: number) {
   const images = [`/junior-networking/images/mission-${n}-cover.svg`];
   if (lessonIndex === 0) {
     images.push(`/junior-networking/images/mission-${n}-diagram.svg`);
+    if (missionNumber === 1) images.push('/junior-networking/images/network-technician-skills-map.svg');
     if (missionNumber === 2) images.push('/junior-networking/images/hardware-glossary.svg');
     if (missionNumber === 6) images.push('/junior-networking/images/osi-model-poster.svg');
     if (missionNumber === 17) images.push('/junior-networking/images/troubleshooting-ladder.svg');
@@ -619,7 +624,9 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
   // the seeded curriculum footprint with the stronger mastery version.
   if (existingCourse && !contentMigrated) {
     const preserved = {
-      status: existingCourse.status,
+      status: !publicationMigrated && (existingCourse.status || 'Draft') === 'Draft'
+        ? 'Published'
+        : existingCourse.status,
       pricingType: existingCourse.pricingType,
       price: existingCourse.price,
       websiteAppId: existingCourse.websiteAppId,
@@ -798,7 +805,9 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
         moduleId,
         lessonId: `jna-les-${missionNumber}-3`,
         title: missionNumber === 20 ? 'Final Network Engineer Portfolio & Demo' : `Mission ${missionNumber} Network Project Milestone`,
-        description: mission.projectMilestone,
+        description: missionNumber === 20
+          ? mission.projectMilestone + ' Complete the individual Network Technician Benchmark on an unfamiliar fault and design-change scenario. Submit the evidence trail, verification, updated documentation and self-explanation. Use the Network Technician Graduation Rubric; the recommended standard is no category below 3/4.'
+          : mission.projectMilestone,
         maxPoints: missionNumber === 20 ? 200 : 100,
         submissionType: 'text',
         required: true,
