@@ -1073,7 +1073,8 @@ app.put("/api/modules/:id", (req, res) => {
   db = loadData();
   const index = db.modules.findIndex((m: any) => m.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: "Module not found" });
-  db.modules[index] = { ...db.modules[index], ...req.body };
+  const current = db.modules[index];
+  db.modules[index] = { ...current, ...req.body, id: current.id, courseId: current.courseId };
   saveData(db);
   res.json(db.modules[index]);
 });
@@ -1206,7 +1207,8 @@ app.put("/api/lessons/:id", (req, res) => {
   db = loadData();
   const index = db.lessons.findIndex((l: any) => l.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: "Lesson not found" });
-  db.lessons[index] = { ...db.lessons[index], ...req.body };
+  const current = db.lessons[index];
+  db.lessons[index] = { ...current, ...req.body, id: current.id, courseId: current.courseId, moduleId: current.moduleId };
   saveData(db);
   res.json(db.lessons[index]);
 });
