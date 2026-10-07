@@ -8,7 +8,8 @@ import { createHash, createHmac } from 'node:crypto';
 const root=process.cwd(); const directory=mkdtempSync(path.join(os.tmpdir(),'v79-academy-test-'));
 const platformSecret='academy-hub-test-secret-long-enough-2026';
 const socket=net.createServer(); await new Promise(r=>socket.listen(0,'127.0.0.1',r)); const port=socket.address().port;await new Promise(r=>socket.close(r));
-const child=spawn(process.execPath,[path.join(root,'dist/server.cjs')],{cwd:directory,env:{...process.env,NODE_ENV:'production',PORT:String(port),ADMIN_PASSWORD:'isolated-test-password-123',V79_PLATFORM_SHARED_SECRET:platformSecret},stdio:'ignore'});
+const serverEnv={...process.env,NODE_ENV:'production',PORT:String(port),ADMIN_PASSWORD:'isolated-test-password-123',V79_PLATFORM_SHARED_SECRET:platformSecret,ACADEMY_STANDALONE_ADMIN_ENABLED:'1'};
+let child=spawn(process.execPath,[path.join(root,'dist/server.cjs')],{cwd:directory,env:serverEnv,stdio:'ignore'});
 const base=`http://127.0.0.1:${port}`;
 async function api(route,{method='GET',cookie='',body,status=200,headers={}}={}) {
   const response=await fetch(base+route,{method,headers:{...(cookie?{Cookie:cookie}:{}),...headers,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
@@ -29,9 +30,30 @@ async function hubApi(route,{method='GET',body,status=200,headers}={}) {
   assert.equal(response.status,status,method+' '+route+': '+JSON.stringify(data));
   return {data,headers:signed};
 }
+async function waitReady() {
+  for(let i=0;i<100;i++){try{const r=await fetch(base+'/healthz');if(r.ok)return;}catch{}await new Promise(r=>setTimeout(r,100));}
+  throw new Error('Academy server did not become ready');
+}
+async function completeCourse(courseId,cookie,source) {
+  const lessons=source.lessons.filter(l=>l.courseId===courseId);
+  const quizzes=source.quizzes.filter(q=>lessons.some(l=>l.id===q.lessonId));
+  for(const lesson of lessons){
+    const quiz=quizzes.find(q=>q.lessonId===lesson.id);
+    if(quiz?.questions?.length){
+      const result=(await api(`/api/public/lessons/${lesson.id}/quiz/submit`,{method:'POST',cookie,body:{answers:Object.fromEntries(quiz.questions.map(q=>[q.id,typeof q.correctAnswer==='number'?q.options[q.correctAnswer]:q.correctAnswer]))}})).data;
+      assert.equal(result.score,100);
+      assert.equal(result.completionRecorded,true);
+    } else {
+      await api(`/api/learner/lessons/${lesson.id}/complete`,{method:'POST',cookie});
+    }
+  }
+  for(const assignment of source.assignments.filter(a=>a.courseId===courseId)){
+    await api(`/api/learner/assignments/${assignment.id}/submit`,{method:'POST',cookie,body:{text:'Completed practical activity response with supporting evidence.'}});
+  }
+}
 
 try {
-  for(let i=0;i<100;i++){try{await fetch(base+'/healthz');break;}catch{await new Promise(r=>setTimeout(r,100));}}
+  await waitReady();
   const health=await api('/healthz');assert.equal(health.data.status,'ok');
   const guest=await api('/api/learner/session');assert.equal(guest.data.user,null);
   const catalog=(await api('/api/public/courses')).data;assert.ok(catalog.length>=2);assert.ok(catalog.every(c=>!c.programme));
@@ -57,9 +79,9 @@ try {
   const account=await api('/api/learner/register',{method:'POST',body:{email:'learner@example.test',name:'Test Learner',password:'learner-password-123'}});const learner=account.cookie;
   await api('/api/learner/login',{method:'POST',body:{email:'learner@example.test',password:'incorrect-password'},status:401});
   await api(`/api/learner/enroll/${free.id}`,{method:'POST',cookie:learner});
-  await api(`/api/learner/progress/${free.id}`,{method:'PUT',cookie:learner,body:{completedLessons:{[freeLessons[0].id]:true,'foreign-lesson':true},programmeState:{examAttempts:[{passed:true,score:100}],certificateId:'FAKE'}}});
+  await api(`/api/learner/progress/${free.id}`,{method:'PUT',cookie:learner,body:{completedLessons:{[freeLessons[0].id]:true,'foreign-lesson':true},assignmentSubmissions:{fake:{text:'forged'}},programmeState:{examAttempts:[{passed:true,score:100}],certificateId:'FAKE'}}});
   const progress=(await api(`/api/learner/progress/${free.id}`,{cookie:learner})).data;
-  assert.equal(progress.completedLessons['foreign-lesson'],undefined);assert.equal(progress.programmeState.examAttempts.length,0);assert.equal(progress.programmeState.certificateId,undefined);
+  assert.equal(progress.completedLessons?.[freeLessons[0].id],undefined);assert.equal(progress.completedLessons?.['foreign-lesson'],undefined);assert.equal(progress.assignmentSubmissions?.fake,undefined);assert.equal(progress.programmeState.examAttempts.length,0);assert.equal(progress.programmeState.certificateId,undefined);
   await api(`/api/learner/certificate/${free.id}`,{method:'POST',cookie:learner,status:409});
   const source = JSON.parse(readFileSync(path.join(directory,'data/store.json'),'utf8'));
   const programme = source.courses.find(c=>c.programme);
@@ -67,17 +89,16 @@ try {
   assert.ok(publicProgramme.programme.finalExam.questions.every(q=>q.correctAnswer===''));
   await api(`/api/learner/exam/${programme.id}`,{method:'POST',cookie:learner,body:{answers:{}},status:409});
   const lessons = source.lessons.filter(l=>l.courseId===programme.id);
-  const assignments = source.assignments.filter(a=>a.courseId===programme.id);
-  await api(`/api/learner/progress/${programme.id}`,{method:'PUT',cookie:learner,body:{completedLessons:Object.fromEntries(lessons.map(l=>[l.id,true])),assignmentSubmissions:Object.fromEntries(assignments.map(a=>[a.id,{text:'Completed practical activity response'}]))}});
   const quiz=source.quizzes.find(q=>lessons.some(l=>l.id===q.lessonId));
-  const publicQuiz=(await api(`/api/public/lessons/${quiz.lessonId}/quiz`)).data;
+  const publicQuiz=(await api(`/api/public/lessons/${quiz.lessonId}/quiz`,{cookie:learner})).data;
   assert.ok(publicQuiz.questions.every(q=>q.correctAnswer===undefined));
-  const quizResult=(await api(`/api/public/lessons/${quiz.lessonId}/quiz/submit`,{method:'POST',body:{answers:Object.fromEntries(quiz.questions.map(q=>[q.id,typeof q.correctAnswer==='number'?q.options[q.correctAnswer]:q.correctAnswer]))}})).data;
-  assert.equal(quizResult.score,100);
+  await completeCourse(programme.id,learner,source);
   const passed=(await api(`/api/learner/exam/${programme.id}`,{method:'POST',cookie:learner,body:{answers:Object.fromEntries(programme.programme.finalExam.questions.map(q=>[q.id,q.correctAnswer]))}})).data;
   assert.equal(passed.attempt.score,100);
   const certificate=(await api(`/api/learner/certificate/${programme.id}`,{method:'POST',cookie:learner})).data;
   assert.equal(certificate.name,'Test Learner'); assert.ok(certificate.id.startsWith('V79-'));
+  const verified=(await api(`/api/public/certificates/${encodeURIComponent(certificate.id)}`)).data;
+  assert.equal(verified.status,'valid');assert.equal(verified.name,'Test Learner');assert.equal(verified.courseTitle,programme.title);
   const premium=(await api('/api/courses',{method:'POST',cookie:admin,status:201,body:{title:'Subscription test',status:'Published',pricingType:'subscription',category:'Test Application'}})).data;
   const pricedPublished=(await api(`/api/courses/${premium.id}`,{method:'PUT',cookie:admin,body:{pricingType:'subscription',price:24.5,status:'Published'}})).data;
   assert.equal(pricedPublished.pricingType,'subscription');assert.equal(pricedPublished.price,24.5);
@@ -160,6 +181,13 @@ try {
   assert.equal(stored.modules.some(m=>m.courseId===premium.id),false);assert.equal(stored.lessons.some(l=>l.courseId===premium.id),false);
   await api('/api/admin/reset-password',{method:'POST',body:{token:'V79-RECOVERY-KEY-2026',newPassword:'replacement-password'},status:401});
   const recovery=(await api('/api/admin/recovery-info')).data;assert.equal(JSON.stringify(recovery).includes('V79-RECOVERY-KEY-2026'),false);
+
+  child.kill(); await new Promise(r=>child.once('exit',r));
+  child=spawn(process.execPath,[path.join(root,'dist/server.cjs')],{cwd:directory,env:serverEnv,stdio:'ignore'});
+  await waitReady();
+  const persistedSession=(await api('/api/learner/session',{cookie:learner})).data;
+  assert.equal(persistedSession.user?.email,'learner@example.test');
+
   await api('/api/learner/logout',{method:'POST',cookie:learner});await api(`/api/learner/progress/${free.id}`,{cookie:learner,status:401});
   console.log('✓ Academy API: accounts, enrolment, protected content, membership grant/revoke/expiry, progress validation, certificate checks, deletion, recovery and logout passed');
-} finally {child.kill();await new Promise(r=>child.once('exit',r));rmSync(directory,{recursive:true,force:true});}
+} finally {if(child && !child.killed){child.kill();await new Promise(r=>child.once('exit',r));}rmSync(directory,{recursive:true,force:true});}
