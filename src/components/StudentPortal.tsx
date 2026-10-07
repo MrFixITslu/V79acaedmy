@@ -1781,7 +1781,17 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                   {course.programme ? 'Practical Business Success for Caribbean Entrepreneurs' : `V79 Application Core Focus: ${course.category}`}
                 </p>
                 {issuedCertificateId && (
-                  <p className="text-[9px] text-slate-500 font-mono mt-2">Credential ID: {issuedCertificateId}</p>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-[9px] text-slate-500 font-mono">Credential ID: {issuedCertificateId}</p>
+                    <a
+                      href={`/verify/${encodeURIComponent(issuedCertificateId)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[9px] font-bold text-indigo-700 underline underline-offset-2"
+                    >
+                      Verify this certificate at {window.location.host}/verify/{issuedCertificateId}
+                    </a>
+                  </div>
                 )}
               </div>
 
