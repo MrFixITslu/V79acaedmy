@@ -2162,6 +2162,12 @@ app.post("/api/gemini/assist", async (req, res) => {
   }
 });
 
+app.get(["/academy", "/academy/"], (_req, res) => res.redirect(301, "/"));
+app.get("/academy/course/:slug", (req, res) => {
+  const slug = encodeURIComponent(String(req.params.slug || "").trim());
+  res.redirect(301, slug ? `/course/${slug}` : "/");
+});
+
 app.use((error: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('[API]', error.message);
   res.status(error.status || 500).json({ error: error.status === 413 ? 'Request is too large.' : 'The request could not be completed. Please try again.' });
