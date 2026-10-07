@@ -64,6 +64,8 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [paymentProcessing, setPaymentProcessing] = useState<boolean>(false);
   const [paymentSuccessMsg, setPaymentSuccessMsg] = useState<string | null>(null);
+  const [billingAvailable, setBillingAvailable] = useState<boolean>(false);
+  const [billingEnvironment, setBillingEnvironment] = useState<string | null>(null);
 
   const [learnerId, setLearnerId] = useState<string | null>(null);
   const [syncMessage, setSyncMessage] = useState('');
@@ -256,6 +258,8 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         const sessionRes = await fetch('/api/learner/session');
         const session = await sessionRes.json();
         setLearnerId(session.user?.id || null);
+        setBillingAvailable(Boolean(session.billing?.available));
+        setBillingEnvironment(session.billing?.environment || null);
         if (session.user) {
           setStudentName(session.user.name);
           const progressRes = await fetch(`/api/learner/progress/${courseData.id}`);
@@ -1903,7 +1907,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         </div>
       )}
 
-      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">{course.pricingType === 'premium' ? 'Unlock this course' : 'Academy membership'}</h2><p className="text-slate-600">{course.pricingType === 'premium' ? `One-time course access: ${coursePriceFormatted}.` : 'Recurring Academy subscriptions are not enabled yet.'}</p><p className="text-sm text-slate-500">{course.pricingType === 'premium' ? 'You will complete payment on WiPay. Access is granted only after V79 Billing verifies the transaction.' : 'Already a member? Sign in with your learner account. No recurring payment will be attempted.'}</p>{paymentSuccessMsg && <div className="rounded-xl bg-slate-100 border border-slate-200 px-3 py-2 text-xs text-slate-700">{paymentSuccessMsg}</div>}{course.pricingType === 'premium' ? <button type="button" disabled={paymentProcessing} onClick={startCourseCheckout} className="academy-primary w-full disabled:opacity-60">{paymentProcessing ? 'Opening secure checkout…' : `Pay ${coursePriceFormatted} with WiPay`}</button> : <a href="/" className="academy-primary inline-block">Go to my account</a>}<p className="text-xs text-slate-500">Card details are entered on WiPay's hosted page and are not stored by V79 Academy.</p></section></div>}
+      {showPaymentModal && course && <div className="fixed inset-0 z-50 bg-slate-900/70 flex items-center justify-center p-5"><section role="dialog" aria-modal="true" aria-labelledby="subscription-title" className="bg-white rounded-3xl max-w-md p-8 space-y-5 relative"><button aria-label="Close access options" onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-2"><X size={20}/></button><Lock className="text-indigo-600" size={32}/><h2 id="subscription-title" className="text-2xl font-bold">{course.pricingType === 'premium' ? 'Unlock this course' : 'Academy membership'}</h2><p className="text-slate-600">{course.pricingType === 'premium' ? `One-time course access: ${coursePriceFormatted}.` : 'Recurring Academy subscriptions are not enabled yet.'}</p><p className="text-sm text-slate-500">{course.pricingType === 'premium' ? (billingAvailable ? 'You will complete payment on WiPay. Access is granted only after V79 Billing verifies the transaction.' : 'Online payment for this course is not enabled yet. No payment will be attempted.') : 'Already a member? Sign in with your learner account. No recurring payment will be attempted.'}</p>{billingEnvironment === 'sandbox' && <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">WiPay sandbox is active for testing. Test payments never unlock paid course access.</div>}{paymentSuccessMsg && <div className="rounded-xl bg-slate-100 border border-slate-200 px-3 py-2 text-xs text-slate-700">{paymentSuccessMsg}</div>}{course.pricingType === 'premium' && !learnerId ? <a href="/" className="academy-primary inline-block w-full text-center">Sign in to purchase</a> : course.pricingType === 'premium' && billingAvailable ? <button type="button" disabled={paymentProcessing} onClick={startCourseCheckout} className="academy-primary w-full disabled:opacity-60">{paymentProcessing ? 'Opening secure checkout…' : `Pay ${coursePriceFormatted} with WiPay`}</button> : <a href="/" className="academy-primary inline-block">Go to my account</a>}<p className="text-xs text-slate-500">{billingAvailable ? "Card details are entered on WiPay's hosted page and are not stored by V79 Academy." : 'V79 Academy will display online checkout only when V79 Billing reports that the payment provider is ready.'}</p></section></div>}
 
     </div>
   );
