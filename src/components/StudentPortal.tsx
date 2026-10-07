@@ -317,9 +317,16 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   });
   const completedCount = (Object.values(lessonsMap) as Lesson[][]).flat().filter(lesson => completedLessons[lesson.id]).length;
   const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+  const requiredAssignments = course
+    ? assignments.filter((assignment) => assignment.courseId === course.id && (assignment as Assignment & { required?: boolean }).required !== false)
+    : [];
+  const submittedRequiredAssignments = requiredAssignments.filter((assignment) => Boolean(assignmentSubmissions[assignment.id])).length;
+  const isDp700Course = course?.id === 'course-data-engineering-dp700-01';
   const certificateEligible = course?.programme
     ? programmeStatus?.readyForCertificate === true
-    : progressPercent === 100;
+    : isDp700Course
+      ? progressPercent === 100 && requiredAssignments.length >= 12 && submittedRequiredAssignments === requiredAssignments.length
+      : progressPercent === 100;
 
   useEffect(() => {
     if (!course?.programme) return;
@@ -400,74 +407,135 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   };
 
   // Lightweight Markdown renderer used by seeded course lessons.
-  // Supports the subset our curriculum intentionally uses, including inline
-  // emphasis and checklist items so instructional hierarchy is visible.
+  // Supports instructional headings, inline code, links, checklists and fenced
+  // code blocks so hands-on SQL/Python/PySpark/KQL labs are readable.
   const renderMarkdown = (text: string) => {
     if (!text) return null;
 
     const renderInline = (value: string) => {
-      const parts = value.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean);
-      return parts.map((part, partIndex) => {
+      const tokens = value.split(/(\*\*[^*]+\*\*|`[^`]+`|https?:\/\/[^\s]+)/g).filter(Boolean);
+      return tokens.map((part, partIndex) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={partIndex} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
         }
         if (part.startsWith('`') && part.endsWith('`')) {
           return <code key={partIndex} className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[0.92em] text-indigo-900">{part.slice(1, -1)}</code>;
         }
+        if (/^https?:\/\//.test(part)) {
+          return (
+            <a
+              key={partIndex}
+              href={part}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-indigo-700 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-900 break-all"
+            >
+              {part}
+            </a>
+          );
+        }
         return <React.Fragment key={partIndex}>{part}</React.Fragment>;
       });
     };
 
+    const renderStandardLine = (line: string, idx: number) => {
+      if (line.startsWith('### ')) {
+        return <h4 key={idx} className="text-sm font-bold text-slate-900 mt-5 mb-2 flex items-center gap-1.5">{renderInline(line.replace('### ', ''))}</h4>;
+      }
+      if (line.startsWith('## ')) {
+        return <h3 key={idx} className="text-base font-bold text-slate-900 mt-6 mb-3 border-b border-slate-100 pb-1.5">{renderInline(line.replace('## ', ''))}</h3>;
+      }
+      if (line.startsWith('# ')) {
+        return <h2 key={idx} className="text-lg font-bold text-indigo-950 mt-8 mb-4">{renderInline(line.replace('# ', ''))}</h2>;
+      }
+      if (line.startsWith('> ')) {
+        return (
+          <blockquote key={idx} className="border-l-4 border-indigo-500 bg-indigo-50/50 p-4 rounded-r-xl italic text-indigo-900 my-4 text-xs font-medium">
+            {renderInline(line.replace('> ', ''))}
+          </blockquote>
+        );
+      }
+      if (line.startsWith('- [ ] ') || line.toLowerCase().startsWith('- [x] ')) {
+        const checked = line.toLowerCase().startsWith('- [x] ');
+        return (
+          <div key={idx} className="flex items-start gap-2.5 pl-1 my-2 text-slate-600">
+            <span aria-hidden="true" className={checked ? 'text-emerald-600 font-bold' : 'text-slate-400'}>{checked ? '☑' : '☐'}</span>
+            <span>{renderInline(line.substring(6))}</span>
+          </div>
+        );
+      }
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        return (
+          <ul key={idx} className="list-disc pl-5 space-y-1.5 my-2 text-slate-600">
+            <li>{renderInline(line.substring(2))}</li>
+          </ul>
+        );
+      }
+      if (/^\d+\.\s/.test(line)) {
+        return (
+          <ol key={idx} className="list-decimal pl-5 space-y-1.5 my-2 text-slate-600">
+            <li>{renderInline(line.replace(/^\d+\.\s/, ''))}</li>
+          </ol>
+        );
+      }
+      if (!line.trim()) {
+        return <div key={idx} className="h-1" />;
+      }
+      return <p key={idx} className="mb-2.5 text-slate-600">{renderInline(line)}</p>;
+    };
+
     const lines = text.split('\n');
-    return (
-      <div className="space-y-4 text-slate-700 leading-relaxed text-sm font-normal">
-        {lines.map((line, idx) => {
-          if (line.startsWith('### ')) {
-            return <h4 key={idx} className="text-sm font-bold text-slate-900 mt-5 mb-2 flex items-center gap-1.5">{renderInline(line.replace('### ', ''))}</h4>;
-          }
-          if (line.startsWith('## ')) {
-            return <h3 key={idx} className="text-base font-bold text-slate-900 mt-6 mb-3 border-b border-slate-100 pb-1.5">{renderInline(line.replace('## ', ''))}</h3>;
-          }
-          if (line.startsWith('# ')) {
-            return <h2 key={idx} className="text-lg font-bold text-indigo-950 mt-8 mb-4">{renderInline(line.replace('# ', ''))}</h2>;
-          }
-          if (line.startsWith('> ')) {
-            return (
-              <blockquote key={idx} className="border-l-4 border-indigo-500 bg-indigo-50/50 p-4 rounded-r-xl italic text-indigo-900 my-4 text-xs font-medium">
-                {renderInline(line.replace('> ', ''))}
-              </blockquote>
-            );
-          }
-          if (line.startsWith('- [ ] ') || line.toLowerCase().startsWith('- [x] ')) {
-            const checked = line.toLowerCase().startsWith('- [x] ');
-            return (
-              <div key={idx} className="flex items-start gap-2.5 pl-1 my-2 text-slate-600">
-                <span aria-hidden="true" className={checked ? 'text-emerald-600 font-bold' : 'text-slate-400'}>{checked ? '☑' : '☐'}</span>
-                <span>{renderInline(line.substring(6))}</span>
+    const nodes: React.ReactNode[] = [];
+    let codeLanguage = '';
+    let codeLines: string[] = [];
+    let codeStartIndex = -1;
+
+    lines.forEach((line, idx) => {
+      if (line.startsWith('```')) {
+        if (codeStartIndex === -1) {
+          codeStartIndex = idx;
+          codeLanguage = line.slice(3).trim();
+          codeLines = [];
+        } else {
+          nodes.push(
+            <div key={'code-' + codeStartIndex} className="my-4 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-sm">
+              <div className="px-3 py-2 border-b border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                {codeLanguage || 'code'}
               </div>
-            );
-          }
-          if (line.startsWith('- ') || line.startsWith('* ')) {
-            return (
-              <ul key={idx} className="list-disc pl-5 space-y-1.5 my-2 text-slate-600">
-                <li>{renderInline(line.substring(2))}</li>
-              </ul>
-            );
-          }
-          if (/^\d+\.\s/.test(line)) {
-            return (
-              <ol key={idx} className="list-decimal pl-5 space-y-1.5 my-2 text-slate-600">
-                <li>{renderInline(line.replace(/^\d+\.\s/, ''))}</li>
-              </ol>
-            );
-          }
-          if (!line.trim()) {
-            return <div key={idx} className="h-1" />;
-          }
-          return <p key={idx} className="mb-2.5 text-slate-600">{renderInline(line)}</p>;
-        })}
-      </div>
-    );
+              <pre className="p-4 overflow-x-auto text-xs leading-5 text-slate-100">
+                <code>{codeLines.join('\n')}</code>
+              </pre>
+            </div>
+          );
+          codeStartIndex = -1;
+          codeLanguage = '';
+          codeLines = [];
+        }
+        return;
+      }
+
+      if (codeStartIndex !== -1) {
+        codeLines.push(line);
+        return;
+      }
+
+      nodes.push(renderStandardLine(line, idx));
+    });
+
+    if (codeStartIndex !== -1) {
+      nodes.push(
+        <div key={'code-' + codeStartIndex} className="my-4 rounded-xl border border-amber-300 bg-amber-50 overflow-hidden">
+          <div className="px-3 py-2 border-b border-amber-200 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+            Incomplete code block
+          </div>
+          <pre className="p-4 overflow-x-auto text-xs leading-5 text-slate-800">
+            <code>{codeLines.join('\n')}</code>
+          </pre>
+        </div>
+      );
+    }
+
+    return <div className="space-y-4 text-slate-700 leading-relaxed text-sm font-normal">{nodes}</div>;
   };
 
   if (loading) {
@@ -661,6 +729,11 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
               </div>
               <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
                 <span>{completedCount} of {totalLessons} completed</span>
+                {isDp700Course && requiredAssignments.length > 0 && !certificateEligible && (
+                  <span className="text-amber-600 font-semibold">
+                    Labs {submittedRequiredAssignments}/{requiredAssignments.length}
+                  </span>
+                )}
                 {certificateEligible && (
                   <span className="text-emerald-600 font-semibold flex items-center gap-0.5">
                     Ready for Certificate! 🎓

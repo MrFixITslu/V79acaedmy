@@ -1,0 +1,13 @@
+order_id,order_date,customer_id,product_id,quantity,unit_price,status,region
+O1001,2026-09-28,C001,P001,2,249.00,Completed,Gros Islet
+O1002,2026-09-28,C002,P006,5,65.00,Completed,Castries
+O1003,2026-09-29,C003,P003,4,160.00,Completed,Soufriere
+O1004,2026-09-29,C004,P004,3,120.00,Completed,Micoud
+O1005,2026-09-30,C005,P002,1,349.00,Cancelled,Gros Islet
+O1006,2026-10-01,C003,P005,2,475.00,Completed,Vieux Fort
+O1007,2026-10-01,C006,P006,8,65.00,Completed,Castries
+O1008,2026-10-02,C999,P001,1,249.00,Completed,Castries
+O1009,2026-10-02,C001,P999,1,99.00,Completed,Gros Islet
+O1010,2026-10-03,C002,P004,-1,120.00,Completed,Castries
+O1011,2026-10-04,C004,P006,10,65.00,Completed,Micoud
+O1012,2026-10-05,C005,P001,3,249.00,Completed,Gros Islet

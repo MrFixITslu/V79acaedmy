@@ -440,7 +440,8 @@ const modules: ModuleSeed[] = [
           "A star schema connects a central fact table to descriptive dimensions.",
           "SCD Type 1 overwrites an old dimension value when history is not required.",
           "SCD Type 2 creates a new version of the dimension member to preserve history.",
-          "Conformed dimensions let multiple fact tables use the same business definition."
+          "Conformed dimensions let multiple fact tables use the same business definition.",
+          "Denormalization intentionally combines related data when the analytical access pattern benefits from fewer joins, but it trades storage and maintenance simplicity for query convenience."
         ],
         example: "If a customer moves regions and historical reports must retain the old region for old purchases, a Type 2 customer dimension can preserve both versions.",
         practice: [
@@ -874,7 +875,8 @@ const modules: ModuleSeed[] = [
           "Pipelines coordinate activities, dependencies, parameters and triggers.",
           "Dataflows Gen2 provide a low-code Power Query experience for ingestion and transformation.",
           "Notebooks provide code-first SQL/PySpark flexibility.",
-          "The best design often combines orchestration with the transformation engine most appropriate to each step."
+          "The best design often combines orchestration with the transformation engine most appropriate to each step.",
+          "Fabric pipeline parameters make a pipeline reusable, while dynamic expressions such as `@pipeline().parameters.loadDate` and activity-output references provide values that are only known at run time."
         ],
         example: "A pipeline can copy files, invoke a notebook for PySpark cleansing, call a SQL procedure for dimensional loads and publish success/failure metrics.",
         practice: [
@@ -895,7 +897,9 @@ const modules: ModuleSeed[] = [
           "Eventstream ingests and routes continuously arriving events.",
           "Eventhouse is designed for high-volume event and time-series analytical workloads.",
           "KQL is optimized for fast exploration and transformation of telemetry and event data.",
-          "Windowing groups streaming events into time-based intervals for aggregation."
+          "Windowing groups streaming events into time-based intervals for aggregation.",
+          "In Real-Time Intelligence, choose between native Eventhouse tables and OneLake shortcuts based on ingestion, freshness, governance, cost and query-performance needs.",
+          "Query acceleration can cache recent Delta data behind a OneLake shortcut to improve KQL performance without creating a separately managed ingestion pipeline."
         ],
         example: "Website click events flow through Eventstream into Eventhouse. KQL groups events into five-minute windows to calculate active users and error rates.",
         practice: [
@@ -1007,7 +1011,7 @@ const modules: ModuleSeed[] = [
           "Version control provides history, collaboration and review for supported Fabric artifacts.",
           "Database projects can manage warehouse/database schema changes as code.",
           "Deployment pipelines promote tested changes across environments with controlled configuration.",
-          "Workspace settings for Spark, domains, OneLake and orchestration services such as Airflow can affect how engineering workloads run."
+          "Workspace settings for Spark, domains, OneLake and Apache Airflow affect how engineering workloads run and are explicit DP-700 objectives; engineers should know what each setting controls and when a workspace-level change is appropriate."
         ],
         example: "A warehouse schema change is developed in source control, validated in test, then promoted through a deployment pipeline with environment-specific connection settings.",
         practice: [
@@ -1055,7 +1059,7 @@ const modules: ModuleSeed[] = [
         concepts: [
           "Monitoring should cover success/failure, duration, volume, freshness and resource pressure.",
           "A technically successful job can still deliver incomplete or stale data.",
-          "Downstream semantic-model refresh status matters when business users depend on the resulting reports.",
+          "Downstream semantic model refresh status matters when business users depend on the resulting reports.",
           "Alerts should include enough context to identify the failing item, run and next action."
         ],
         example: "A pipeline finishes successfully but writes zero rows. A row-count anomaly alert catches the issue even though the orchestration status is green.",
@@ -1099,6 +1103,7 @@ const modules: ModuleSeed[] = [
           "Warehouse/query performance depends on sound modelling, statistics/indexing capabilities, pruning and efficient SQL patterns.",
           "Spark performance depends on partitions, shuffle, skew, caching choices and avoiding unnecessary work.",
           "Pipeline optimization includes concurrency, incremental loading, avoiding repeated copies and choosing the right transformation engine.",
+          "Real-Time Intelligence optimization includes choosing native Eventhouse ingestion versus shortcuts, applying query acceleration when justified, controlling hot-cache windows and reducing unnecessary event processing.",
           "DP-700 questions reward scenario judgment: requirements first, product feature second."
         ],
         example: "If a job scans five years of data every hour, the first optimization may be incremental loading and partition pruning—not simply increasing compute.",
@@ -1134,14 +1139,341 @@ const modules: ModuleSeed[] = [
   }
 ];
 
-function buildLessonContent(moduleTitle: string, lesson: LessonSeed): string {
+
+type LabSeed = {
+  title: string;
+  outcome: string;
+  steps: string[];
+  evidence: string[];
+};
+
+type CodeExampleSeed = {
+  language: string;
+  title: string;
+  code: string;
+};
+
+const DP700_STUDY_GUIDE_URL = "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-700";
+
+const moduleLabs: Record<number, LabSeed> = {
+  1: {
+    title: "Lab 1 — Trace a Reliable Data Product",
+    outcome: "Create a source-to-consumer design with explicit freshness, quality and recovery requirements.",
+    steps: [
+      "Choose a real business process such as sales, service tickets or inventory.",
+      "Identify the source, ingestion mode, target storage, transformation step and consumer.",
+      "Define freshness, completeness, validity and uniqueness checks.",
+      "Add a failure scenario and write the recovery action.",
+      "Save the final diagram and assumptions as your Module 1 evidence."
+    ],
+    evidence: ["Architecture diagram", "Four data-quality rules", "One SLA", "One recovery procedure"]
+  },
+  2: {
+    title: "Lab 2 — Build the Bronze/Silver/Gold Storage Plan",
+    outcome: "Turn raw CSV/JSON inputs into a partitioned analytical storage design.",
+    steps: [
+      "Download the V79 sample sales data.",
+      "Classify each source as CSV, JSON, Parquet or Delta target.",
+      "Define Bronze, Silver and Gold table responsibilities.",
+      "Choose a partition strategy and explain why it will prune unnecessary reads.",
+      "Document one schema-evolution rule."
+    ],
+    evidence: ["Layered storage diagram", "Partition decision", "Schema-change rule"]
+  },
+  3: {
+    title: "Lab 3 — Execute the Sales SQL Workbook",
+    outcome: "Run SQL that filters, joins, aggregates, deduplicates and validates the V79 sample data.",
+    steps: [
+      "Load customers, products and sales into a SQL-capable environment.",
+      "Calculate revenue by month and region.",
+      "Use a LEFT JOIN to find orphan customer or product keys.",
+      "Use ROW_NUMBER to identify the preferred record for a duplicated business key.",
+      "Save the queries and their result screenshots or output."
+    ],
+    evidence: ["Runnable SQL", "Result output", "Duplicate check", "Orphan-key check"]
+  },
+  4: {
+    title: "Lab 4 — Build a Defensive Python Cleaner",
+    outcome: "Create a reusable Python script that validates input data and preserves rejected records.",
+    steps: [
+      "Read the V79 sales CSV.",
+      "Validate required IDs, quantity and price.",
+      "Normalize text fields and dates.",
+      "Write valid rows to one output and rejected rows with reasons to another.",
+      "Run the cleaner twice and confirm the result is deterministic."
+    ],
+    evidence: ["Python script or notebook", "Clean output", "Rejected-record output", "Short test note"]
+  },
+  5: {
+    title: "Lab 5 — Implement the Analytical Model",
+    outcome: "Produce a star schema with a documented grain, surrogate-key strategy and Type 2 history rule.",
+    steps: [
+      "Define FactSales grain before choosing measures.",
+      "Design Date, Customer and Product dimensions.",
+      "Choose one Type 2 attribute and define effective-date handling.",
+      "Define an unknown-member and late-arriving-dimension rule.",
+      "Explain where denormalization is useful and where it would create maintenance risk."
+    ],
+    evidence: ["Star-schema diagram", "Grain statement", "SCD rule", "Late-arrival rule"]
+  },
+  6: {
+    title: "Lab 6 — Design a Restartable Incremental Load",
+    outcome: "Build an incremental-loading design that is safe to retry after partial failure.",
+    steps: [
+      "Choose a timestamp, version or CDC watermark.",
+      "Design staging and validation before the final MERGE/upsert.",
+      "Define how inserts, updates and deletes are handled.",
+      "Classify failures as retryable or non-retryable.",
+      "Specify metrics and alerts for the pipeline."
+    ],
+    evidence: ["Watermark rule", "Upsert pseudocode", "Retry matrix", "Monitoring checklist"]
+  },
+  7: {
+    title: "Lab 7 — Secure the Azure-to-Fabric Path",
+    outcome: "Design identity, network and secret controls for a hybrid ingestion path.",
+    steps: [
+      "Choose managed identity wherever the source supports it.",
+      "Define RBAC scope using least privilege.",
+      "Document private connectivity or gateway requirements.",
+      "Identify any unavoidable secret and where it will be stored.",
+      "Separate configuration that changes between dev, test and production."
+    ],
+    evidence: ["Identity map", "Access matrix", "Network path", "Environment parameter list"]
+  },
+  8: {
+    title: "Lab 8 — Run a PySpark Transformation",
+    outcome: "Use a Spark DataFrame workflow to join, aggregate and write analytical data.",
+    steps: [
+      "Read the V79 sales and product files into DataFrames.",
+      "Select only required columns and filter invalid rows early.",
+      "Join sales to products and calculate revenue.",
+      "Aggregate by category and month.",
+      "Inspect partitions/shuffle behaviour and record one optimisation."
+    ],
+    evidence: ["Runnable PySpark", "Output table", "Shuffle observation", "Optimisation note"]
+  },
+  9: {
+    title: "Lab 9 — Build a Fabric Lakehouse",
+    outcome: "Create a Fabric Lakehouse implementation using OneLake, Delta and medallion layers.",
+    steps: [
+      "Create or use a Fabric workspace and Lakehouse.",
+      "Load the V79 sample data into Bronze.",
+      "Transform Bronze to clean Silver Delta tables.",
+      "Create a Gold sales output using SQL or PySpark.",
+      "Add either a OneLake shortcut or mirroring design and document why it is appropriate."
+    ],
+    evidence: ["Lakehouse screenshot", "Bronze/Silver/Gold tables", "Transformation code", "Shortcut/mirroring decision"]
+  },
+  10: {
+    title: "Lab 10 — Orchestrate Batch and Real-Time Fabric Data",
+    outcome: "Build a parameterised batch pipeline and a real-time event path.",
+    steps: [
+      "Create a Fabric pipeline using parameters and at least one dynamic expression.",
+      "Use a notebook, Dataflow Gen2 or SQL activity for a transformation.",
+      "Route sample events through Eventstream to an Eventhouse or document the exact build if a Fabric trial is unavailable.",
+      "Write KQL using filter, extend and summarize with a time window.",
+      "Compare native Eventhouse ingestion, a standard OneLake shortcut and query acceleration for the scenario."
+    ],
+    evidence: ["Pipeline screenshot", "Dynamic expression", "KQL query", "Streaming architecture", "Engine-choice explanation"]
+  },
+  11: {
+    title: "Lab 11 — Secure and Promote a Fabric Solution",
+    outcome: "Apply workspace configuration, governance and lifecycle controls to a Fabric workload.",
+    steps: [
+      "Review Spark, domain, OneLake and Apache Airflow workspace settings and document the setting relevant to your design.",
+      "Create an Admin/Engineer/Analyst/Viewer access matrix.",
+      "Choose one row-, column-, object- or file/folder-level security control.",
+      "Define sensitivity, endorsement, lineage and audit requirements.",
+      "Design source-control and dev/test/prod promotion using deployment pipelines and, where relevant, a database project."
+    ],
+    evidence: ["Workspace-setting notes", "Security matrix", "Governance checklist", "Deployment flow"]
+  },
+  12: {
+    title: "Lab 12 — Capstone Build, Break, Diagnose and Optimise",
+    outcome: "Demonstrate an end-to-end Fabric data-engineering solution rather than only describing one.",
+    steps: [
+      "Implement the V79 Caribbean retail/services capstone with batch and streaming inputs.",
+      "Use SQL, PySpark and KQL in the same solution where each is appropriate.",
+      "Intentionally introduce one pipeline, notebook, shortcut or query failure and capture the evidence.",
+      "Diagnose and correct the failure using logs, run details and dependencies.",
+      "Measure one slow operation, apply an optimisation, and record the before/after evidence."
+    ],
+    evidence: ["Working Fabric solution", "Architecture diagram", "SQL/PySpark/KQL", "Failure diagnosis", "Before/after optimisation evidence"]
+  }
+};
+
+const lessonCodeExamples: Record<string, CodeExampleSeed[]> = {
+  "SELECT, Filter, Aggregate and Group": [{
+    language: "sql",
+    title: "Monthly revenue by region",
+    code: "SELECT DATEFROMPARTS(YEAR(order_date), MONTH(order_date), 1) AS month_start,\n       region,\n       SUM(quantity * unit_price) AS revenue\nFROM sales\nWHERE status = 'Completed'\nGROUP BY DATEFROMPARTS(YEAR(order_date), MONTH(order_date), 1), region\nORDER BY month_start, region;"
+  }],
+  "JOINs, CTEs and Window Functions": [{
+    language: "sql",
+    title: "Keep the latest customer record",
+    code: "WITH ranked AS (\n  SELECT *,\n         ROW_NUMBER() OVER (\n           PARTITION BY customer_id\n           ORDER BY updated_at DESC, source_sequence DESC\n         ) AS rn\n  FROM customer_stage\n)\nSELECT *\nFROM ranked\nWHERE rn = 1;"
+  }],
+  "SQL Data Quality and Dimensional Preparation": [{
+    language: "sql",
+    title: "Find orphan customer keys before a fact load",
+    code: "SELECT s.order_id, s.customer_id\nFROM sales_stage AS s\nLEFT JOIN dim_customer AS c\n  ON s.customer_id = c.business_customer_id\nWHERE c.customer_key IS NULL;"
+  }],
+  "Files, APIs and Defensive Validation": [{
+    language: "python",
+    title: "Validate and quarantine a record",
+    code: "def validate_order(row):\n    errors = []\n    if not row.get('order_id'):\n        errors.append('missing order_id')\n    if float(row.get('quantity', 0)) <= 0:\n        errors.append('quantity must be positive')\n    return errors\n\nerrors = validate_order(order)\nif errors:\n    rejected.append({**order, 'reject_reason': '; '.join(errors)})\nelse:\n    valid.append(order)"
+  }],
+  "PySpark Transformations, Joins and Aggregations": [{
+    language: "python",
+    title: "Sales revenue by product category",
+    code: "from pyspark.sql import functions as F\n\nsales_clean = sales.filter(F.col('quantity') > 0).select(\n    'order_date', 'product_id', 'quantity', 'unit_price'\n)\nresult = (sales_clean\n    .join(products.select('product_id', 'category'), 'product_id', 'left')\n    .withColumn('revenue', F.col('quantity') * F.col('unit_price'))\n    .groupBy(F.date_trunc('month', 'order_date').alias('month'), 'category')\n    .agg(F.sum('revenue').alias('revenue')))"
+  }],
+  "Partitions, Shuffle, Skew and Structured Streaming": [{
+    language: "python",
+    title: "Structured Streaming event aggregation",
+    code: "events = (spark.readStream\n    .format('delta')\n    .table('bronze_events'))\n\nsummary = (events\n    .withWatermark('event_time', '20 minutes')\n    .groupBy(F.window('event_time', '5 minutes'), 'event_type')\n    .count())"
+  }],
+  "SQL and PySpark in a Fabric Lakehouse": [{
+    language: "python",
+    title: "Write a Gold Delta table from a Fabric notebook",
+    code: "(gold_sales\n  .write\n  .format('delta')\n  .mode('overwrite')\n  .option('overwriteSchema', 'true')\n  .saveAsTable('gold_sales_monthly'))"
+  }],
+  "Choosing Pipelines, Dataflows Gen2 and Notebooks": [{
+    language: "text",
+    title: "Fabric dynamic-expression examples",
+    code: "@pipeline().parameters.loadDate\n@activity('LookupWatermark').output.firstRow.watermark\n@concat('sales/', formatDateTime(pipeline().TriggerTime, 'yyyy/MM/dd'))"
+  }],
+  "Eventstream, Eventhouse and KQL": [{
+    language: "kusto",
+    title: "Five-minute website health summary",
+    code: "WebsiteEvents\n| where event_time > ago(1h)\n| extend is_error = toint(status_code >= 500)\n| summarize requests=count(), errors=sum(is_error), users=dcount(user_id)\n    by bin(event_time, 5m)\n| extend error_rate = todouble(errors) / requests\n| order by event_time asc"
+  }],
+  "Monitor Fabric Items and Configure Alerts": [{
+    language: "kusto",
+    title: "Detect a stale event stream",
+    code: "WebsiteEvents\n| summarize last_event=max(event_time)\n| extend minutes_stale=datetime_diff('minute', now(), last_event) * -1\n| where minutes_stale > 10"
+  }]
+};
+
+const moduleScenarioQuizzes: Record<number, QuizQuestionSeed[]> = {
+  1: [
+    {question:"A daily dashboard pipeline reports Success but processed 0 rows. What should the engineer check first?",options:["Freshness and expected-volume checks","Whether the dashboard colour changed","Whether every source is converted to streaming"],correct:"Freshness and expected-volume checks",explanation:"Execution status alone does not prove that expected data arrived."},
+    {question:"A source sends 12 files nightly and one file is missing. Which quality dimension most directly exposes the issue?",options:["Completeness","Uniqueness","Compression"],correct:"Completeness",explanation:"Completeness verifies that required records or files are present."},
+    {question:"A fraud use case needs seconds-level reaction to card events. Which ingestion pattern best fits?",options:["Streaming","Monthly full load","Manual spreadsheet upload"],correct:"Streaming",explanation:"Continuously arriving events with low-latency requirements are a streaming workload."},
+    {question:"Which requirement belongs in a useful data SLA?",options:["When trusted data must be available and how failure is handled","Only the programming language name","The developer's preferred font"],correct:"When trusted data must be available and how failure is handled",explanation:"An SLA should express a measurable service expectation and recovery path."},
+    {question:"A sales report scans years of history and performs large aggregations. Which workload style is primary?",options:["OLAP","OLTP","Transactional DNS"],correct:"OLAP",explanation:"Historical analytical scans and aggregations are OLAP workloads."},
+    {question:"Which design best prevents a transient source outage from silently creating stale reports?",options:["Monitoring, retry policy and freshness alert","Remove logging","Mark every run successful"],correct:"Monitoring, retry policy and freshness alert",explanation:"Reliability requires detection, controlled retry and visibility of stale data."},
+    {question:"Who is a valid downstream consumer of a trusted engineering dataset?",options:["A semantic model, analyst or ML workload","Only the source database","Only the pipeline scheduler"],correct:"A semantic model, analyst or ML workload",explanation:"Engineered data is served to multiple analytical and application consumers."}
+  ],
+  2: [
+    {question:"A query reads 3 of 200 columns from a very large dataset. Which format is usually most efficient for the analytical copy?",options:["Parquet","CSV","Unstructured text"],correct:"Parquet",explanation:"Columnar storage lets engines avoid scanning unused columns."},
+    {question:"A company must retain the exact raw payload for replay. Where should it normally be kept?",options:["Bronze/raw layer","Only in Gold aggregates","Only in dashboard cache"],correct:"Bronze/raw layer",explanation:"The raw layer preserves source fidelity for replay and audit."},
+    {question:"A table is commonly filtered by transaction_date. Which partition design is most reasonable?",options:["A sensible date partition such as year/month","One partition per individual row","Random partition names"],correct:"A sensible date partition such as year/month",explanation:"Useful filter keys enable pruning without creating excessive tiny partitions."},
+    {question:"What risk comes from millions of tiny partitions?",options:["Metadata and scheduling overhead","Guaranteed faster queries","Automatic removal of duplicates"],correct:"Metadata and scheduling overhead",explanation:"Excessive small partitions create overhead and inefficient reads."},
+    {question:"A source adds a nullable column. Which concept governs whether the analytical table can accept the change?",options:["Schema evolution","Window functions","DNS caching"],correct:"Schema evolution",explanation:"Schema evolution controls compatible structural changes over time."},
+    {question:"Which architecture combines lake-style storage with managed analytical table capabilities?",options:["Lakehouse","Pure OLTP system","Message queue only"],correct:"Lakehouse",explanation:"A lakehouse combines open/lake storage patterns with managed tables and analytical engines."},
+    {question:"What is the main benefit of partition pruning?",options:["Reading less irrelevant data","Duplicating every file","Removing the need for schema"],correct:"Reading less irrelevant data",explanation:"Pruning skips partitions that cannot satisfy the query."}
+  ],
+  3: [
+    {question:"You need all orders even when a customer record is missing. Which join should start the check?",options:["LEFT JOIN from orders to customers","INNER JOIN only","CROSS JOIN"],correct:"LEFT JOIN from orders to customers",explanation:"A LEFT JOIN preserves all orders and exposes missing matches as NULL."},
+    {question:"A customer stage contains three versions per customer. Which pattern safely keeps the latest version?",options:["ROW_NUMBER partitioned by customer with deterministic ordering","GROUP BY without ordering","DELETE all duplicates arbitrarily"],correct:"ROW_NUMBER partitioned by customer with deterministic ordering",explanation:"ROW_NUMBER plus a deterministic order selects the intended record."},
+    {question:"When should invalid fact rows with missing dimension keys be silently dropped?",options:["They generally should not; route or resolve them explicitly","Always","Whenever the query is slow"],correct:"They generally should not; route or resolve them explicitly",explanation:"Silent data loss hides quality problems and distorts metrics."},
+    {question:"A MERGE matches on a non-unique email address. What is the main risk?",options:["Incorrect updates or multiple matches","Improved referential integrity","Automatic partition pruning"],correct:"Incorrect updates or multiple matches",explanation:"Upsert match keys must be stable and sufficiently unique."},
+    {question:"Which operation calculates a running total without collapsing detail rows?",options:["A window function","DROP TABLE","A file rename"],correct:"A window function",explanation:"Window functions calculate across related rows while retaining row detail."},
+    {question:"What does GROUP BY define?",options:["The result grain for an aggregation","The server credential","The storage account region"],correct:"The result grain for an aggregation",explanation:"Grouping columns determine the granularity of aggregated output."},
+    {question:"A quality query groups by order_id and filters HAVING COUNT(*) > 1. What does it detect?",options:["Duplicate business keys","Late events only","Missing files only"],correct:"Duplicate business keys",explanation:"Counts above one for a business key identify duplicate records."}
+  ],
+  4: [
+    {question:"An API returns HTTP 429. What should a robust ingestion process normally do?",options:["Apply backoff/retry according to the API policy","Treat it as a valid data row","Ignore all status codes"],correct:"Apply backoff/retry according to the API policy",explanation:"429 indicates rate limiting and is commonly handled with controlled retry/backoff."},
+    {question:"One record is malformed in a million-row batch. What is usually safer than crashing the whole batch?",options:["Quarantine the bad record with a reason","Delete the source system","Hide the error"],correct:"Quarantine the bad record with a reason",explanation:"Rejected-record handling preserves valid work and makes remediation possible."},
+    {question:"When should Python be preferred over SQL?",options:["When programmatic file/API logic or reusable procedural validation is needed","For every relational aggregation regardless of complexity","Never"],correct:"When programmatic file/API logic or reusable procedural validation is needed",explanation:"Python is useful for procedural, API and file-oriented tasks while SQL excels at set-based relational work."},
+    {question:"Why should exception handling target expected failure modes?",options:["Broad catches can hide programming defects","It makes code shorter only","It guarantees no failures"],correct:"Broad catches can hide programming defects",explanation:"Defensive code should handle anticipated failures without masking bugs."},
+    {question:"What should accompany every rejected record?",options:["A clear rejection reason","A random new customer ID","A success flag only"],correct:"A clear rejection reason",explanation:"A reason enables diagnosis, correction and replay."},
+    {question:"A script normalizes emails differently on each rerun. Which engineering property is weakened?",options:["Determinism","Compression","Streaming latency"],correct:"Determinism",explanation:"Repeatable transformations should produce the same result for the same inputs."},
+    {question:"Which Python structure naturally represents a key/value source record?",options:["Dictionary","Single integer","Loop keyword"],correct:"Dictionary",explanation:"Dictionaries map field names to values."}
+  ],
+  5: [
+    {question:"What must be defined before choosing measures for a fact table?",options:["The grain","Dashboard theme","Pipeline retry count"],correct:"The grain",explanation:"The grain states exactly what one fact row represents."},
+    {question:"Historical reports must retain a customer's old region after the customer moves. Which SCD pattern fits?",options:["Type 2","Type 1","Delete and reload facts"],correct:"Type 2",explanation:"Type 2 preserves historical versions of dimension members."},
+    {question:"A sale arrives before its customer dimension record. What is a valid design?",options:["Use an unknown/inferred member and reconcile later","Drop the sale permanently","Change the sale amount to zero"],correct:"Use an unknown/inferred member and reconcile later",explanation:"Late-arriving dimensions require an explicit placeholder and correction strategy."},
+    {question:"Why use surrogate keys in dimensions?",options:["To separate warehouse identity from mutable source keys","To make every dimension one column","To avoid all joins"],correct:"To separate warehouse identity from mutable source keys",explanation:"Surrogate keys provide stable analytical identity independent of source-system changes."},
+    {question:"Two fact tables need the same definition of Customer. What modelling concept helps?",options:["Conformed dimension","Random denormalization","Separate incompatible customer definitions"],correct:"Conformed dimension",explanation:"Conformed dimensions provide a shared business definition across facts."},
+    {question:"When can denormalization be reasonable?",options:["When the access pattern benefits from fewer joins and the maintenance trade-off is understood","Whenever storage is scarce","Only for OLTP writes"],correct:"When the access pattern benefits from fewer joins and the maintenance trade-off is understood",explanation:"Denormalization is a deliberate performance/usability trade-off."},
+    {question:"If FactSales is one row per order line, what is dangerous?",options:["Repeating an order-level total on every line without controlling double counting","Storing quantity at line grain","Linking to a date dimension"],correct:"Repeating an order-level total on every line without controlling double counting",explanation:"Measures must align with the declared fact grain."}
+  ],
+  6: [
+    {question:"A pipeline rerun after partial failure creates duplicate rows. Which property is missing?",options:["Idempotency","Encryption","Columnar storage"],correct:"Idempotency",explanation:"Idempotent processing can be rerun safely without unintended duplicate effects."},
+    {question:"A source provides modified_at values. What is a common incremental-load technique?",options:["Persist the last successful watermark","Reload every historical row hourly","Ignore update timestamps"],correct:"Persist the last successful watermark",explanation:"A watermark limits the next run to new or changed records."},
+    {question:"Which failure is most appropriate for automatic retry?",options:["Temporary network timeout","A permanently invalid schema contract","A wrong business requirement"],correct:"Temporary network timeout",explanation:"Retries suit transient failures likely to succeed later."},
+    {question:"Why stage data before a MERGE?",options:["To validate and make the final upsert controlled and restartable","To hide source errors","To remove the need for keys"],correct:"To validate and make the final upsert controlled and restartable",explanation:"Staging separates ingestion from validated target mutation."},
+    {question:"A source deletes records. What must an incremental design decide?",options:["How deletes are detected and propagated","Only how inserts are handled","Which dashboard colour shows deletes"],correct:"How deletes are detected and propagated",explanation:"Incremental designs need an explicit delete strategy."},
+    {question:"When is event-based orchestration preferable to a schedule?",options:["When processing should begin as soon as an upstream event or file arrives","When data arrives only once per year at a fixed time","When no trigger should exist"],correct:"When processing should begin as soon as an upstream event or file arrives",explanation:"Event triggers reduce unnecessary waiting when arrival itself is the signal."},
+    {question:"Which metric best reveals a pipeline that is succeeding more slowly each week?",options:["Run duration trend","UI login count","Number of table names"],correct:"Run duration trend",explanation:"Duration trends expose deteriorating performance."}
+  ],
+  7: [
+    {question:"What is the main security benefit of managed identity?",options:["Services authenticate without embedded secrets","It automatically optimizes Spark","It replaces RBAC"],correct:"Services authenticate without embedded secrets",explanation:"Managed identities reduce secret-handling risk."},
+    {question:"Which RBAC design follows least privilege?",options:["Grant only required actions at the narrowest practical scope","Give every pipeline Owner","Share storage keys in notebooks"],correct:"Grant only required actions at the narrowest practical scope",explanation:"Least privilege minimizes unnecessary access."},
+    {question:"When is a private endpoint useful?",options:["When reducing exposure over public network paths is required","When changing a CSV delimiter","When calculating a window function"],correct:"When reducing exposure over public network paths is required",explanation:"Private connectivity can keep service access off public network paths."},
+    {question:"A source cannot use managed identity and requires a password. Where should it be kept?",options:["A managed secret store such as Key Vault","Hard-coded in notebook source","In a public README"],correct:"A managed secret store such as Key Vault",explanation:"Secrets should be centrally protected and rotated rather than embedded in code."},
+    {question:"Why parameterize environment-specific endpoints?",options:["So the same design can move through dev/test/prod without hard-coded changes","So every environment uses the same credentials","To disable deployment control"],correct:"So the same design can move through dev/test/prod without hard-coded changes",explanation:"Configuration separation improves repeatability and lifecycle management."},
+    {question:"What commonly enables secure access to an on-premises data source?",options:["A supported gateway or self-hosted runtime pattern","A public spreadsheet link","Disabling authentication"],correct:"A supported gateway or self-hosted runtime pattern",explanation:"Hybrid ingestion needs a controlled bridge to the private source."},
+    {question:"What can region choice affect?",options:["Residency, latency, availability and service support","Only column names","Only SQL syntax"],correct:"Residency, latency, availability and service support",explanation:"Cloud-region selection has architectural and compliance implications."}
+  ],
+  8: [
+    {question:"Why does Spark use partitions?",options:["To distribute work across executors/workers","To encrypt passwords","To replace schemas"],correct:"To distribute work across executors/workers",explanation:"Partitions are units of distributed processing."},
+    {question:"A join causes large data movement between workers. What operation is occurring?",options:["Shuffle","Masking","Snapshot isolation"],correct:"Shuffle",explanation:"Joins and aggregations often redistribute records across partitions."},
+    {question:"One customer key contains 60% of rows and makes one task much slower. What is this?",options:["Data skew","Schema evolution","Row-level security"],correct:"Data skew",explanation:"Skew is uneven key/partition distribution that creates straggler tasks."},
+    {question:"Why prefer built-in Spark functions over Python row-by-row UDF logic when possible?",options:["They generally optimize and execute more efficiently in Spark","They always remove every shuffle","They avoid schemas"],correct:"They generally optimize and execute more efficiently in Spark",explanation:"Native expressions integrate better with Spark's optimizer and execution engine."},
+    {question:"What does lazy evaluation allow Spark to do?",options:["Build and optimize a logical plan before an action triggers execution","Never execute work","Write every intermediate result automatically"],correct:"Build and optimize a logical plan before an action triggers execution",explanation:"Transformations remain lazy until an action requires results."},
+    {question:"Which action is most likely to create a shuffle?",options:["Group by a key across partitions","Selecting one existing column","Renaming a local variable"],correct:"Group by a key across partitions",explanation:"Grouping usually requires redistributing records by key."},
+    {question:"Streaming events can arrive out of order. Which mechanism helps bound late data?",options:["Event-time watermarking","Random repartitioning","Dropping timestamps"],correct:"Event-time watermarking",explanation:"Watermarks define how long a streaming system waits for late events."}
+  ],
+  9: [
+    {question:"A team wants to reference governed data already in OneLake without making another copy. What should they consider?",options:["OneLake shortcut","Export to CSV for every workspace","Duplicate the whole Lakehouse nightly"],correct:"OneLake shortcut",explanation:"Shortcuts expose supported data locations without unnecessary duplication."},
+    {question:"Operational data must be replicated continuously into Fabric with minimal custom pipeline code. What feature may fit?",options:["Mirroring","Manual screenshot export","A dashboard bookmark"],correct:"Mirroring",explanation:"Mirroring can continuously replicate supported operational sources into Fabric."},
+    {question:"Where should unmodified source records normally land in a medallion Lakehouse?",options:["Bronze","Gold","Semantic model only"],correct:"Bronze",explanation:"Bronze preserves raw or near-raw input."},
+    {question:"What is a good reason to use PySpark instead of only SQL?",options:["Large-scale programmatic file/table transformations","Changing a sensitivity label","Writing a dashboard title"],correct:"Large-scale programmatic file/table transformations",explanation:"PySpark is strong for distributed engineering logic over large datasets."},
+    {question:"What should a Gold table document clearly?",options:["Its business grain and contract","Only the developer's name","Only the file extension"],correct:"Its business grain and contract",explanation:"Business-ready outputs need stable meaning and granularity."},
+    {question:"What is a common Delta benefit in a Lakehouse?",options:["Transactional table behaviour with schema and MERGE-style capabilities","It removes all security requirements","It guarantees zero storage cost"],correct:"Transactional table behaviour with schema and MERGE-style capabilities",explanation:"Delta adds managed table reliability over lake files."},
+    {question:"Which issue can hurt Lakehouse query performance?",options:["Many excessively small files","A documented table grain","Selecting only required columns"],correct:"Many excessively small files",explanation:"Small-file proliferation increases metadata and read overhead."}
+  ],
+  10: [
+    {question:"One pipeline must ingest different tables and dates without being cloned. What should it use?",options:["Parameters plus dynamic expressions","Hard-coded values in every activity","A separate workspace for every table"],correct:"Parameters plus dynamic expressions",explanation:"Parameters and expressions make orchestration reusable at run time."},
+    {question:"A business analyst needs a low-code Power Query transformation. Which Fabric tool is most suitable?",options:["Dataflow Gen2","Spark executor configuration","Sensitivity label"],correct:"Dataflow Gen2",explanation:"Dataflow Gen2 provides a low-code Power Query transformation experience."},
+    {question:"What is Eventstream primarily responsible for?",options:["Ingesting and routing continuously arriving events","Managing Git branches","Designing star schemas only"],correct:"Ingesting and routing continuously arriving events",explanation:"Eventstream handles real-time event ingestion and routing."},
+    {question:"A KQL query needs five-minute counts. Which operation pattern is appropriate?",options:["summarize with bin(event_time, 5m)","DROP TABLE every five minutes","GROUP BY a random GUID"],correct:"summarize with bin(event_time, 5m)",explanation:"Time binning creates fixed event-time windows for aggregation."},
+    {question:"When might native Eventhouse ingestion be preferred over a OneLake shortcut?",options:["When very high real-time query performance and Eventhouse-native capabilities justify ingestion","When no real-time queries exist","When duplication is prohibited in every case"],correct:"When very high real-time query performance and Eventhouse-native capabilities justify ingestion",explanation:"Native ingestion can provide the strongest real-time query behaviour at the cost of ingestion/storage."},
+    {question:"When is query acceleration over a OneLake shortcut attractive?",options:["When OneLake data must stay in place but recent Delta data needs faster KQL access","When the source is a Word document","When no queries will ever run"],correct:"When OneLake data must stay in place but recent Delta data needs faster KQL access",explanation:"Query acceleration caches shortcut data for improved Eventhouse query performance."},
+    {question:"A streaming design must accept events up to 20 minutes late. What should it define?",options:["An event-time watermark/late-arrival policy","A monthly full reload only","No timestamp handling"],correct:"An event-time watermark/late-arrival policy",explanation:"Late-event behaviour must be explicit in streaming designs."}
+  ],
+  11: [
+    {question:"Which settings are explicit DP-700 workspace objectives?",options:["Spark, domain, OneLake and Apache Airflow workspace settings","Browser zoom and font size","CSV delimiter defaults only"],correct:"Spark, domain, OneLake and Apache Airflow workspace settings",explanation:"The October 2026 skills measured explicitly list these Fabric workspace settings."},
+    {question:"Why should workspace Admin not be used as a substitute for row-level security?",options:["Workspace roles are broad collaboration permissions, not fine-grained data filters","Admin automatically encrypts rows","RLS only works on CSV files"],correct:"Workspace roles are broad collaboration permissions, not fine-grained data filters",explanation:"Broad platform access and data-level authorization solve different problems."},
+    {question:"A payroll column must be hidden from analysts who can query the table. What control is relevant?",options:["Column-level/object-level security or masking as appropriate","Give analysts Admin","Rename the column only"],correct:"Column-level/object-level security or masking as appropriate",explanation:"Sensitive columns require a real data-security control."},
+    {question:"What does endorsement communicate?",options:["That an item is promoted or certified for trusted use","That every user is an administrator","That a table has no lineage"],correct:"That an item is promoted or certified for trusted use",explanation:"Endorsement helps consumers identify trusted Fabric items."},
+    {question:"What evidence helps determine who changed a Fabric item and when?",options:["Audit logs","Only a screenshot","A CSV delimiter"],correct:"Audit logs",explanation:"Audit records support investigation of user and administrative actions."},
+    {question:"What is the purpose of a deployment pipeline?",options:["Controlled promotion across environments","Real-time event ingestion","Password generation"],correct:"Controlled promotion across environments",explanation:"Deployment pipelines structure dev/test/prod promotion."},
+    {question:"Why use a database project for a warehouse schema?",options:["To manage schema changes as code with review and deployment discipline","To eliminate SQL","To make every table temporary"],correct:"To manage schema changes as code with review and deployment discipline",explanation:"Database projects bring versioned engineering practices to database schema."}
+  ],
+  12: [
+    {question:"A Fabric pipeline fails after a source schema change. What should troubleshooting begin with?",options:["The exact failed run, error, schema and dependencies","Increase all compute immediately","Delete the target"],correct:"The exact failed run, error, schema and dependencies",explanation:"Evidence-first diagnosis isolates the real failing layer."},
+    {question:"A semantic model depends on a Gold table. Why monitor its refresh as part of data engineering operations?",options:["Because business users may still see stale data even when upstream pipelines succeeded","Because refresh status changes SQL syntax","Because it replaces pipeline monitoring"],correct:"Because business users may still see stale data even when upstream pipelines succeeded",explanation:"End-to-end freshness includes downstream consumption."},
+    {question:"A pipeline scans five years of unchanged data every hour. What is usually the first optimisation?",options:["Incremental loading and pruning","Increase compute without changing the design","Duplicate the dataset again"],correct:"Incremental loading and pruning",explanation:"Avoiding unnecessary work usually beats brute-force scaling."},
+    {question:"A Spark job has one task that runs far longer than the rest. Which issue should you investigate?",options:["Data skew","Sensitivity labels","Deployment-stage names"],correct:"Data skew",explanation:"A straggler task is a classic symptom of uneven partition/key distribution."},
+    {question:"An Eventhouse workload queries recent shortcut data repeatedly and is too slow. What should you evaluate?",options:["Query acceleration and the appropriate hot-cache window","Turning off monitoring","Converting KQL to CSS"],correct:"Query acceleration and the appropriate hot-cache window",explanation:"Accelerating recent Delta data can improve shortcut query performance."},
+    {question:"A Lakehouse has thousands of tiny files. Which action may improve performance?",options:["Compact/optimize table files and review partitioning","Create even more tiny files","Remove table statistics and metadata"],correct:"Compact/optimize table files and review partitioning",explanation:"File organisation strongly affects Lakehouse read efficiency."},
+    {question:"What makes a capstone convincing evidence of DP-700 readiness?",options:["A working solution with code, monitoring, troubleshooting and measured optimisation","Only an architecture picture","Only memorised product definitions"],correct:"A working solution with code, monitoring, troubleshooting and measured optimisation",explanation:"Certification readiness requires applied engineering judgment and implementation skill."}
+  ]
+};
+
+function buildLessonContent(moduleTitle: string, lesson: LessonSeed, moduleNumber: number, lessonNumber: number): string {
   const lines: string[] = [
     "# " + lesson.title,
     "",
     lesson.description,
     "",
     "## Why this matters",
-    "This lesson connects directly to real data-engineering work. Focus on understanding the decision being made, not memorizing product names.",
+    "This lesson connects directly to real data-engineering work. Focus on understanding the decision being made, then prove the skill with the practice and lab evidence.",
     "",
     "## Learning objectives"
   ];
@@ -1154,16 +1486,51 @@ function buildLessonContent(moduleTitle: string, lesson: LessonSeed): string {
   lines.push(
     "",
     "## Worked example",
-    lesson.example,
-    "",
-    "## Hands-on practice"
+    lesson.example
   );
+
+  const codeExamples = lessonCodeExamples[lesson.title] || [];
+  codeExamples.forEach((example) => {
+    lines.push(
+      "",
+      "## Runnable example — " + example.title,
+      "Use this as a starting point, run it in an appropriate SQL, Python, PySpark or KQL environment, then change it and observe the result.",
+      "",
+      "\`\`\`" + example.language,
+      example.code,
+      "\`\`\`"
+    );
+  });
+
+  lines.push("", "## Hands-on practice");
   lesson.practice.forEach((item, index) => lines.push((index + 1) + ". " + item));
+
+  if (lessonNumber === 3 && moduleLabs[moduleNumber]) {
+    const lab = moduleLabs[moduleNumber];
+    lines.push(
+      "",
+      "## Required module lab — " + lab.title,
+      "**Outcome:** " + lab.outcome,
+      "",
+      "### Build steps"
+    );
+    lab.steps.forEach((item, index) => lines.push((index + 1) + ". " + item));
+    lines.push("", "### Evidence to keep");
+    lab.evidence.forEach((item) => lines.push("- [ ] " + item));
+    lines.push(
+      "",
+      "> Do not mark this module complete until you can show the evidence above. The goal is to build, test and explain—not merely recognise terminology."
+    );
+  }
 
   lines.push(
     "",
+    "## DP-700 exam focus",
+    "Microsoft's October 19, 2026 skills measured emphasize applied decisions across implementation/management, ingestion/transformation, and monitoring/optimization. Practise choosing the right Fabric feature from requirements instead of memorising names.",
+    "Official study guide: " + DP700_STUDY_GUIDE_URL,
+    "",
     "## Check yourself",
-    "> Can you explain the main idea in your own words without looking back? If not, repeat the worked example before moving on.",
+    "> Can you explain the main idea, implement or demonstrate it, and justify the trade-off without looking back? If not, repeat the worked example or lab before moving on.",
     "",
     "## Key takeaways"
   );
@@ -1172,7 +1539,7 @@ function buildLessonContent(moduleTitle: string, lesson: LessonSeed): string {
   lines.push(
     "",
     "## Course connection",
-    "You are building toward the capstone in Module 12. Keep your notes, diagrams, SQL and pseudocode because later modules reuse these ideas.",
+    "You are building toward the capstone in Module 12. Keep your notes, diagrams, SQL, Python/PySpark, KQL and screenshots because later modules reuse this evidence.",
     "",
     "Module context: " + moduleTitle
   );
@@ -1194,68 +1561,91 @@ function makeQuestion(moduleIndex: number, questionIndex: number, quizId: string
 }
 
 export function ensureDataEngineeringCourse(db: any): boolean {
-  if (!db || !Array.isArray(db.courses) || !Array.isArray(db.publishingLogs)) return false;
+  if (
+    !db ||
+    !Array.isArray(db.courses) ||
+    !Array.isArray(db.modules) ||
+    !Array.isArray(db.lessons) ||
+    !Array.isArray(db.quizzes) ||
+    !Array.isArray(db.assignments) ||
+    !Array.isArray(db.downloads) ||
+    !Array.isArray(db.publishingLogs)
+  ) return false;
 
-  // The log entry doubles as a one-time migration marker. If an administrator
-  // deliberately deletes this course later, a restart must respect that choice
-  // rather than silently recreating it.
-  const alreadySeeded = db.publishingLogs.some((log: any) => log.id === "de-course-seed-log-v1");
-  if (alreadySeeded) return false;
-  if (db.courses.some((course: any) => course.id === DATA_ENGINEERING_COURSE_ID)) return false;
+  const originalSeedLogId = "de-course-seed-log-v1";
+  const upgradeLogId = "de-course-upgrade-log-v1-1";
+  if (db.publishingLogs.some((log: any) => log.id === upgradeLogId)) return false;
 
-  const createdAt = "2026-09-23T13:30:00.000Z";
+  const existingCourse = db.courses.find((course: any) => course.id === DATA_ENGINEERING_COURSE_ID);
+
+  // Respect a deliberate admin deletion made after the original seed.
+  if (!existingCourse && db.publishingLogs.some((log: any) => log.id === originalSeedLogId)) {
+    return false;
+  }
+
+  const createdAt = existingCourse?.createdAt || "2026-09-23T13:30:00.000Z";
+  const updatedAt = "2026-10-07T12:00:00.000Z";
 
   const course = {
     id: DATA_ENGINEERING_COURSE_ID,
     slug: "data-engineering-foundations-to-microsoft-fabric-dp-700",
     title: "Data Engineering Foundations to Microsoft Fabric (DP-700 Prep)",
-    shortDescription: "A beginner-friendly, hands-on path from data-engineering fundamentals to Microsoft Fabric and DP-700 readiness.",
-    fullDescription: "Learn data engineering from the ground up using simple explanations, practical exercises and a complete capstone. The course starts with pipelines, storage, SQL, Python and dimensional modelling, then moves into Azure foundations, Apache Spark, Microsoft Fabric, OneLake, Lakehouse, Data Factory, real-time intelligence with KQL, security, lifecycle management, monitoring and optimization. It is designed to make Microsoft data-engineering training easier to understand and to prepare learners for the Microsoft Fabric Data Engineer Associate DP-700 skill areas.",
-    category: "General",
-    difficultyLevel: "Beginner",
+    shortDescription: "A beginner-friendly path that now requires real SQL, Python/PySpark, KQL and Microsoft Fabric lab evidence for DP-700 readiness.",
+    fullDescription: "Learn data engineering from the ground up using simple explanations, runnable examples, practical labs and a complete capstone. The course starts with pipelines, storage, SQL, Python and dimensional modelling, then moves into Azure foundations, Apache Spark, Microsoft Fabric, OneLake, Lakehouse, Data Factory, Real-Time Intelligence with KQL, security, lifecycle management, monitoring and optimization. Version 1.1 aligns the curriculum to Microsoft's DP-700 skills measured as of October 19, 2026 and requires learners to build, troubleshoot and optimize rather than only memorize concepts.",
+    category: "Data & AI",
+    difficultyLevel: "Beginner to Intermediate",
     instructor: "V79 Academy",
-    courseVersion: "1.0.0",
+    courseVersion: "1.1.0",
     thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
     estimatedDuration: "48 hours",
     prerequisites: [
       "Basic computer literacy",
-      "No previous data-engineering experience required",
+      "No previous data-engineering experience required for the foundation track",
+      "A Microsoft Fabric-enabled workspace or trial is strongly recommended for Modules 9–12",
       "Helpful but optional: basic Excel or database familiarity"
     ],
     learningObjectives: [
-      "Explain modern data architectures and pipeline patterns",
-      "Write practical SQL transformations and data-quality checks",
-      "Use Python and PySpark concepts for data processing",
-      "Design dimensional models, incremental loads and reliable orchestration",
-      "Build with Microsoft Fabric, OneLake, Lakehouse, Warehouse and Data Factory",
-      "Use KQL and real-time processing concepts",
-      "Secure, govern, monitor and optimize an analytics solution",
-      "Complete an end-to-end capstone aligned to DP-700 scenarios"
+      "Explain modern data architectures and reliable pipeline patterns",
+      "Write and run SQL transformations and data-quality checks",
+      "Use Python and PySpark for defensive ingestion and distributed processing",
+      "Design dimensional models, incremental loads and restartable orchestration",
+      "Build with Microsoft Fabric, OneLake, Lakehouse, Warehouse, Data Factory and mirroring",
+      "Use KQL, Eventstream, Eventhouse, structured streaming, windowing and OneLake shortcut query acceleration",
+      "Configure Fabric workspace, security, governance and lifecycle controls",
+      "Monitor, troubleshoot and optimize Fabric workloads",
+      "Complete an end-to-end capstone with implementation evidence aligned to DP-700 scenarios"
     ],
     learning_objectives: [
-      "Explain modern data architectures and pipeline patterns",
-      "Write practical SQL transformations and data-quality checks",
-      "Use Python and PySpark concepts for data processing",
-      "Design dimensional models, incremental loads and reliable orchestration",
-      "Build with Microsoft Fabric, OneLake, Lakehouse, Warehouse and Data Factory",
-      "Use KQL and real-time processing concepts",
-      "Secure, govern, monitor and optimize an analytics solution",
-      "Complete an end-to-end capstone aligned to DP-700 scenarios"
+      "Explain modern data architectures and reliable pipeline patterns",
+      "Write and run SQL transformations and data-quality checks",
+      "Use Python and PySpark for defensive ingestion and distributed processing",
+      "Design dimensional models, incremental loads and restartable orchestration",
+      "Build with Microsoft Fabric, OneLake, Lakehouse, Warehouse, Data Factory and mirroring",
+      "Use KQL, Eventstream, Eventhouse, structured streaming, windowing and OneLake shortcut query acceleration",
+      "Configure Fabric workspace, security, governance and lifecycle controls",
+      "Monitor, troubleshoot and optimize Fabric workloads",
+      "Complete an end-to-end capstone with implementation evidence aligned to DP-700 scenarios"
     ],
-    status: "Published",
-    pricingType: "free",
-    price: 0,
+    status: existingCourse?.status || "Published",
+    pricingType: existingCourse?.pricingType || "free",
+    price: existingCourse?.price ?? 0,
     createdAt,
-    updatedAt: createdAt
+    updatedAt
   };
 
-  db.courses.push(course);
+  const upsertById = (collection: any[], item: any) => {
+    const index = collection.findIndex((existing: any) => existing.id === item.id);
+    if (index === -1) collection.push(item);
+    else collection[index] = { ...collection[index], ...item };
+  };
+
+  upsertById(db.courses, course);
 
   modules.forEach((moduleSeed, moduleIndex) => {
     const moduleNumber = moduleIndex + 1;
     const moduleId = "de-mod-" + moduleNumber;
 
-    db.modules.push({
+    upsertById(db.modules, {
       id: moduleId,
       courseId: DATA_ENGINEERING_COURSE_ID,
       title: moduleSeed.title,
@@ -1267,7 +1657,7 @@ export function ensureDataEngineeringCourse(db: any): boolean {
       const lessonNumber = lessonIndex + 1;
       const lessonId = "de-les-" + moduleNumber + "-" + lessonNumber;
 
-      db.lessons.push({
+      upsertById(db.lessons, {
         id: lessonId,
         moduleId,
         courseId: DATA_ENGINEERING_COURSE_ID,
@@ -1275,8 +1665,8 @@ export function ensureDataEngineeringCourse(db: any): boolean {
         description: lessonSeed.description,
         learningObjectives: lessonSeed.objectives,
         learning_objectives: lessonSeed.objectives,
-        estimatedTime: lessonIndex === 2 ? "50 mins" : "40 mins",
-        lessonContent: buildLessonContent(moduleSeed.title, lessonSeed),
+        estimatedTime: lessonNumber === 3 ? "90 mins" : "55 mins",
+        lessonContent: buildLessonContent(moduleSeed.title, lessonSeed, moduleNumber, lessonNumber),
         videoUrl: "",
         audioUrl: "",
         imageUrls: [],
@@ -1288,42 +1678,57 @@ export function ensureDataEngineeringCourse(db: any): boolean {
 
     const assessmentLessonId = "de-les-" + moduleNumber + "-3";
     const quizId = "de-quiz-" + moduleNumber;
+    const allQuestions = [
+      ...moduleSeed.quiz,
+      ...(moduleScenarioQuizzes[moduleNumber] || [])
+    ];
 
-    db.quizzes.push({
+    upsertById(db.quizzes, {
       id: quizId,
       lessonId: assessmentLessonId,
-      title: moduleSeed.title.replace(/^Module \d+:\s*/, "") + " Knowledge Check",
-      passingScore: 67,
-      questions: moduleSeed.quiz.map((question, index) =>
+      title: moduleSeed.title.replace(/^Module \d+:\s*/, "") + " Applied Knowledge Check",
+      passingScore: 80,
+      questions: allQuestions.map((question, index) =>
         makeQuestion(moduleIndex, index, quizId, question)
       )
     });
 
-    db.assignments.push({
+    upsertById(db.assignments, {
       id: "de-assign-" + moduleNumber,
       courseId: DATA_ENGINEERING_COURSE_ID,
       moduleId,
       lessonId: assessmentLessonId,
       title: moduleSeed.assignmentTitle,
-      description: moduleSeed.assignmentDescription,
+      description: moduleSeed.assignmentDescription + " Include evidence from the required module lab. For implementation modules, provide a shareable repository/notebook/document link plus screenshots or output proving that the work ran successfully.",
       maxPoints: 100,
-      submissionType: "text",
+      submissionType: [3, 4, 8, 9, 10, 12].includes(moduleNumber) ? "file" : "text",
+      required: true,
       createdAt,
-      updatedAt: createdAt
+      updatedAt
     });
   });
 
+  const downloads = [
+    { id:"de-download-customers", courseId:DATA_ENGINEERING_COURSE_ID, lessonId:"de-les-3-2", name:"V79 Lab Customers", fileType:"CSV", url:"/labs/data-engineering/customers.csv", fileSize:"< 10 KB", createdAt:updatedAt },
+    { id:"de-download-products", courseId:DATA_ENGINEERING_COURSE_ID, lessonId:"de-les-8-2", name:"V79 Lab Products", fileType:"CSV", url:"/labs/data-engineering/products.csv", fileSize:"< 10 KB", createdAt:updatedAt },
+    { id:"de-download-sales", courseId:DATA_ENGINEERING_COURSE_ID, lessonId:"de-les-3-1", name:"V79 Lab Sales", fileType:"CSV", url:"/labs/data-engineering/sales.csv", fileSize:"< 20 KB", createdAt:updatedAt },
+    { id:"de-download-events", courseId:DATA_ENGINEERING_COURSE_ID, lessonId:"de-les-10-2", name:"V79 Lab Website Events", fileType:"JSONL", url:"/labs/data-engineering/events.jsonl", fileSize:"< 10 KB", createdAt:updatedAt },
+    { id:"de-download-lab-guide", courseId:DATA_ENGINEERING_COURSE_ID, lessonId:"de-les-1-3", name:"V79 DP-700 Lab Data Guide", fileType:"MD", url:"/labs/data-engineering/README.md", fileSize:"< 10 KB", createdAt:updatedAt }
+  ];
+  downloads.forEach((download) => upsertById(db.downloads, download));
+
   db.publishingLogs.push({
-    id: "de-course-seed-log-v1",
+    id: upgradeLogId,
     courseId: DATA_ENGINEERING_COURSE_ID,
     courseTitle: course.title,
-    event: "Course Seeded",
-    fromStatus: "None",
-    toStatus: "Published",
+    event: existingCourse ? "Course Upgraded" : "Course Seeded",
+    fromStatus: existingCourse?.courseVersion || "None",
+    toStatus: "1.1.0",
     performedBy: "Admin",
-    timestamp: createdAt,
-    details: "Added the beginner-to-DP-700 Data Engineering curriculum as an editable V79 Academy course."
+    timestamp: updatedAt,
+    details: "REDTEAM v1.1: October 19, 2026 DP-700 alignment, required labs, runnable examples, 10-question applied module assessments, 80% pass threshold, lab data pack, stronger Fabric workspace/RTI/optimization coverage and implementation-based capstone."
   });
 
   return true;
 }
+
