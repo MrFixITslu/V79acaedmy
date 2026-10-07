@@ -111,12 +111,6 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
 
   useEffect(() => {
     fetchAllPublished();
-    try {
-      const savedStudent = JSON.parse(localStorage.getItem('v79_student_user') || 'null');
-      if (savedStudent?.name) setStudentName(savedStudent.name);
-    } catch {
-      // Keep the editable fallback when no student profile exists.
-    }
   }, []);
 
   useEffect(() => {
