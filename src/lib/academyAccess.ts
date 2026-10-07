@@ -4,11 +4,15 @@ export function requiresSubscription(course: any): boolean {
 export function hasMembership(user: any, now = Date.now()): boolean {
   return Boolean(user && user.membershipStatus === 'active' && Date.parse(user.membershipExpiresAt) > now);
 }
-export function hasCourseEnrollment(user: any, courseId: string): boolean {
-  return Boolean(user && Array.isArray(user.enrolledCourseIds) && user.enrolledCourseIds.includes(courseId));
+export function hasCoursePurchase(user: any, courseId: string): boolean {
+  return Boolean(
+    user &&
+    Array.isArray(user.coursePurchases) &&
+    user.coursePurchases.some((purchase: any) => purchase?.courseId === courseId && purchase?.providerEnvironment === 'live')
+  );
 }
 export function canReadCourse(course: any, user: any, admin = false): boolean {
-  return admin || !requiresSubscription(course) || hasMembership(user) || hasCourseEnrollment(user, course.id);
+  return admin || !requiresSubscription(course) || hasMembership(user) || hasCoursePurchase(user, course.id);
 }
 export function courseSummary(course: any, db: any, access: boolean) {
   const { programme, websiteAppId, ...metadata } = course;
