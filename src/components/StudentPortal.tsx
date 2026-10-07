@@ -724,7 +724,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     : 'Academy membership';
 
   return (
-    <div className="v79-academy-classroom classroom-shell min-h-screen h-[100dvh] bg-slate-50 flex text-slate-800 font-sans antialiased overflow-hidden">
+    <div className="v79-academy-classroom classroom-shell min-h-[100dvh] h-[100dvh] bg-slate-50 flex text-slate-800 font-sans antialiased overflow-hidden">
       
       {/* 1. Left Navigation Sidebar (Classroom Index) */}
       {courseNavOpen && (
@@ -991,7 +991,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         className="flex-1 overflow-y-auto flex flex-col h-full bg-slate-50"
       >
         
-        <div role="status" className="px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex justify-between gap-3"><a href="/">← Course catalogue</a><span>{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
+        <div role="status" className="px-3 sm:px-5 py-2 text-xs bg-[#0A86FF]/10 text-[#21527a] border-b border-[#0A86FF]/15 flex items-center justify-between gap-3"><a href="/" className="shrink-0">← Course catalogue</a><span className="min-w-0 truncate">{learnerId ? syncMessage || 'Account progress enabled' : 'Guest progress stays on this browser. Sign in to save across devices.'}</span></div>
         {/* Dynamic Header */}
         <header className="h-16 bg-[#07111f]/95 backdrop-blur-xl border-b border-[#17324d] px-3 sm:px-8 flex items-center justify-between gap-2 shrink-0 sticky top-0 z-10 text-slate-200">
           <div className="flex min-w-0 items-center gap-2">
@@ -1003,16 +1003,16 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <span className="text-xs font-medium text-slate-400">
+            <span className="hidden sm:inline text-xs font-medium text-slate-400 truncate max-w-[220px]">
               {currentLesson && currentModule ? `Module ${currentModuleIndex + 1}: ${currentModule.title}` : 'Course Overview'}
             </span>
-            <ChevronRight className="w-4 h-4 text-slate-300" />
-            <span className="text-xs font-bold text-slate-800 truncate max-w-sm">
+            <ChevronRight className="hidden sm:block w-4 h-4 text-slate-300 shrink-0" />
+            <span className="min-w-0 text-xs font-bold text-slate-200 truncate sm:max-w-sm">
               {currentLesson ? currentLesson.title : 'Course Introduction'}
             </span>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <a
               href="https://hub.v79sl.com/"
               className="hidden sm:inline-flex px-3 py-1.5 bg-[#0A86FF]/10 hover:bg-[#0A86FF]/18 border border-[#0A86FF]/30 text-[#74d0ff] rounded-xl text-[10px] font-bold transition-colors"
