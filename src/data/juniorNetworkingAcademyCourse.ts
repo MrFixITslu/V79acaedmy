@@ -652,17 +652,18 @@ export function ensureJuniorNetworkingAcademyCourse(db: any): boolean {
         updatedAt: new Date().toISOString()
       });
     }
-    upgradedDb.publishingLogs.push({
-      id: contentMarker,
-      courseId: JUNIOR_NETWORKING_COURSE_ID,
-      courseTitle: upgradedCourse?.title || existingCourse.title,
-      event: 'Curriculum Upgraded',
-      fromStatus: preserved.status || 'Published',
-      toStatus: preserved.status || 'Published',
-      performedBy: 'System Migration',
-      timestamp: new Date().toISOString(),
-      details: 'Upgraded Networking Academy to curriculum v2 with deeper technician mental models, evidence-based labs, five-question assessments and a final Network Technician Benchmark while preserving IDs, progress keys and operational settings.'
-    });
+    const contentLog = upgradedDb.publishingLogs.find((log: any) => log.id === contentMarker);
+    if (contentLog) {
+      Object.assign(contentLog, {
+        courseTitle: upgradedCourse?.title || existingCourse.title,
+        event: 'Curriculum Upgraded',
+        fromStatus: preserved.status || 'Published',
+        toStatus: preserved.status || 'Published',
+        performedBy: 'System Migration',
+        timestamp: new Date().toISOString(),
+        details: 'Upgraded Networking Academy to curriculum v2 with deeper technician mental models, evidence-based labs, five-question assessments and a final Network Technician Benchmark while preserving IDs, progress keys and operational settings.'
+      });
+    }
     return true;
   }
 
