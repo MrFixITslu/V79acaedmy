@@ -31,7 +31,7 @@
 button, a, input, select, textarea { touch-action:manipulation; }
 :focus-visible { outline:3px solid #818cf8; outline-offset:3px; }
 @media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
-@media (max-width:767px) { .admin-shell { flex-direction:column; } .admin-shell > aside { width:100%; max-height:none; } .classroom-shell { height:100dvh !important; min-height:100vh; } .classroom-shell > div { min-height:0; } input, select, textarea { font-size:16px; } }
+@media (max-width:767px) { .admin-shell { flex-direction:column; } .admin-shell > aside { width:100%; max-height:none; } .classroom-shell { height:100dvh !important; min-height:100dvh; } .classroom-shell > div { min-height:0; } input, select, textarea { font-size:16px; } }
 @media print {
   body * { visibility: hidden; }
   #v79-certificate-canvas, #v79-certificate-canvas * { visibility: visible; }
