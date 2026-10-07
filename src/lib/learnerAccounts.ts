@@ -261,6 +261,12 @@ learnerRouter.post('/checkout/confirm', async (req, res) => {
       return res.status(403).json({ error: 'This payment order does not belong to the signed-in learner.' });
     }
     if (order.status !== 'paid') return res.status(409).json({ code: 'PAYMENT_NOT_VERIFIED', error: 'The payment has not been verified by V79 Billing.' });
+    if (order.providerEnvironment !== 'live') {
+      return res.status(409).json({
+        code: 'SANDBOX_PAYMENT_VERIFIED',
+        error: 'WiPay sandbox payment verified successfully. Test payments do not unlock paid courses.'
+      });
+    }
 
     const users = read();
     const user = users.find(u => u.id === current.id);
