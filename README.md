@@ -102,6 +102,7 @@ docs/junior-ai-academy-team-project-model.md
 docs/junior-ai-academy-instructor-guardian-guide.md
 docs/junior-ai-academy-v2-learning-standard.md
 docs/junior-ai-academy-v3-learning-standard.md
+docs/junior-ai-academy-v3.1-completion-checklist.md
 ```
 
 Printable learner worksheets are stored in:
