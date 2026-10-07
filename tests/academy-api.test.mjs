@@ -57,6 +57,8 @@ try {
   const health=await api('/healthz');assert.equal(health.data.status,'ok');
   const guest=await api('/api/learner/session');assert.equal(guest.data.user,null);
   const catalog=(await api('/api/public/courses')).data;assert.ok(catalog.length>=2);assert.ok(catalog.every(c=>!c.programme));
+  const sitemapResponse=await fetch(base+'/sitemap.xml');assert.equal(sitemapResponse.status,200);assert.match(sitemapResponse.headers.get('content-type')||'',/application\/xml/);
+  const sitemap=await sitemapResponse.text();assert.ok(sitemap.includes('<loc>https://academy.v79sl.com/</loc>'));assert.ok(sitemap.includes('https://academy.v79sl.com/course/'));assert.equal(sitemap.includes('/verify/'),false);
   await api('/api/courses',{status:401});
   const signedCourses=(await hubApi('/api/courses')).data;
   assert.ok(Array.isArray(signedCourses));
