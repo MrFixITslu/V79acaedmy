@@ -980,7 +980,7 @@ app.put("/api/courses/:id", async (req, res) => {
       const token = await getWebsiteAdminToken();
       const remote = await fetch(`${WEBSITE_SYNC_URL}/api/apps/${originalCourse.websiteAppId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Cookie: websiteAdminCookie(token) },
         signal: AbortSignal.timeout(15000)
       });
       if (!remote.ok && remote.status !== 404) throw new Error(`Website returned ${remote.status}`);
@@ -1011,7 +1011,7 @@ app.put("/api/courses/:id", async (req, res) => {
       const payload = buildWebsitePayload(updatedCourse, modules, lessons, quizzes);
       let remote = await fetch(`${WEBSITE_SYNC_URL}/api/apps/${originalCourse.websiteAppId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Cookie: websiteAdminCookie(token) },
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(15000)
       });
@@ -1021,7 +1021,7 @@ app.put("/api/courses/:id", async (req, res) => {
       if (remote.status === 404) {
         remote = await fetch(`${WEBSITE_SYNC_URL}/api/apps`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json', Cookie: websiteAdminCookie(token) },
           body: JSON.stringify(payload),
           signal: AbortSignal.timeout(15000)
         });
@@ -1079,7 +1079,7 @@ app.delete("/api/courses/:id", async (req, res) => {
   if (course.websiteAppId) {
     try {
       const token = await getWebsiteAdminToken();
-      const response = await fetch(`${WEBSITE_SYNC_URL}/api/apps/${course.websiteAppId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000) });
+      const response = await fetch(`${WEBSITE_SYNC_URL}/api/apps/${course.websiteAppId}`, { method: 'DELETE', headers: { Cookie: websiteAdminCookie(token) }, signal: AbortSignal.timeout(15000) });
       if (!response.ok && response.status !== 404) throw new Error(`Website returned ${response.status}`);
     } catch (error: any) { return res.status(502).json({ error: `Course retained: website removal failed. ${error.message}` }); }
   }
@@ -1427,6 +1427,15 @@ const WEBSITE_ADMIN_PASSWORD = process.env.WEBSITE_ADMIN_PASSWORD || "";
 
 let cachedWebsiteToken: { token: string; expiresAt: number } | null = null;
 
+// The website authenticates administrative API requests using the v79_admin
+// session cookie, not Authorization: Bearer. These requests originate from
+// the Academy server, so construct the cookie explicitly; never expose it
+// to clients or browser JavaScript.
+function websiteAdminCookie(token: string): string {
+  if (!/^[a-f0-9]{64}$/i.test(token)) throw new Error("Website returned an invalid admin session token.");
+  return `v79_admin=${token}`;
+}
+
 async function getWebsiteAdminToken(): Promise<string> {
   if (!WEBSITE_SYNC_URL || !WEBSITE_ADMIN_PASSWORD) {
     throw new Error(
@@ -1456,8 +1465,8 @@ async function getWebsiteAdminToken(): Promise<string> {
     );
   }
 
-  // Cache for slightly less than the website's 12-hour session TTL.
-  cachedWebsiteToken = { token: data.token, expiresAt: Date.now() + 11 * 60 * 60 * 1000 };
+  // Cache for less than the website's actual 2-hour administrator session TTL.
+  cachedWebsiteToken = { token: data.token, expiresAt: Date.now() + 90 * 60 * 1000 };
   return data.token;
 }
 
@@ -1667,7 +1676,7 @@ app.post("/api/courses/:id/publish", async (req, res) => {
     if (course.websiteAppId) {
       websiteResponse = await fetch(`${WEBSITE_SYNC_URL}/api/apps/${course.websiteAppId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", Cookie: websiteAdminCookie(token) },
         body: JSON.stringify(payload)
       });
       // The remote app may have been deleted since we last published - fall
@@ -1675,14 +1684,14 @@ app.post("/api/courses/:id/publish", async (req, res) => {
       if (websiteResponse.status === 404) {
         websiteResponse = await fetch(`${WEBSITE_SYNC_URL}/api/apps`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+          headers: { "Content-Type": "application/json", Cookie: websiteAdminCookie(token) },
           body: JSON.stringify(payload)
         });
       }
     } else {
       websiteResponse = await fetch(`${WEBSITE_SYNC_URL}/api/apps`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", Cookie: websiteAdminCookie(token) },
         body: JSON.stringify(payload)
       });
     }
