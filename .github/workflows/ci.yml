@@ -65,3 +65,39 @@ jobs:
           docker build --build-arg "V79_SOURCE_COMMIT=$SOURCE_COMMIT" --tag v79-course-builder:ci .
           test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' v79-course-builder:ci)" = "$SOURCE_COMMIT"
           echo "ACADEMY_EXACT_SOURCE_IMAGE_LABEL=PASS"
+
+      - name: Networkless Hub-signed Academy candidate smoke
+        run: |
+          set -euo pipefail
+          node --check tests/academy-publish-hub-docker-smoke.cjs
+          secret="synthetic-academy-ci-hub-signature-secret-2026"
+          cid="$(docker run --detach --rm --network none --read-only \
+            --user 1000:1000 --memory 768m --cpus 1 --pids-limit 128 \
+            --cap-drop ALL --security-opt no-new-privileges \
+            --tmpfs /app/data:rw,nosuid,nodev,size=256m,uid=1000,gid=1000,mode=700 \
+            --tmpfs /tmp:rw,nosuid,nodev,size=32m \
+            --env NODE_ENV=production --env PORT=3030 \
+            --env ACADEMY_COURSE_PUBLISH_MODE=academy \
+            --env ACADEMY_STANDALONE_ADMIN_ENABLED=0 \
+            --env WEBSITE_SYNC_URL= --env WEBSITE_ADMIN_PASSWORD= \
+            --env V79_PLATFORM_SHARED_SECRET="$secret" \
+            --env V79_HUB_EVENT_URL=http://127.0.0.1:1 \
+            --entrypoint node v79-course-builder:ci dist/server.cjs)"
+          trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
+          ready=0
+          for i in $(seq 1 40); do
+            if docker exec "$cid" node -e 'fetch("http://127.0.0.1:3030/healthz").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))'; then
+              ready=1; break
+            fi
+            sleep 1
+          done
+          test "$ready" -eq 1
+          docker exec --interactive --env V79_PLATFORM_SHARED_SECRET="$secret" "$cid" \
+            node - < tests/academy-publish-hub-docker-smoke.cjs
+          echo "ACADEMY_NETWORKLESS_HUB_SIGNED_DOCKER_SMOKE=PASS"
+
+      - name: Compose preserves legacy default
+        run: |
+          set -euo pipefail
+          docker compose -f docker-compose.yml config --format json | \
+            node -e 'let s="";process.stdin.on("data",x=>s+=x).on("end",()=>{const c=JSON.parse(s);if(c.services["course-builder"].environment.ACADEMY_COURSE_PUBLISH_MODE!=="website")process.exit(1);console.log("ACADEMY_COMPOSE_LEGACY_MODE_DEFAULT=PASS")})'
