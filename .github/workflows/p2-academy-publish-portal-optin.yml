@@ -1,0 +1,27 @@
+name: P2 Academy opt-in portal publishing (isolated)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "server.ts"
+      - "tests/academy-publish-*.test.mjs"
+      - ".github/workflows/p2-academy-*.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-publishing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run build
+      - name: Legacy website publishing unchanged
+        run: node tests/academy-publish-legacy-boundary.test.mjs
+      - name: Portal publication without website admin
+        run: node tests/academy-publish-portal-optin.test.mjs
