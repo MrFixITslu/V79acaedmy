@@ -54,6 +54,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Build deployment image
-        run: docker build --tag v79-course-builder:ci .
+      - name: Build deployment image from exact PR head
+        env:
+          SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          docker build --build-arg "V79_SOURCE_COMMIT=$SOURCE_COMMIT" --tag v79-course-builder:ci .
+          test "$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' v79-course-builder:ci)" = "$SOURCE_COMMIT"
+          echo "ACADEMY_EXACT_SOURCE_IMAGE_LABEL=PASS"
