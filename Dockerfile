@@ -24,6 +24,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3030
+ARG V79_SOURCE_COMMIT=unknown
+LABEL org.opencontainers.image.revision="${V79_SOURCE_COMMIT}"
 
 COPY package*.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
