@@ -1668,6 +1668,42 @@ app.post("/api/courses/:id/publish", async (req, res) => {
     });
   }
 
+  // Explicit opt-in: Academy is the canonical learner portal. The existing
+  // website-catalog publication remains the default until separately migrated.
+  // Never silently unlink an existing website listing or bypass its auth.
+  const publishMode = (process.env.ACADEMY_COURSE_PUBLISH_MODE || "website").trim();
+  if (publishMode !== "website" && publishMode !== "academy") {
+    return res.status(503).json({ error: "Unrecognized Academy publishing mode. Publication is disabled." });
+  }
+  if (publishMode === "academy") {
+    if (course.websiteAppId) {
+      return res.status(409).json({
+        error: "This course has an existing website catalog listing. Continue website synchronization until a reviewed migration unlinks it."
+      });
+    }
+    const now = new Date().toISOString();
+    const originalStatus = course.status;
+    // All mutations of the file-backed store are serialized above, preserving
+    // existing course IDs, assets, pricing, and learner progress.
+    db.courses[courseIndex] = {
+      ...course,
+      status: "Published",
+      academyPublishedAt: now,
+      updatedAt: now
+    };
+    saveData(db);
+    PublishingLogRepository.create({
+      courseId: course.id,
+      courseTitle: course.title,
+      event: "Published Academy",
+      fromStatus: originalStatus,
+      toStatus: "Published",
+      performedBy: userRole as any,
+      details: "Published to the Academy learner portal without optional website catalog synchronization."
+    });
+    return res.json({ success: true, course: db.courses[courseIndex], publicationTarget: "academy" });
+  }
+
   try {
     const token = await getWebsiteAdminToken();
     const payload = buildWebsitePayload(course, modules, lessons, quizzes);
@@ -1726,7 +1762,7 @@ app.post("/api/courses/:id/publish", async (req, res) => {
       details: `Successfully synchronized and published course curriculum with website. Website App ID: ${websiteData.id}`
     });
 
-    res.json({ success: true, course: db.courses[currentIndex], websiteAppId: websiteData.id });
+    res.json({ success: true, course: db.courses[currentIndex], websiteAppId: websiteData.id, publicationTarget: "website" });
   } catch (err: any) {
     console.error("[Publish] Failed to sync course to website:", err);
     res.status(502).json({ error: err.message || "Failed to publish course to the website." });

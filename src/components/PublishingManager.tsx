@@ -163,7 +163,9 @@ export function PublishingManager({ courses, onCourseUpdated, userRole }: Publis
         setStatus('Published');
         setMessage({ 
           type: 'success', 
-          text: `Successfully published course live! Curriculum synchronized with live student portal (Website App ID: ${data.websiteAppId || 'V79-Active'}).` 
+          text: data.publicationTarget === 'academy'
+            ? 'Course published to the Academy learner portal. No website administrator credentials were used.'
+            : `Course published to the website catalog${data.websiteAppId ? ` (Website App ID: ${data.websiteAppId})` : ''}.` 
         });
         onCourseUpdated();
         fetchLogs(selectedCourse.id);
@@ -448,10 +450,10 @@ export function PublishingManager({ courses, onCourseUpdated, userRole }: Publis
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-900 flex items-center space-x-1.5">
                       <Globe className="w-4 h-4 text-indigo-600" />
-                      <span>Synchronize with Live Student Catalog</span>
+                      <span>Publish Validated Course</span>
                     </p>
                     <p className="text-[11px] text-slate-500 leading-relaxed max-w-md">
-                      Publishes the finalized curriculum database live. Requires **Administrator** credentials. This triggers full content validation beforehand.
+                      Publishes to the server-configured Academy learner portal or website catalog. Existing website-linked courses remain website-managed. Administrator authorization and curriculum validation are required.
                     </p>
                   </div>
                   <button
@@ -467,7 +469,7 @@ export function PublishingManager({ courses, onCourseUpdated, userRole }: Publis
                     ) : (
                       <>
                         <Globe className="w-3.5 h-3.5" />
-                        <span>Publish Live 🚀</span>
+                        <span>Publish Course</span>
                       </>
                     )}
                   </button>

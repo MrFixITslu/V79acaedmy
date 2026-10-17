@@ -10,6 +10,8 @@ services:
       - NODE_ENV=production
       - PORT=3030
       - ACADEMY_PUBLIC_URL=${ACADEMY_PUBLIC_URL:-}
+      # Default preserves existing website publishing until owner opts into Academy-only.
+      - ACADEMY_COURSE_PUBLISH_MODE=${ACADEMY_COURSE_PUBLISH_MODE:-website}
       - TRUST_PROXY=${TRUST_PROXY:-1}
       - ADMIN_RESET_TOKEN=${ADMIN_RESET_TOKEN:-}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
