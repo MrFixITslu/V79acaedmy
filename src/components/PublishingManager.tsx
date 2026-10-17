@@ -163,7 +163,9 @@ export function PublishingManager({ courses, onCourseUpdated, userRole }: Publis
         setStatus('Published');
         setMessage({ 
           type: 'success', 
-          text: data.publicationTarget === 'academy'\n            ? 'Course published to the Academy learner portal. No website administrator credentials were used.'\n            : `Course published to the website catalog${data.websiteAppId ? ` (Website App ID: ${data.websiteAppId})` : ''}.` 
+          text: data.publicationTarget === 'academy'
+            ? 'Course published to the Academy learner portal. No website administrator credentials were used.'
+            : `Course published to the website catalog${data.websiteAppId ? ` (Website App ID: ${data.websiteAppId})` : ''}.` 
         });
         onCourseUpdated();
         fetchLogs(selectedCourse.id);
