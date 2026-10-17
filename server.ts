@@ -1762,7 +1762,7 @@ app.post("/api/courses/:id/publish", async (req, res) => {
       details: `Successfully synchronized and published course curriculum with website. Website App ID: ${websiteData.id}`
     });
 
-    res.json({ success: true, course: db.courses[currentIndex], websiteAppId: websiteData.id });
+    res.json({ success: true, course: db.courses[currentIndex], websiteAppId: websiteData.id, publicationTarget: "website" });
   } catch (err: any) {
     console.error("[Publish] Failed to sync course to website:", err);
     res.status(502).json({ error: err.message || "Failed to publish course to the website." });
