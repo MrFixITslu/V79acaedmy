@@ -1,4 +1,5 @@
 import { requiresSubscription } from '../lib/academyAccess';
+import { publicCoursePrice } from '../lib/academyPricing';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   GraduationCap,
@@ -719,8 +720,8 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   // Find currently active lesson's module name
   const currentModule = modules.find(m => m.id === currentLesson?.moduleId);
   const paidCourse = isCoursePaid(course);
-  const coursePriceFormatted = course?.pricingType === 'premium' && Number(course?.price) > 0
-    ? new Intl.NumberFormat('en-LC', { style: 'currency', currency: 'XCD' }).format(Number(course.price))
+  const coursePriceFormatted = course?.pricingType === 'premium'
+    ? publicCoursePrice(course).priceDisplay
     : 'Academy membership';
 
   return (
