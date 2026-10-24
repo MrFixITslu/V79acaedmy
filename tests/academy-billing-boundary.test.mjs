@@ -118,11 +118,11 @@ try {
   const anonymousCheckout = await api('/api/learner/checkout', {
     method: 'POST', status: 401, body: { courseId: 'synthetic-paid-course' },
   });
-  assert.match(anonymousCheckout.data.error, /sign-in required/i);
+  assert.match(anonymousCheckout.data.error, /learner account/i);
   const anonymousConfirm = await api('/api/learner/checkout/confirm', {
     method: 'POST', status: 401, body: { orderId: 'v79_missing' },
   });
-  assert.match(anonymousConfirm.data.error, /sign-in required/i);
+  assert.match(anonymousConfirm.data.error, /learner account/i);
   assert.equal(received.length, 0);
 
   // The fake Hub also rejects unsigned requests; Academy requests must carry their own signature.
