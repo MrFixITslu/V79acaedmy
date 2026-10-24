@@ -7,7 +7,8 @@ const testCourse = (pricingType: 'premium' | 'free' | 'subscription' | 'free_tri
 const oneTime = publicCoursePrice(testCourse('premium', 249));
 assert.equal(oneTime.isPaid, true);
 assert.equal(oneTime.purchaseReady, true);
-assert.match(oneTime.priceDisplay, /249/);
+assert.equal(oneTime.priceDisplay, 'EC$249.00');
+assert.equal(publicCoursePrice(testCourse('premium', 1000.5)).priceDisplay, 'EC$1,000.50');
 assert.notEqual(oneTime.priceDisplay, '$49.99');
 
 const zeroPrice = publicCoursePrice(testCourse('premium', 0));
@@ -42,6 +43,8 @@ assert.match(liveCatalogue, /aria-label="Course price"[^>]*>\{priceLabel\(c\)\}/
 assert.match(liveCatalogue, /aria-label="Course price"[^>]*>\{priceLabel\(detail\)\}/);
 assert.match(liveCatalogue, /c\.pricingType === 'premium'/);
 assert.doesNotMatch(liveCatalogue, /\$49\.99|Academy subscription/);
+assert.match(portal, /publicCoursePrice\(course\)\.priceDisplay/);
+assert.doesNotMatch(portal, /new Intl\.NumberFormat\('en-LC', \{ style: 'currency'/);
 assert.match(portal, /Open WiPay sandbox test \(no course access\)/);
 assert.match(portal, /test checkout currency may differ/);
 assert.match(billingClient, /V79_HUB_BILLING_URL/);
