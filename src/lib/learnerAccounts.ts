@@ -255,6 +255,7 @@ learnerRouter.post('/checkout', async (req, res) => {
   try {
     const result = await createAcademyCourseOrder({
       learnerId: user.id,
+      payerEmail: user.email,
       courseId: course.id,
       courseTitle: course.title,
       amount,
