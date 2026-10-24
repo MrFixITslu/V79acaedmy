@@ -11,16 +11,7 @@ export function publicCoursePrice(course: CoursePricing) {
       isPaid: true,
       purchaseReady,
       priceDisplay: purchaseReady
-        ? 'EC
-        : 'PRICE PENDING',
-    };
-  }
-  if (course.pricingType === 'subscription' || course.pricingType === 'free_trial') {
-    return { isPaid: true, purchaseReady: false, priceDisplay: 'MEMBERSHIP' };
-  }
-  return { isPaid: false, purchaseReady: false, priceDisplay: 'FREE' };
-}
- + new Intl.NumberFormat('en-LC', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price)
+        ? 'EC$' + new Intl.NumberFormat('en-LC', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price)
         : 'PRICE PENDING',
     };
   }
