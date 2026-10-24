@@ -17,17 +17,17 @@ Reuse the **existing Vision79 Hub WiPay account and billing ledger** for all Aca
 | Short business AI/productivity masterclass | New standalone 60–120 min course (not yet a verified published SKU) | 99 | One-time, per learner | Future course |
 | Junior AI Academy, 16 missions | `course-junior-ai-academy-01` | 249 | One-time, per learner with parent/guardian account rules | Content & minor-safety review |
 | Junior Networking Academy, 20 missions | `course-junior-networking-academy-01` | 299 | One-time, per learner with parent/guardian account rules | Content & minor-safety review |
-| From Idea to Advantage, 12 modules | `course-from-idea-to-advantage-01` | 399 | One-time, per learner | First paid adult launch candidate |
+| From Idea to Advantage, 12 modules | `course-from-idea-to-advantage-01` | 249 | One-time, per learner | **Owner-approved launch price (23 Oct 2026); activation pending payment/release gates** |
 | Data Engineering / DP-700-aligned foundations | Verify the exact data-engineering course ID and outcomes before pricing | 499 | One-time, per learner | Assessment/certification-claim review |
 | Corporate/school cohorts | Team training, per-client scope | Custom quote | Manual approved agreement only | **No automated group-seat billing** |
 
-**Prices are catalogue suggestions only.** Do not migrate existing records, flip `pricingType`, reprice linked website entries, grant access or advertise certification without the appropriate owner/content approvals. “DP-700-aligned” must never imply Microsoft certification or official partnership.
+**Other prices are catalogue suggestions only; the EC$249 *From Idea to Advantage* introductory offer is owner-approved for the pilot. Approval is for the price, not for charging customers or publishing the course.** Do not migrate existing records, flip `pricingType`, reprice linked website entries, grant access or advertise certification without the appropriate owner/content approvals. “DP-700-aligned” must never imply Microsoft certification or official partnership.
 
 ### Segmentation and packaging
 - Free: a practical prompt guide + introductory lessons, with explicit newsletter consent and no forced payment; measure guide-to-course transitions.
 - Entry EC$99: fast work improvement, 1–2-hour outcome-driven lessons.
 - Youth EC$249/299: complete practical self-paced programmes, parent/guardian controls, no automated recurring fees.
-- SMB professional EC$399: diagnostic, workbook, implementation deliverables and assessed learning; link to Vision79 ICT consultation.
+- SMB professional EC$249: owner-approved introductory one-time price for *From Idea to Advantage*, with diagnostic, workbook, implementation deliverables and assessed learning; link to Vision79 ICT consultation.
 - Technical advanced EC$499: deeper guided projects, hands-on evidence and curriculum review; no job/certification guarantees.
 - Corporate: quote separately by cohort size, facilitated time, support and content customisation. Do not give group access automatically on one individual purchase.
 
