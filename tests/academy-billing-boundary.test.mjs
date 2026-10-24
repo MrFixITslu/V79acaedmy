@@ -114,6 +114,17 @@ try {
   });
   await ready();
 
+  // Anonymous checkout and confirmation must reject before a Hub status/order call.
+  const anonymousCheckout = await api('/api/learner/checkout', {
+    method: 'POST', status: 401, body: { courseId: 'synthetic-paid-course' },
+  });
+  assert.match(anonymousCheckout.data.error, /sign-in required/i);
+  const anonymousConfirm = await api('/api/learner/checkout/confirm', {
+    method: 'POST', status: 401, body: { orderId: 'v79_missing' },
+  });
+  assert.match(anonymousConfirm.data.error, /sign-in required/i);
+  assert.equal(received.length, 0);
+
   // The fake Hub also rejects unsigned requests; Academy requests must carry their own signature.
   const unsigned = await fetch(hubBase + '/api/billing/internal/status', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
