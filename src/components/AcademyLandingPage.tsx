@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GraduationCap, Search, ArrowRight, BookOpen, Award, Clock, X, LogOut, RefreshCw } from 'lucide-react';
 import { Course } from '../types';
 import { requiresSubscription } from '../lib/academyAccess';
+import { publicCoursePrice } from '../lib/academyPricing';
 
 type Learner = { id: string; name: string; email: string; membershipStatus: string; enrolledCourseIds: string[] };
 export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: string }) {
@@ -64,7 +65,11 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
     (category === 'All' || c.category === category) && (level === 'All' || c.difficultyLevel === level) &&
     (access === 'All' || (access === 'Free' ? !requiresSubscription(c) : requiresSubscription(c))) &&
     `${c.title} ${c.shortDescription} ${c.category}`.toLowerCase().includes(query.toLowerCase()));
-  const label = (c: Course) => requiresSubscription(c) ? 'Academy subscription' : 'Free course';
+  // Display the saved course's price; never infer an amount or offer live checkout.
+  const priceLabel = (c: Course) => publicCoursePrice(c).priceDisplay;
+  const label = (c: Course) => c.pricingType === 'premium'
+    ? 'One-time course'
+    : requiresSubscription(c) ? 'Membership access' : 'Free course';
   return <div className="v79-academy-public academy-shell min-h-screen bg-slate-50 text-slate-900">
     <a href="#course-catalog" className="sr-only focus:not-sr-only">Skip to courses</a>
     <header className="sticky top-0 z-30 border-b border-[#17324d] bg-[#07111f]/95 backdrop-blur-xl px-5 sm:px-10 text-white">
@@ -100,8 +105,8 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
             {!!detail.prerequisites?.length && <><h2 className="text-xl font-bold mt-8 mb-3">Before you begin</h2><ul className="list-disc pl-5 space-y-2">{detail.prerequisites.map((v,i) => <li key={i}>{v}</li>)}</ul></>}
             <h2 className="text-xl font-bold mt-8 mb-4">Course outline</h2><ol className="divide-y border rounded-2xl bg-white px-5">{outline.map((m,i) => <li key={m.id} className="py-5"><span className="text-indigo-600 font-bold mr-3">{String(i+1).padStart(2,'0')}</span><strong>{m.title}</strong><p className="text-slate-500 text-sm mt-2">{m.description}</p></li>)}</ol>
           </div>
-          <aside className="bg-white border rounded-3xl p-6 h-fit lg:sticky lg:top-28"><img src={detail.thumbnail} alt="" className="w-full h-48 object-cover rounded-2xl bg-slate-100"/><p className="text-xl font-bold mt-6">{label(detail)}</p><p className="text-slate-500 mt-2">{detail.estimatedDuration} · {detail.lessonCount || 0} lessons</p><p className="text-sm text-slate-500 mt-2">With {detail.instructor}</p>
-            {requiresSubscription(detail) && user?.membershipStatus !== 'active' && <p className="text-sm rounded-xl p-3 bg-amber-50 text-amber-900 mt-5">Online subscriptions are coming soon. Existing members can sign in to access this course.</p>}
+          <aside className="bg-white border rounded-3xl p-6 h-fit lg:sticky lg:top-28"><img src={detail.thumbnail} alt="" className="w-full h-48 object-cover rounded-2xl bg-slate-100"/><p className="text-sm font-semibold mt-6 text-indigo-700">{label(detail)}</p><p aria-label="Course price" className="text-2xl font-extrabold text-slate-900 mt-2">{priceLabel(detail)}</p><p className="text-slate-500 mt-2">{detail.estimatedDuration} · {detail.lessonCount || 0} lessons</p><p className="text-sm text-slate-500 mt-2">With {detail.instructor}</p>
+            {requiresSubscription(detail) && user?.membershipStatus !== 'active' && <p className="text-sm rounded-xl p-3 bg-amber-50 text-amber-900 mt-5">{detail.pricingType === 'premium' ? 'Course prices are for reference. Checkout requires Vision79 Hub billing verification; sandbox payments do not unlock access.' : 'Recurring subscriptions are not enabled. Existing members can sign in to access this course.'}</p>}
             <button disabled={busy} onClick={() => start(detail)} className="academy-primary w-full mt-6">{requiresSubscription(detail) && user?.membershipStatus !== 'active' ? 'View access options' : user?.enrolledCourseIds.includes(detail.id) ? 'Continue learning' : 'Start learning'}</button>
           </aside>
         </div>
@@ -115,7 +120,7 @@ export function AcademyLandingPage({ initialCourseSlug }: { initialCourseSlug?: 
           <p className="text-sm text-slate-500 mb-5">{filtered.length} course{filtered.length !== 1 ? 's' : ''}</p>
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">{filtered.map(c => <article key={c.id} className="academy-course-card bg-white border rounded-2xl overflow-hidden transition-all flex flex-col">
             <button onClick={() => setDetail(c)} className="text-left relative"><img src={c.thumbnail} alt="" loading="lazy" className="h-44 w-full object-cover bg-slate-200"/><span className="absolute left-4 top-4 px-3 py-1 rounded-full bg-white text-xs font-bold">{label(c)}</span></button>
-            <div className="p-6 flex flex-col flex-1"><p className="text-xs font-bold text-indigo-700">{c.category} · {c.difficultyLevel}</p><h3 className="mt-3 text-xl font-bold leading-snug"><button className="text-left hover:text-indigo-700" onClick={() => setDetail(c)}>{c.title}</button></h3><p className="text-sm text-slate-500 leading-relaxed mt-3 line-clamp-3">{c.shortDescription}</p><p className="text-xs text-slate-500 mt-5">{c.estimatedDuration} · {c.lessonCount || 0} lessons</p><div className="flex justify-between gap-3 mt-auto pt-6"><button className="font-semibold text-sm text-slate-600" onClick={() => setDetail(c)}>View details</button><button disabled={busy} className="font-bold text-sm text-indigo-700 inline-flex items-center gap-2" onClick={() => start(c)}>{user?.enrolledCourseIds.includes(c.id) ? 'Continue' : requiresSubscription(c) ? 'View access' : 'Start free'}<ArrowRight size={16}/></button></div></div>
+            <div className="p-6 flex flex-col flex-1"><p className="text-xs font-bold text-indigo-700">{c.category} · {c.difficultyLevel}</p><h3 className="mt-3 text-xl font-bold leading-snug"><button className="text-left hover:text-indigo-700" onClick={() => setDetail(c)}>{c.title}</button></h3><p className="text-sm text-slate-500 leading-relaxed mt-3 line-clamp-3">{c.shortDescription}</p><p aria-label="Course price" className="text-xl font-extrabold text-slate-900 mt-4">{priceLabel(c)}</p><p className="text-xs text-slate-500 mt-3">{c.estimatedDuration} · {c.lessonCount || 0} lessons</p><div className="flex justify-between gap-3 mt-auto pt-6"><button className="font-semibold text-sm text-slate-600" onClick={() => setDetail(c)}>View details</button><button disabled={busy} className="font-bold text-sm text-indigo-700 inline-flex items-center gap-2" onClick={() => start(c)}>{user?.enrolledCourseIds.includes(c.id) ? 'Continue' : requiresSubscription(c) ? 'View access' : 'Start free'}<ArrowRight size={16}/></button></div></div>
           </article>)}</div>
         </>}
       </>}

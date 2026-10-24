@@ -1,0 +1,29 @@
+name: Academy XCD price and shared Hub WiPay display (nondeploying)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/lib/academyPricing.ts'
+      - 'src/lib/academyPricing.test.ts'
+      - 'src/components/CourseEditor.tsx'
+      - 'src/components/PublicCourseCard.tsx'
+      - 'src/components/StudentPortal.tsx'
+      - '.github/workflows/p2-academy-wipay-pricing-review.yml'
+      - 'docs/academy-pricing-and-shared-wipay-strategy-20261023.md'
+permissions:
+  contents: read
+jobs:
+  static-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --import tsx src/lib/academyPricing.test.ts
+      - run: npm run lint
+      - run: npm run build
