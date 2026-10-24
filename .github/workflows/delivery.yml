@@ -60,6 +60,10 @@ jobs:
           IMAGE="${{ steps.docker.outputs.image }}"
           COMMIT="${{ github.event.workflow_run.head_sha || github.sha }}"
           SHORT_SHA="${COMMIT::12}"
-          docker build -t "$IMAGE:latest" -t "$IMAGE:$SHORT_SHA" .
+          test "$(git rev-parse HEAD)" = "$COMMIT"
+          docker build --build-arg "V79_SOURCE_COMMIT=$COMMIT" -t "$IMAGE:latest" -t "$IMAGE:$SHORT_SHA" .
+          IMAGE_REVISION="$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$IMAGE:$SHORT_SHA")"
+          test "$IMAGE_REVISION" = "$COMMIT"
+          echo "ACADEMY_RELEASE_IMAGE_SOURCE_REVISION=PASS"
           docker push "$IMAGE:latest"
           docker push "$IMAGE:$SHORT_SHA"
