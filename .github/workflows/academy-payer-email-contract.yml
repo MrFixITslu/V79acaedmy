@@ -1,0 +1,25 @@
+name: Academy signed WiPay payer email contract (no deployment)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/lib/billingClient.ts'
+      - 'src/lib/learnerAccounts.ts'
+      - 'tests/academy-payer-email-contract.test.mjs'
+      - '.github/workflows/academy-payer-email-contract.yml'
+permissions:
+  contents: read
+jobs:
+  isolated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node --import tsx --test tests/academy-payer-email-contract.test.mjs
+      - run: npm run lint

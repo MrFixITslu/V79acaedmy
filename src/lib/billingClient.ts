@@ -58,6 +58,7 @@ export async function getAcademyBillingCapabilities() {
 
 export async function createAcademyCourseOrder(input: {
   learnerId: string;
+  payerEmail: string;
   courseId: string;
   courseTitle: string;
   amount: number;
@@ -67,6 +68,7 @@ export async function createAcademyCourseOrder(input: {
     kind: "course",
     externalReference: input.courseId,
     subjectReference: input.learnerId,
+    payerEmail: input.payerEmail,
     description: input.courseTitle,
     amount: input.amount,
     currency: String(process.env.V79_ACADEMY_BILLING_CURRENCY || "XCD").trim().toUpperCase(),
