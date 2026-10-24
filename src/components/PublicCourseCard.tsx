@@ -1,5 +1,6 @@
 import React from 'react';
 import { Course } from '../types';
+import { coursePriceDisplay } from '../lib/coursePriceDisplay';
 import { Clock, User, Award, BookOpen, ChevronRight, Lock, CheckCircle2 } from 'lucide-react';
 
 interface PublicCourseCardProps {
@@ -20,8 +21,8 @@ export function PublicCourseCard({
   moduleCount,
   lessonCount
 }: PublicCourseCardProps) {
-  const isPaid = course.pricingType === 'premium' || (typeof course.price === 'number' && course.price > 0);
-  const priceDisplay = isPaid ? `$${(course.price || 49.99).toFixed(2)}` : 'FREE';
+  const isPaid = course.pricingType !== 'free';
+  const priceDisplay = coursePriceDisplay(course);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group hover:-translate-y-1">
