@@ -1,0 +1,27 @@
+name: Academy signed billing boundary (isolated mock, no deployment)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/academy-billing-boundary.test.mjs'
+      - '.github/workflows/academy-billing-boundary-isolated.yml'
+      - 'src/lib/billingClient.ts'
+      - 'src/lib/learnerAccounts.ts'
+      - 'src/lib/academyAccess.ts'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: node tests/academy-billing-boundary.test.mjs
