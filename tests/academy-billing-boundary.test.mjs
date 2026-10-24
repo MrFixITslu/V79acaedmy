@@ -121,7 +121,15 @@ try {
   });
   assert.equal(unsigned.status, 401);
 
-  const admin = await api('/api/admin/login', { method: 'POST', body: { password: 'isolated-admin-password-123' } });
+  const initialAdmin = await api('/api/admin/login', { method: 'POST', body: { password: 'isolated-admin-password-123' } });
+  // Production admin bootstraps require a password change; keep the guard enabled in this disposable test.
+  const changedAdmin = await api('/api/admin/change-password', {
+    method: 'POST', cookie: initialAdmin.cookie,
+    body: { currentPassword: 'isolated-admin-password-123', newPassword: 'isolated-admin-changed-password-456' },
+  });
+  const admin = { cookie: changedAdmin.cookie || (await api('/api/admin/login', {
+    method: 'POST', body: { password: 'isolated-admin-changed-password-456' },
+  })).cookie };
   const learnerA = await api('/api/learner/register', {
     method: 'POST', body: { email: 'alpha@example.test', name: 'Synthetic Alpha', password: 'alpha-synthetic-password-123' },
   });
