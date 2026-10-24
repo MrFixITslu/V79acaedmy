@@ -27,6 +27,7 @@ assert.deepEqual(publicCoursePrice(testCourse('free', 499)),
 const read = (p: string) => readFileSync(new URL('../../' + p, import.meta.url), 'utf8');
 const editor = read('src/components/CourseEditor.tsx');
 const card = read('src/components/PublicCourseCard.tsx');
+const liveCatalogue = read('src/components/AcademyLandingPage.tsx');
 const portal = read('src/components/StudentPortal.tsx');
 const billingClient = read('src/lib/billingClient.ts');
 
@@ -35,6 +36,12 @@ assert.match(editor, /Price \(XCD \/ EC\$\)/);
 assert.doesNotMatch(editor, /Price \(USD\)/);
 assert.match(card, /publicCoursePrice\(course\)/);
 assert.doesNotMatch(card, /49\.99/);
+// Regression: App.tsx renders AcademyLandingPage, not PublicCourseCard.
+assert.match(liveCatalogue, /import \{ publicCoursePrice \} from '\.\.\/lib\/academyPricing'/);
+assert.match(liveCatalogue, /aria-label="Course price"[^>]*>\{priceLabel\(c\)\}/);
+assert.match(liveCatalogue, /aria-label="Course price"[^>]*>\{priceLabel\(detail\)\}/);
+assert.match(liveCatalogue, /c\.pricingType === 'premium'/);
+assert.doesNotMatch(liveCatalogue, /\$49\.99|Academy subscription/);
 assert.match(portal, /Open WiPay sandbox test \(no course access\)/);
 assert.match(portal, /test checkout currency may differ/);
 assert.match(billingClient, /V79_HUB_BILLING_URL/);
