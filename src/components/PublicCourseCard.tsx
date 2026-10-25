@@ -1,6 +1,6 @@
 import React from 'react';
 import { Course } from '../types';
-import { coursePriceDisplay } from '../lib/coursePriceDisplay';
+import { catalogPriceLabel, upcomingOneTimeOffer, OFFER_NOTE } from '../lib/approvedOneTimeOffers';
 import { Clock, User, Award, BookOpen, ChevronRight, Lock, CheckCircle2 } from 'lucide-react';
 
 interface PublicCourseCardProps {
@@ -22,7 +22,7 @@ export function PublicCourseCard({
   lessonCount
 }: PublicCourseCardProps) {
   const isPaid = course.pricingType !== 'free';
-  const priceDisplay = coursePriceDisplay(course);
+  const priceDisplay = catalogPriceLabel(course);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group hover:-translate-y-1">
@@ -99,6 +99,7 @@ export function PublicCourseCard({
           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
             {course.shortDescription || 'Master key concepts with structured video lessons, practical assignments, and interactive assessments.'}
           </p>
+          {upcomingOneTimeOffer(course.id) && <p className="text-xs text-amber-800">{OFFER_NOTE}</p>}
         </div>
 
         {/* Card Footer Actions */}
