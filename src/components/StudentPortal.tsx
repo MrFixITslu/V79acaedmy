@@ -1,4 +1,6 @@
 import { requiresSubscription } from '../lib/academyAccess';
+import { coursePriceDisplay } from '../lib/coursePriceDisplay';
+import { upcomingOneTimeOffer, OFFER_NOTE } from '../lib/approvedOneTimeOffers';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   GraduationCap,
@@ -719,9 +721,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   // Find currently active lesson's module name
   const currentModule = modules.find(m => m.id === currentLesson?.moduleId);
   const paidCourse = isCoursePaid(course);
-  const coursePriceFormatted = course?.pricingType === 'premium' && Number(course?.price) > 0
-    ? new Intl.NumberFormat('en-LC', { style: 'currency', currency: 'XCD' }).format(Number(course.price))
-    : 'Academy membership';
+  const coursePriceFormatted = course ? coursePriceDisplay(course) : 'PRICE PENDING';
 
   return (
     <div className="v79-academy-classroom classroom-shell min-h-[100dvh] h-[100dvh] bg-slate-50 flex text-slate-800 font-sans antialiased overflow-hidden">
@@ -1113,6 +1113,12 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
 
                 {/* Pricing / Enrollment Action Box */}
                 <div className="w-full md:w-72 bg-slate-50 p-6 rounded-2xl border border-slate-200 shrink-0 text-center space-y-4">
+                  {upcomingOneTimeOffer(course.id) && (
+                    <div className="rounded-xl bg-white border border-amber-200 p-3">
+                      <p className="text-2xl font-black text-slate-900" aria-label="One-time course price">{upcomingOneTimeOffer(course.id)?.label}</p>
+                      <p className="text-xs text-amber-800 mt-1">{OFFER_NOTE}</p>
+                    </div>
+                  )}
                   {paidCourse ? (
                     <>
                       <div className="space-y-1">
