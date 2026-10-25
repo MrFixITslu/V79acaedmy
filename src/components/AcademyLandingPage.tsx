@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { GraduationCap, Search, ArrowRight, BookOpen, Award, Clock, X, LogOut, RefreshCw } from 'lucide-react';
 import { Course } from '../types';
 import { requiresSubscription } from '../lib/academyAccess';
-import { coursePriceDisplay } from '../lib/coursePriceDisplay';
 import { catalogPriceLabel, upcomingOneTimeOffer, OFFER_NOTE } from '../lib/approvedOneTimeOffers';
 
 type Learner = { id: string; name: string; email: string; membershipStatus: string; enrolledCourseIds: string[] };
