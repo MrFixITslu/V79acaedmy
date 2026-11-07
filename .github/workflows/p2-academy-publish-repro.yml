@@ -1,0 +1,30 @@
+name: Academy isolated legacy publishing contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tests/academy-publish-legacy-boundary.test.mjs"
+      - ".github/workflows/p2-academy-publish-repro.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fake-website-publishing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Build disposable Academy server (no deploy)
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+      - name: Reproduce wrong website admin and safe local publish/update
+        run: node tests/academy-publish-legacy-boundary.test.mjs
+      - name: Check TypeScript integrity
+        run: npm run lint

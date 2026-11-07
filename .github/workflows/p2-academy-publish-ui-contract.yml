@@ -1,0 +1,31 @@
+name: P2 Academy publishing UI contract (non-deploying)
+on:
+  pull_request:
+    branches:
+      - feature/p2-academy-portal-publish-optin-20261016
+      - main
+    paths:
+      - server.ts
+      - src/components/CourseEditor.tsx
+      - src/components/PublishingManager.tsx
+      - tests/academy-publish-ui-target-contract.test.mjs
+      - .github/workflows/p2-academy-publish-ui-contract.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run build
+      - run: node tests/academy-publish-ui-target-contract.test.mjs
+      - run: node tests/academy-publish-portal-optin.test.mjs

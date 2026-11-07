@@ -34,13 +34,13 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
       const res = await fetch(`/api/courses/${course.id}/publish`, { method: 'POST' });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to publish course to the website.');
+        throw new Error(data.error || 'Failed to publish course to the configured destination.');
       }
       setFormData(data.course);
       onUpdateCourse(data.course);
       setPublishState('success');
     } catch (err: any) {
-      setPublishError(err.message || 'Failed to publish course to the website.');
+      setPublishError(err.message || 'Failed to publish course to the configured destination.');
       setPublishState('error');
     }
   };
@@ -497,8 +497,8 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
               </div>
 
               <div className="border-t border-slate-200 pt-6 space-y-3">
-                <label className="block text-xs font-semibold text-slate-700">Publish to Website</label>
-                {formData.status === 'Uploaded' && formData.websiteAppId ? (
+                <label className="block text-xs font-semibold text-slate-700">Publish Course</label>
+                {formData.status === 'Published' && formData.websiteAppId ? (
                   <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-xs text-emerald-800 space-y-1">
                     <p className="font-bold flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Live on the website</p>
                     <p>Website app ID: {formData.websiteAppId}{formData.websitePublishedAt ? ` · last published ${new Date(formData.websitePublishedAt).toLocaleString()}` : ''}</p>
@@ -506,7 +506,7 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
                   </div>
                 ) : (
                   <p className="text-[11px] text-slate-500">
-                    This course hasn't been published yet. Publishing sends the curriculum and exam to the website and makes it live there.
+                    {formData.status === 'Published' ? 'Published to the Academy learner portal. No website listing is linked.' : 'The server determines the publishing destination: Academy learner portal or website catalog. A linked website listing can only be updated in website mode.'}
                   </p>
                 )}
 
@@ -530,7 +530,7 @@ export function CourseEditor({ course, onBack, onUpdateCourse, onExportCourse }:
                     </>
                   ) : (
                     <>
-                      {formData.websiteAppId ? 'Republish to Website' : 'Publish to Website'}
+                      {formData.websiteAppId ? 'Update Website Listing' : 'Publish Course'}
                     </>
                   )}
                 </button>

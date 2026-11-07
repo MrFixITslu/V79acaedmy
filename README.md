@@ -142,6 +142,16 @@ The course is seeded idempotently on first application start. Existing copies ar
 
 ---
 
+## P2: Academy-only portal publication (opt-in review candidate)
+
+The Course Builder already serves the **canonical learner portal** at `https://academy.v79sl.com`. Older publication sends an additional listing to the V79 Digital website and requires `WEBSITE_SYNC_URL` and `WEBSITE_ADMIN_PASSWORD`. That secondary credential can fail even when the Hub/Academy owner is correctly authenticated.
+
+The isolated candidate supports `ACADEMY_COURSE_PUBLISH_MODE=academy`: an authorized and validated publication sets the Academy course to `Published` and records an audit event. It does **not** call the website admin API, change the learner URL, reset credentials, touch billing or delete learner progress. Courses already linked to website catalog entries are rejected with HTTP 409; they retain the website sync until a separately reviewed migration.
+
+**Default remains `website`** (unchanged behavior) if the variable is unset. Other values fail closed with 503. Do not enable `academy` on a running service until source/image, data backup, learner access, pricing and Hub-auth tests are independently accepted. The UI may still say "Publish to Website"; review its label and configuration indicator before activating this mode. Development code is not commercial-release authorization.
+
+Isolated tests after `npm run build`: `node tests/academy-publish-legacy-boundary.test.mjs` and `node tests/academy-publish-portal-optin.test.mjs`.
+
 ## Publishing courses to the website
 
 Previously, marking a course "Uploaded" was just a status label - it didn't send anything anywhere. Publishing is now a real action: the **Publish to Website** button (in a course's Settings tab) transforms the course's modules, lessons, and quizzes into the website's expected format and creates or updates the matching entry there via its admin API.
