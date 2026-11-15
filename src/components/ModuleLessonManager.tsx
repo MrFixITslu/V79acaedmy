@@ -1,3 +1,4 @@
+import { LessonReviewPanel } from './LessonReviewPanel';
 import React, { useState, useEffect } from 'react';
 import { Course, Module, Lesson } from '../types';
 import { ContentBlock, ContentBlockType } from '../types/course-builder-v2';
@@ -938,6 +939,7 @@ export function ModuleLessonManager({ course, onOpenQuizBuilder }: ModuleLessonM
             {/* TAB CONTENT: Metadata Settings */}
             {activeLessonTab === 'settings' && (
               <form onSubmit={handleUpdateLessonMetadata} className="space-y-4 max-w-2xl">
+                <LessonReviewPanel lesson={selectedLesson} onReviewed={setSelectedLesson}/>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">Lesson Title</label>

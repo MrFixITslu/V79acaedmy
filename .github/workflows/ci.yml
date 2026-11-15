@@ -39,11 +39,14 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Reproduce study resources
+        run: npm run resources:study && git diff --exit-code -- public/study
+
       - name: Production build
         run: npm run build
 
       - name: Academy API integration tests
-        run: npm run test:api
+        run: npm run test:api && npm run test:study-api
 
   docker:
     name: Docker image build

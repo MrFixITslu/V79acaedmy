@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { ensureSelfPacedCourses } from '../data/selfPacedCourses';
 import path from 'path';
 import { ensureDataEngineeringCourse } from '../data/dataEngineeringCourse';
 import { ensureIdeaToAdvantageCourse } from '../data/ideaToAdvantageCourse';
@@ -112,6 +113,8 @@ export function initAndMigrateDb(): StoreSchema {
     migrated = true;
     console.log('[Seed] V79 Junior Networking Academy added.');
   }
+
+  if (ensureSelfPacedCourses(db)) migrated = true;
 
   if (migrated || !fs.existsSync(DATA_FILE)) {
     saveDb(db as StoreSchema);

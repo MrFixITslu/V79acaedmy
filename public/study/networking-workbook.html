@@ -1,0 +1,242 @@
+<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Small-Business Networking: Connect, Measure &amp; Troubleshoot — workbook</title><style>body{max-width:75ch;margin:40px auto;padding:0 22px;color:#203e32;font:17px/1.8 system-ui}h1,h2{line-height:1.25}section{border-top:1px solid #acc3b6;padding:30px 0}.lesson{white-space:pre-wrap}a{overflow-wrap:anywhere;color:#075e59}.writing-space{height:200px;border:1px solid #c5d6cb}summary{cursor:pointer;font-weight:600}details{padding:18px;background:#eef6f0}@media print{body{font-size:11pt}section{break-before:page}details{display:block}a{color:inherit}.writing-space{height:160px}}</style><h1>Small-Business Networking: Connect, Measure &amp; Troubleshoot</h1><p>Independent-study reference and practice workbook · Version 1.0.0 · Source-checked 2026-11-15</p><p>Original V79 foundation material. Fictional examples and simulations are labelled. Complete the online lesson quizzes to save verified completion. This workbook is printable using your browser's Print or Save as PDF command; a completion certificate is not an accredited qualification.</p><h2>How to study independently</h2><ol><li>Read each explanation and worked example.</li><li>Attempt the practice before reading the model solution.</li><li>Record evidence and correct any gaps.</li><li>Complete the online knowledge check and review its feedback.</li><li>Submit the capstone evidence pack in your learner account.</li></ol><section><h2>1. Follow data through a small-business network</h2><div class="lesson">## What you will learn
+- Explain the roles of a switch, router and access point
+- Trace local and remote traffic
+- Separate physical connectivity from application success
+
+## Understand the concept
+A network lets devices exchange data using agreed protocols. A local area network, or LAN, connects devices within a limited site. A wide area connection links networks across larger distances. The internet is a network of networks; it is not the same thing as your Wi-Fi. A printer can work locally while the internet connection is down, and a device can show a Wi-Fi connection while failing to reach a website.
+
+A switch forwards Ethernet frames within a Layer 2 network using learned MAC-address information. A router forwards IP packets between networks using a routing table. An access point connects wireless clients to a network, commonly bridging them into a wired LAN. A small office appliance may combine routing, switching, wireless access, firewalling and other services. Learn the functions rather than assuming each function requires a separate box.
+
+Data is carried in layers. An application creates data; transport protocols such as TCP or UDP support communication between endpoints; IP handles addressing and forwarding across networks; link technologies carry frames over a local connection. The OSI model is a useful seven-layer teaching model: physical, data link, network, transport, session, presentation and application. Real protocol implementations do not always fit neatly into one teaching layer. Use the model to isolate a problem, not as a rigid description of every implementation.
+
+For a remote destination, a client normally sends the packet towards its default gateway. On each routed Ethernet segment, the link-layer frame is built for that next hop while the IP packet is forwarded towards the destination. NAT, when used, changes addressing at a boundary, but it is not the same as routing or a complete security policy. A working network path also needs return traffic. An illuminated port or a successful local connection proves only part of that path.
+
+## Worked example — fictional business case
+In a fictional shop, a laptop and printer share a LAN through a switch. The laptop sends a local print job without needing the ISP. To open a remote inventory site, it uses the gateway and the ISP path. A wireless laptop also passes through the access point. If all local printing works but remote sites fail, replacing the printer is unlikely to solve the internet fault.
+
+## Practise independently
+1. Draw a shop with a router, switch, access point, laptop, printer and ISP.
+2. Trace a local print job and a remote website request separately.
+3. Use the packet journey visual and explain each hop aloud or in your notes.
+4. For each device, describe its function without using the device name as the explanation.
+
+## Common mistakes and troubleshooting
+Do not equate Wi-Fi with internet service, confuse a MAC address with an IP address, or assume NAT alone provides a complete firewall policy.
+
+## Remember
+Trace the actual path and identify which function each component performs. Local success does not prove remote success.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>Local print: laptop → switch → printer, assuming the same LAN/VLAN and working configuration. Remote request: laptop → switch (or AP then switch) → router/default gateway → ISP → remote service, with a return path. The AP provides wireless access; the router selects a path between networks; the switch handles local frame forwarding.</p></details><h3>References</h3><ul><li><a href="https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html">https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html</a></li><li><a href="https://developers.cloudflare.com/fundamentals/reference/network-layers/">https://developers.cloudflare.com/fundamentals/reference/network-layers/</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc826.html">https://www.rfc-editor.org/rfc/rfc826.html</a></li></ul></section><section><h2>2. Understand IPv4 addresses and calculate subnets</h2><div class="lesson">## What you will learn
+- Interpret an IPv4 address and prefix length
+- Calculate a /26 network and usable host range
+- Distinguish private address space from public reachability
+
+## Understand the concept
+An IPv4 address has 32 bits, commonly written as four decimal octets from 0 to 255. The prefix length tells you how many leading bits identify the network. In 192.168.10.70/26, the first 26 bits are the network portion and six remain for addresses inside that block. The equivalent mask is 255.255.255.192. A longer prefix creates a smaller block.
+
+For ordinary broadcast LAN subnets, total addresses equal 2 raised to the number of host bits. Usually two are reserved: the first is the network address and the last is the directed broadcast address. A /26 therefore has 64 total addresses and 62 ordinary host addresses. This “minus two” rule is not universal: /31 point-to-point links and /32 host routes have different uses. Our exercise deliberately covers /24 through /30 broadcast subnets.
+
+Find a /26 boundary by counting blocks of 64 in the final octet: 0, 64, 128 and 192. Address 192.168.10.70 is inside 192.168.10.64/26. The broadcast is .127, and usable hosts are .65 through .126. A gateway must be a usable address in the client's subnet for the normal directly connected configuration; .1 is a convention, not a universal gateway address. Duplicate addresses create conflicts.
+
+RFC 1918 reserves 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16 for private use. These addresses are not globally unique public internet assignments. Private addressing does not provide encryption or a security boundary by itself. Networks can also use IPv6, whose addressing rules differ; this exercise is specifically IPv4. Keep an addressing plan with subnet, mask, gateway, DHCP range and reserved equipment addresses so later troubleshooting is based on evidence.
+
+## Worked example — fictional business case
+A shop needs 40 devices plus one gateway. A /27 offers 30 ordinary host addresses, so it is too small. A /26 offers 62 and can fit the stated 41 addresses with limited growth space. For 192.168.10.64/26, choose .65 as gateway and .70–.110 for a sample client pool, leaving other usable addresses for reserved devices. This is an illustrative plan, not permission to change a live router.
+
+## Practise independently
+1. Use the subnet explorer for 192.168.10.70/26. Predict the network and broadcast before revealing them.
+2. Calculate the corresponding /27 network, broadcast and host count by hand.
+3. Decide whether 40 clients plus a gateway fit in /27 or /26.
+4. Write an address plan and check that the gateway, pool and reservations are inside the usable range and do not overlap.
+
+## Common mistakes and troubleshooting
+Do not use the network or broadcast address for an ordinary host, assume every gateway ends in .1, or apply the broadcast-subnet formula uncritically to /31, /32 or IPv6.
+
+## Remember
+The prefix defines the block. Calculate boundaries before allocating hosts, and leave documented growth space.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>For .70/27: network 192.168.10.64, broadcast .95, usable .65–.94, 30 hosts. For .70/26: network .64, broadcast .127, usable .65–.126, 62 hosts. Forty clients plus one gateway require at least 41 usable addresses, so /26 fits the stated requirement and /27 does not.</p></details><h3>References</h3><ul><li><a href="https://www.rfc-editor.org/rfc/rfc1918.html">https://www.rfc-editor.org/rfc/rfc1918.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc4632.html">https://www.rfc-editor.org/rfc/rfc4632.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc3021.html">https://www.rfc-editor.org/rfc/rfc3021.html</a></li></ul></section><section><h2>3. Separate DHCP, DNS and local address resolution</h2><div class="lesson">## What you will learn
+- Explain what DHCP, DNS and ARP each do
+- Recognise a valid client configuration
+- Isolate a name-resolution fault from an IP-path fault
+
+## Understand the concept
+DHCP can lease configuration to a client, including an IPv4 address, subnet mask, gateway and DNS servers. A common initial exchange is Discover, Offer, Request and Acknowledge. The lease has a lifetime; clients renew it. Static addressing and reservations are other configuration choices. A DHCP reservation associates a client identity with a consistent allocation, while manually configuring an address bypasses that lease process. Keep the choices documented to avoid collisions.
+
+DNS is a distributed naming system. A resolver helps find records for a name, often using cached information. An A record supplies an IPv4 address; an AAAA record supplies an IPv6 address. Other records serve other purposes. Cached answers can persist for their remaining time to live. Changing a DNS setting does not necessarily update every cache immediately. A browser successfully displaying an old cached page is not a complete DNS test.
+
+ARP resolves an IPv4 next-hop address to a link-layer address on a local link. If the destination is outside the local subnet, the next hop is normally the gateway rather than the remote website. ARP is not DNS: it does not translate a website name into an IP address. IPv6 uses neighbour discovery rather than ARP. A switch's MAC table, a host's ARP cache and a DNS cache describe different information.
+
+Troubleshoot these boundaries separately. First inspect the client's address, mask, gateway and resolver. Then test the local path and the gateway. Finally compare a permitted name lookup with an IP-connectivity test and the actual application. A failed ping alone does not prove a device is unavailable because ICMP may be filtered. Do not replace settings randomly: record what changed, why and how to restore it. All testing must stay within networks you own or are authorised to inspect.
+
+## Worked example — fictional business case
+A fictional client has 192.168.10.70/26, gateway .65 and DNS server .66. It reaches the gateway and a known permitted IP endpoint, but name lookups fail. That pattern points towards the configured resolver, its path or the name being queried. It does not prove the ISP is down. If the client instead has no valid lease and no gateway, investigate addressing first.
+
+## Practise independently
+1. Write a table for DHCP, DNS and ARP: input, output and scope.
+2. For the example, explain why .65 is the normal remote next hop.
+3. Use the browser simulation to contrast a DNS fault with a gateway fault.
+4. Optional: inspect the network settings screen on your own device. Record only non-sensitive configuration; make no changes.
+
+## Common mistakes and troubleshooting
+Do not say DNS assigns the client address, assume ARP resolves internet names, or replace a resolver without considering organisational policy and access restrictions.
+
+## Remember
+Address assignment, naming and local frame delivery are distinct services. Test the boundary that matches the symptom.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>DHCP provides configuration; DNS resolves names to records; ARP maps the local IPv4 next hop to a link-layer address. For a remote destination the host addresses a frame to the gateway on the local link. Successful IP access with failed names makes DNS a hypothesis to test, not a final diagnosis without further evidence.</p></details><h3>References</h3><ul><li><a href="https://www.rfc-editor.org/rfc/rfc2131.html">https://www.rfc-editor.org/rfc/rfc2131.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc1034.html">https://www.rfc-editor.org/rfc/rfc1034.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc826.html">https://www.rfc-editor.org/rfc/rfc826.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc792.html">https://www.rfc-editor.org/rfc/rfc792.html</a></li></ul></section><section><h2>4. Understand switching, routing and segmentation</h2><div class="lesson">## What you will learn
+- Distinguish local forwarding from routing
+- Explain access ports, trunks and VLANs at a foundation level
+- Design an explicit guest-to-staff access policy
+
+## Understand the concept
+An Ethernet switch learns source MAC addresses and associates them with ports within the relevant VLAN. It uses that information to forward known unicast frames and floods certain traffic, including unknown unicast and broadcasts, within that VLAN. It is not a directory of all remote internet devices. Incorrect cabling and loops can disrupt an entire local network; never create a loop to see what happens on production equipment.
+
+A VLAN creates a logical Layer 2 broadcast domain. Devices on different VLANs generally need routing to exchange IP traffic. An access port commonly carries one data VLAN for an endpoint. A trunk carries traffic for multiple VLANs between compatible network devices, commonly using IEEE 802.1Q tagging. Exact terminology and native/untagged behaviour vary by vendor and configuration; read the model-specific documentation before changing ports.
+
+Routing chooses a next hop based on a routing table. A default route handles destinations without a more specific match. Inter-VLAN routing can be supplied by a router, firewall or Layer 3 switch. Routing enables a path; firewall or access-control policy determines which traffic is permitted. Merely placing guests in another subnet does not establish the intended security policy if unrestricted routing connects it back to staff systems.
+
+Design segmentation from needs. A guest network may need internet access while being denied access to staff printers, administration pages and internal services. Staff may need a particular printer service without access to device management. Apply the smallest permitted access, test both allowed and denied cases and record an owner. A VLAN is one component of this design, not encryption and not a replacement for endpoint security. Use a simulation or an isolated lab for practice.
+
+## Worked example — fictional business case
+A fictional café has Staff VLAN 10 and Guest VLAN 20 with separate subnets. A gateway routes both to the internet. Policy denies Guest → Staff and permits only required services from Staff. The test plan checks that guests can browse the internet but cannot reach the staff printer or router administration interface. If guests can still print internally, the VLAN names alone have not achieved the policy.
+
+## Practise independently
+1. Draw the staff and guest broadcast domains and their gateway interfaces.
+2. Write three allowed flows and three denied flows.
+3. Explain why a trunk might be needed between an AP carrying two SSIDs and its upstream switch.
+4. Write a safe change plan: backup, isolated test, maintenance window, verification and rollback. Do not apply it to production in this lesson.
+
+## Common mistakes and troubleshooting
+Do not assume a VLAN name enforces policy, confuse a trunk with a faster cable, or make switch changes without a way to recover management access.
+
+## Remember
+Separate broadcast domains, routes and permissions. Test the intended policy rather than trusting the diagram.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>The two SSIDs can map to separate VLANs if the AP and switch support and correctly configure that design. A trunk may carry both VLANs upstream. The gateway policy must explicitly restrict cross-network traffic. Verify staff printing, guest internet and guest-to-staff denial. Keep a management path and a rollback configuration before any authorised real change.</p></details><h3>References</h3><ul><li><a href="https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html">https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html</a></li><li><a href="https://www.cisco.com/c/en/us/support/docs/lan-switching/8021q/17056-741-4.html">https://www.cisco.com/c/en/us/support/docs/lan-switching/8021q/17056-741-4.html</a></li></ul></section><section><h2>5. Plan Wi-Fi for coverage, capacity and safety</h2><div class="lesson">## What you will learn
+- Distinguish signal strength from usable service
+- Explain band, channel and interference trade-offs
+- Plan a small-site survey without changing live settings
+
+## Understand the concept
+Wi-Fi shares radio airtime. A strong signal does not guarantee good service if the channel is busy, the client is slow, the uplink is congested or interference is present. Coverage asks whether a client can communicate in the required area. Capacity asks whether the network can support the required simultaneous activity. A shop's payment terminal and a busy guest area can have different reliability needs.
+
+Band and channel choices affect compatibility and interference. The 2.4 GHz band often reaches farther through obstacles but offers limited non-overlapping channel space. Higher-frequency bands can provide additional channel options and capacity, with different propagation and device support. Wider channels can raise potential data rates but consume more spectrum and may increase contention. Regional rules and device capabilities determine which channels and power levels are allowed; do not assume that a setting permitted elsewhere is permitted in Saint Lucia.
+
+Place access points deliberately. Walls, metal shelving, equipment and people change radio conditions. A hidden AP behind a metal cabinet is not rescued by an impressive advertised speed. Use wired backhaul where practical and appropriate. Wireless mesh links also consume radio resources and depend on their own signal path. More access points or maximum transmit power can worsen interference when added without a plan.
+
+Security includes current supported encryption, strong management credentials, updates and separation of guest access. Prefer WPA3 where supported and suitable; compatibility may require a carefully configured WPA2-AES deployment. Avoid obsolete WEP and weak shared passwords. Enterprise authentication is a separate design choice. A hidden SSID is not a security control. Verify service using the actual client types and tasks at busy times, with permission from the network owner.
+
+## Worked example — fictional business case
+In a fictional retail shop, the AP is under a counter next to metal stock shelves. The payment terminal shows a signal but disconnects during busy periods. A survey compares performance near the AP, at the counter and in the storeroom, while checking channel utilisation and wired uplink health. Moving or adding equipment follows the evidence, not simply the number of signal bars.
+
+## Practise independently
+1. Sketch a small shop and mark walls, shelves, client locations and candidate AP positions.
+2. Separate coverage requirements from concurrent-use requirements.
+3. Create a survey log: location, client, time, band, signal observation, task result and competing activity.
+4. Describe two changes to test in an isolated lab and how you would compare before and after fairly.
+
+## Common mistakes and troubleshooting
+Do not equate link rate with internet throughput, hide the SSID as a security measure, or increase transmit power and channel width without considering interference and local rules.
+
+## Remember
+Design for real clients, airtime and tasks. Measure coverage and capacity separately.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>A sound plan tests the payment task at its actual location and compares radio conditions with wired upstream performance. It considers moving the AP away from obstruction, adjusting channels or adding a correctly planned AP only after measurement. It avoids claiming that a higher advertised link rate guarantees better application performance.</p></details><h3>References</h3><ul><li><a href="https://www.cisco.com/c/en/us/td/docs/wireless/controller/9800/technical-reference/c9800-best-practices.html">https://www.cisco.com/c/en/us/td/docs/wireless/controller/9800/technical-reference/c9800-best-practices.html</a></li><li><a href="https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html">https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html</a></li></ul></section><section><h2>6. Read latency, throughput and loss correctly</h2><div class="lesson">## What you will learn
+- Interpret network measurements with units
+- Estimate a transfer time
+- Use repeated observations without claiming proof of cause
+
+## Understand the concept
+Throughput is the rate of useful data transferred over an interval. Bandwidth is often used for a link's capacity, but advertised capacity and achieved throughput differ. Latency measures delay; a ping commonly reports round-trip time. Jitter describes variation in delay. Packet loss is the proportion of transmitted packets not received in the measured test. Record which measurement and method you used instead of treating every “speed” number as the same thing.
+
+Units matter. A byte has eight bits. A 100 MB decimal file contains about 800 megabits. At a sustained application throughput of 20 megabits per second, the ideal transfer takes about 40 seconds. Real transfers can take longer because of setup, protocol overhead, retransmissions, contention and server limits. MiB uses a binary unit and differs from decimal MB. Write the units explicitly before calculating.
+
+Different applications feel different problems. A bulk download mainly benefits from sustained throughput. A voice or video call is sensitive to delay variation and loss as well as sufficient capacity. Increasing link capacity may not fix propagation delay, radio interference or a remote application bottleneck. There is no universal quality threshold for every application; compare with the application's requirements and a known-good baseline.
+
+Use multiple observations at meaningful times. Compare wired and wireless paths, one client and several clients, idle and busy periods, and local and remote services where authorised. Record test destination, client, time and competing load. A single slow result does not locate a fault. A latency increase while backups run is a useful correlation to investigate, not proof that every backup always causes a problem. Graphs should label their units and sample status, and retain the underlying table.
+
+## Worked example — fictional business case
+Illustrative samples: at 09:00 round-trip time is 20 ms, throughput 40 Mbps and loss 0%; at 12:00 it is 90 ms, 12 Mbps and 2%; at 15:00 it is 30 ms, 35 Mbps and 0%. The lunchtime combination warrants investigation of shared load and path conditions. It is not evidence about V79's actual network. The interactive chart keeps delay and throughput on separately labelled scales.
+
+## Practise independently
+1. Calculate the ideal decimal 100 MB transfer at 20 Mbps and then 10 Mbps.
+2. Read the chart and identify the worst sample for a live call, explaining why.
+3. Write three alternative explanations for the lunchtime sample.
+4. Design a repeat test to distinguish local Wi-Fi contention from a wired upstream bottleneck.
+
+## Common mistakes and troubleshooting
+Do not confuse MB/s with Mbps, mix one-way delay with round-trip time, use a chart without units, or claim that correlation proves a fault location.
+
+## Remember
+Name the metric, state the units, compare equivalent tests and preserve uncertainty.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>At 20 Mbps: 100 × 8 ÷ 20 = 40 seconds; at 10 Mbps: 80 seconds, before overhead. The lunchtime sample combines higher delay, lower throughput and measured loss. Compare the same authorised destination and time on a wired client and a wireless client, recording concurrent activity; further evidence is needed before assigning a cause.</p></details><h3>References</h3><ul><li><a href="https://www.cloudflare.com/learning/performance/glossary/what-is-latency/">https://www.cloudflare.com/learning/performance/glossary/what-is-latency/</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc6349.html">https://www.rfc-editor.org/rfc/rfc6349.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc3393.html">https://www.rfc-editor.org/rfc/rfc3393.html</a></li></ul></section><section><h2>7. Apply practical network defence and recovery</h2><div class="lesson">## What you will learn
+- Design layered controls for a small business
+- Distinguish NAT, firewalling and VPN protection
+- Plan a recoverable change with least privilege
+
+## Understand the concept
+Network security combines people, configuration, maintenance and recovery. Begin with an inventory of equipment, services and owners. Change default management credentials, restrict administration to authorised users and trusted paths, keep supported firmware current and disable unused exposed services. Multi-factor authentication protects suitable management accounts. Security is ongoing work rather than a one-time product purchase.
+
+A firewall applies rules to traffic. Define source, destination, service and direction, then allow only what the business needs. NAT translates addresses or ports in supported configurations; it is not a complete access policy. A VPN protects traffic within its tunnel according to the protocol and configuration, but it does not make a compromised endpoint trustworthy or repair a weak password. TLS protects an application connection when correctly established; it does not prove that the business at the other end is honest.
+
+Segment guests and less-trusted devices from staff and administration. Test both the required permitted traffic and the traffic that must be denied. Keep endpoint updates, backups and user awareness alongside network controls. A staff member can still be tricked into revealing a password over an encrypted connection. Verify unusual requests through an independent trusted channel rather than a phone number supplied in the suspicious message.
+
+Recovery is part of defence. Back up configurations and business data to appropriately protected storage. A backup existing is not evidence that it restores correctly. Rehearse restoration in an isolated environment and document the version, dependencies and recovery steps. Before a change, record the current state, authorisation, expected result, stop conditions, verification and rollback. Avoid publishing credentials or detailed private network information in a course assignment. Use fictional diagrams for learning.
+
+## Worked example — fictional business case
+A fictional shop exposes its router administration page to the internet using a shared password. A safer plan restricts management to a trusted private path, uses individual authorised accounts and MFA where supported, updates the device, and preserves a tested recovery configuration. Simply enabling NAT does not address the exposed management service or accountability problem.
+
+## Practise independently
+1. Create an inventory for a fictional shop with owner, function and update responsibility.
+2. Write a minimal guest/staff/management access policy.
+3. List what a VPN protects and what remains the endpoint/user’s responsibility.
+4. Write a configuration backup and isolated restore checklist, including proof that restored settings work.
+
+## Common mistakes and troubleshooting
+Do not describe NAT as a complete firewall, a VPN as total protection, a backup file as a tested recovery, or security software as a replacement for ownership and updates.
+
+## Remember
+Reduce exposure, restrict permissions, verify controls and practise recovery before you need it.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>The plan should restrict management, use strong individual authentication, separate guests, keep updates owned, and rehearse recovery. Test that guest internet works while guest access to staff and management is denied. A restore record includes the recovered version and functional checks, not merely a successful file copy.</p></details><h3>References</h3><ul><li><a href="https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-Passwords-Tip-Sheet.pdf">https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-Passwords-Tip-Sheet.pdf</a></li><li><a href="https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-MFA-Tip-Sheet.pdf">https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-MFA-Tip-Sheet.pdf</a></li><li><a href="https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-Software-Updates-Tip-Sheet.pdf">https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-Software-Updates-Tip-Sheet.pdf</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc3022.html">https://www.rfc-editor.org/rfc/rfc3022.html</a></li></ul></section><section><h2>8. Capstone: diagnose, document and hand over</h2><div class="lesson">## What you will learn
+- Apply a structured fault-isolation method
+- Choose tests that separate competing hypotheses
+- Produce an independently usable handover record
+
+## Understand the concept
+Troubleshooting is controlled uncertainty reduction. Start by defining the symptom: who is affected, which task fails, when it began and what changed. Establish the scope before changing anything. One laptop failing while others work suggests a different first investigation from an entire site losing internet access. Ask whether the failure is reproducible and record the actual error rather than paraphrasing it as “the internet is broken”.
+
+Work through boundaries. Check power and link, client configuration, local gateway, naming, remote path and application behaviour. Choose a test whose possible outcomes separate hypotheses. If an authorised IP endpoint works while name lookup fails, investigate DNS. If wired service is healthy but wireless service is not, investigate the radio/AP path. A failed ping does not prove a host is down because filtering is possible. Combine evidence instead of relying on one signal.
+
+Change one relevant variable at a time. Record the previous value, intended effect, result and rollback. Stop if the change risks losing management access or affects services beyond your permission. Escalation is a valid technical action: send the next person enough evidence to avoid repeating disruptive work. A useful handover includes affected scope, topology, timestamps with timezone, tests and outcomes, changes, current state and next hypothesis. Remove passwords and personal data.
+
+Complete this fictional capstone without an instructor. Staff can print locally and reach the gateway. An approved remote IP-connectivity test succeeds. DNS queries to the configured resolver fail on all staff devices. Guests use a different resolver and can browse. No equipment failure has been confirmed. Your job is to identify the leading hypothesis, propose a non-disruptive verification, explain what is already ruled in or out, and produce a safe remediation/rollback plan. Do not claim the resolver is definitely broken until evidence supports it.
+
+## Worked example — fictional business case
+A useful handover says: “Staff naming failure observed at 10:15 America/St_Lucia. Local printing and gateway reachability pass. Permitted remote IP test passes. Queries to the configured staff resolver fail; guest naming works using another resolver. Leading hypothesis: staff resolver or its permitted path. Next: verify resolver service/status and reachability using approved tools. No production settings changed.” It preserves uncertainty while making the next step concrete.
+
+## Practise independently
+1. Write the symptom, affected scope, known evidence and at least two hypotheses.
+2. Choose one authorised test that distinguishes a failed resolver from a blocked path to it.
+3. Design a temporary test using one isolated client and an approved alternative resolver; include rollback and policy checks.
+4. Submit a topology, address plan, test log and handover in the assignment. Include the subnet and performance calculations from earlier lessons.
+5. Self-check completeness before finishing all quizzes and requesting a completion certificate.
+
+## Common mistakes and troubleshooting
+Do not reboot everything before preserving evidence, claim a root cause from one failed ping, test networks without permission, or omit the rollback and current state from a handover.
+
+## Remember
+Observe, hypothesise, test, change safely, verify and document. Escalate with evidence when the next step exceeds your authority.
+
+## Check your understanding
+Complete the interactive activity and the lesson assessment below. If you miss a question, read the explanation, revisit the relevant concept and try again. Record your own explanation before opening the model solution.</div><h3>My practice record</h3><p>Write your output, checks, observations, limitations and improvements here or in your private notes.</p><div class="writing-space"></div><details><summary>Model solution — attempt the activity first</summary><p>The evidence makes staff DNS service/path a strong hypothesis while showing some local and remote IP connectivity. Inspect the approved resolver and its path; do not reset all network devices. A single isolated-client test with an approved resolver can add evidence, but changing production DNS broadly requires authorisation. The portfolio includes findings, limitations, proposed change, verification and rollback. This foundation certificate is not an accredited networking qualification.</p></details><h3>References</h3><ul><li><a href="https://www.rfc-editor.org/rfc/rfc1034.html">https://www.rfc-editor.org/rfc/rfc1034.html</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc792.html">https://www.rfc-editor.org/rfc/rfc792.html</a></li><li><a href="https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html">https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html</a></li></ul></section><p>© V79 Digital Academy. Keep real personal data, passwords and private network details out of training submissions.</p></html>

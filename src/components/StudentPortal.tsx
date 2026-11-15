@@ -39,6 +39,7 @@ import { ProgrammeStatus } from '../types/programme';
 import { BusinessAdvantageProgramme } from './BusinessAdvantageProgramme';
 import { JuniorTeamStudio } from './JuniorTeamStudio';
 import { NetworkingLab } from './NetworkingLab';
+import { StudyTools } from './StudyTools';
 import { buildProgrammeStatus, normalizeProgrammeState } from '../lib/programmeScoring';
 
 interface StudentPortalProps {
@@ -82,6 +83,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
   
   // Quiz states
   const [quizAnswers, setQuizAnswers] = useState<{ [qId: string]: string }>({});
+  const [quizFeedback, setQuizFeedback] = useState<any[]>([]);
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
   
@@ -274,7 +276,8 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
           localStorage.setItem(programmeKey, JSON.stringify(saved.programmeState || {}));
         } else {
           try {
-            setCompletedLessons(JSON.parse(localStorage.getItem(`v79_student_progress_guest_${courseData.id}`) || '{}'));
+            loadedProgress = JSON.parse(localStorage.getItem(`v79_student_progress_guest_${courseData.id}`) || '{}');
+            setCompletedLessons(loadedProgress);
             setAssignmentSubmissions(JSON.parse(localStorage.getItem(`v79_student_submissions_guest_${courseData.id}`) || '{}'));
           } catch { /* Start clean if guest cache is invalid. */ }
         }
@@ -306,7 +309,10 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
         if (courseData.programme) {
           setCurrentLesson(null);
         } else if ((!paidCourse || hasPaidInStorage) && firstLesson) {
-          setCurrentLesson(Object.values(lMap).flat().find(lesson => !loadedProgress[lesson.id]) || firstLesson);
+          const requested = new URLSearchParams(window.location.search).get('lesson');
+          const nextLesson = Object.values(lMap).flat().find(lesson => lesson.id === requested) || Object.values(lMap).flat().find(lesson => !loadedProgress[lesson.id]) || firstLesson;
+          setCurrentLesson(nextLesson);
+          setCurrentModuleIndex(modulesData.findIndex((m:any)=>m.id===nextLesson.moduleId));
         }
 
         // Fetch course-wide assignments & downloads
@@ -337,6 +343,8 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     if (!currentLesson) return;
     const controller = new AbortController();
 
+    if(learnerId) fetch(`/api/learner/visits/${currentLesson.id}`,{method:'POST',signal:controller.signal}).catch(()=>{});
+
     // Scroll back to top of center main screen
     if (mainContentRef.current) {
       mainContentRef.current.scrollTop = 0;
@@ -345,6 +353,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     // Reset temporary states
     setQuizAnswers({});
     setQuizSubmitted(false);
+    setQuizFeedback([]);
     setQuizScore(null);
     setCurrentAssignmentText('');
     setContentBlocks([]); setActiveQuiz(null);
@@ -419,7 +428,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     ? programmeStatus?.readyForCertificate === true
     : isDp700Course
       ? progressPercent === 100 && requiredAssignments.length >= 12 && submittedRequiredAssignments === requiredAssignments.length
-      : progressPercent === 100;
+      : progressPercent === 100 && submittedRequiredAssignments === requiredAssignments.length;
 
   useEffect(() => {
     if (!course?.programme) return;
@@ -459,7 +468,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
     try {
       const response = await fetch(`/api/public/lessons/${currentLesson.id}/quiz/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers: quizAnswers }) });
       const result = await response.json(); if (!response.ok) throw new Error(result.error);
-      setQuizScore(result.score); setQuizSubmitted(true);
+      setQuizScore(result.score); setQuizFeedback(result.feedback || []); setQuizSubmitted(true);
       if (result.score >= activeQuiz.passingScore) {
         setCompletedLessons(current => ({ ...current, [currentLesson.id]: true }));
         if (learnerId && result.completionRecorded) setSyncMessage('Quiz passed — lesson completion verified and saved');
@@ -585,7 +594,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
       }
       if (/^\d+\.\s/.test(line)) {
         return (
-          <ol key={idx} className="list-decimal pl-5 space-y-1.5 my-2 text-slate-600">
+          <ol key={idx} start={Number(line.match(/^\d+/)?.[0]) || 1} className="list-decimal pl-5 space-y-1.5 my-2 text-slate-600">
             <li>{renderInline(line.replace(/^\d+\.\s/, ''))}</li>
           </ol>
         );
@@ -1463,10 +1472,12 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
 
             {/* 3. Lesson Core content */}
             {currentLesson.lessonContent && (
-              <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-2xs">
+              <div className="lesson-reading bg-white border border-slate-200 p-5 sm:p-8 rounded-2xl">
                 {renderMarkdown(currentLesson.lessonContent)}
               </div>
             )}
+
+            <StudyTools lesson={currentLesson} learnerId={learnerId}/>
 
             {course.id === 'course-junior-ai-academy-01' && currentLesson && currentLesson.orderNumber === (lessonsMap[currentLesson.moduleId]?.length || 0) && (
               <JuniorTeamStudio courseId={course.id} missionNumber={currentModuleIndex + 1} learnerId={learnerId} />
@@ -1645,10 +1656,11 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                       </h4>
                       <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
                         {quizScore! >= activeQuiz.passingScore
-                          ? 'Outstanding! You have met the mastery threshold for this lecture. Progress saved.'
+                          ? (learnerId ? 'You have passed this lesson check. Completion is saved to your account.' : 'You have passed this check. Guest progress stays on this browser.')
                           : `You scored ${quizScore}%. The required passing score is ${activeQuiz.passingScore}%. Retake the quiz once you've reviewed the material.`}
                       </p>
                     </div>
+                    <div className="quiz-feedback text-left space-y-4" aria-label="Assessment explanations">{quizFeedback.map(item => <div key={item.questionId}><h4 className="font-semibold">{item.correct ? 'Correct' : 'Review'}: {item.question}</h4><p>Your answer: {item.selected}</p><p>Correct answer: {item.correctAnswer}</p><p>{item.explanation}</p></div>)}</div>
                     <button
                       onClick={() => {
                         setQuizSubmitted(false);

@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import { reviewErrors } from "./src/lib/lessonReview";
 import fs from "fs";
 import crypto from "crypto";
 import { createServer as createViteServer } from "vite";
@@ -585,7 +586,7 @@ app.post('/api/public/lessons/:lessonId/quiz/submit', (req, res) => {
   const score = Math.round(correct / quiz.questions.length * 100);
   const passingScore = Number.isFinite(Number(quiz.passingScore)) ? Number(quiz.passingScore) : 80;
   const completionRecorded = recordLearnerQuizPass(req, lesson.id, score, passingScore);
-  res.json({ score, correct, total: quiz.questions.length, passingScore, completionRecorded });
+  res.json({ score, correct, total: quiz.questions.length, passingScore, completionRecorded, feedback: quiz.questions.map((q:any) => ({questionId:q.id,question:q.questionText,selected:answers[q.id],correct:answers[q.id] === (typeof q.correctAnswer === 'number' ? q.options[q.correctAnswer] : q.correctAnswer),correctAnswer:typeof q.correctAnswer === 'number' ? q.options[q.correctAnswer] : q.correctAnswer,explanation:q.explanation})) });
 });
 
 // Hub Admin can operate the Academy management APIs through a signed,
@@ -959,6 +960,10 @@ app.put("/api/courses/:id", async (req, res) => {
 
   const originalCourse = db.courses[index];
   const targetStatus = req.body.status;
+  if(originalCourse.reviewPolicy === 'source-checked-v1' && ['Published','Uploaded'].includes(targetStatus)) {
+    const errors = db.lessons.filter((l:any)=>l.courseId===originalCourse.id).flatMap((l:any)=>reviewErrors(l));
+    if(errors.length)return res.status(400).json({error:'Complete lesson source reviews before publishing.',errors});
+  }
   const userRole = req.headers["x-user-role"] || req.body.userRole || "Admin";
   const requestedPricingType = req.body.pricingType ?? originalCourse.pricingType ?? "free";
   const requestedPrice = ["subscription", "premium"].includes(requestedPricingType)
@@ -997,6 +1002,7 @@ app.put("/api/courses/:id", async (req, res) => {
     pricingType: requestedPricingType,
     price: requestedPrice,
     websiteAppId: originalCourse.websiteAppId,
+    reviewPolicy: originalCourse.reviewPolicy,
     updatedAt: new Date().toISOString()
   };
 
@@ -1253,9 +1259,26 @@ app.put("/api/lessons/:id", (req, res) => {
   const index = db.lessons.findIndex((l: any) => l.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: "Lesson not found" });
   const current = db.lessons[index];
-  db.lessons[index] = { ...current, ...req.body, id: current.id, courseId: current.courseId, moduleId: current.moduleId };
+  db.lessons[index] = { ...current, ...req.body, id: current.id, courseId: current.courseId, moduleId: current.moduleId, review: current.review };
+  if(current.review && ['lessonContent','learningObjectives','description','studySolution'].some(key=>req.body[key]!==undefined && JSON.stringify(req.body[key])!==JSON.stringify(current[key]))) {
+    db.lessons[index].review = {...current.review,status:'review-required'};
+    const reviewedCourse = db.courses.find((c:any)=>c.id===current.courseId && c.reviewPolicy==='source-checked-v1');
+    if(reviewedCourse && ['Published','Uploaded'].includes(reviewedCourse.status)) reviewedCourse.status='Review';
+  }
   saveData(db);
   res.json(db.lessons[index]);
+});
+
+app.post('/api/lessons/:id/review', (req,res)=>{
+ const data=loadData();const lesson=data.lessons.find((l:any)=>l.id===req.params.id);
+ if(!lesson)return res.status(404).json({error:'Lesson not found.'});
+ const review={status:'source-checked',version:String(req.body.version||'').slice(0,40),lastReviewedAt:new Date().toISOString().slice(0,10),prerequisites:req.body.prerequisites,sources:req.body.sources};
+ const errors=reviewErrors({...lesson,review});
+ if(errors.length)return res.status(400).json({error:errors.join(' ')});
+ const previous=JSON.parse(JSON.stringify(lesson));
+ lesson.review=review;
+ data.publishingLogs.push({id:crypto.randomUUID(),courseId:lesson.courseId,courseTitle:data.courses.find((c:any)=>c.id===lesson.courseId)?.title || '',event:'Lesson source review',fromStatus:previous.review?.status||'unrecorded',toStatus:'source-checked',performedBy:'Authorised administrator',timestamp:new Date().toISOString(),details:`Lesson ${lesson.id}; review version ${review.version}. Administrator attestation; not an independent certification.`});
+ saveData(data);res.json(lesson);
 });
 
 app.delete("/api/lessons/:id", (req, res) => {
@@ -1549,6 +1572,7 @@ function buildWebsitePayload(course: any, modules: any[], lessons: any[], quizze
 
 function validateCourseForPublishing(course: any, modules: any[], lessons: any[]): string[] {
   const errors: string[] = [];
+  if(course.reviewPolicy === 'source-checked-v1') for(const lesson of lessons) for(const error of reviewErrors(lesson)) errors.push(`${lesson.title}: ${error}`);
   if (!course.title || course.title.trim() === "") {
     errors.push("Course Title is required.");
   }
@@ -2260,6 +2284,15 @@ app.post("/api/gemini/assist", async (req, res) => {
   }
 });
 
+app.get('/study/:workbook(ai-workbook.html|networking-workbook.html)', (req,res)=>{
+ const courseId=req.params.workbook==='ai-workbook.html'?'course-practical-ai-business-01':'course-small-business-networking-01';
+ const course=loadDb().courses.find((c:any)=>c.id===courseId && ['Published','Uploaded'].includes(c.status));
+ if(!course)return res.status(404).json({error:'Workbook is not currently published.'});
+ if(!canReadCourse(course,learner(req),isActiveAdmin(req)))return res.status(403).json({error:'Sign in with an active membership to read this workbook.'});
+ res.setHeader('Cache-Control','private, no-store');
+ res.sendFile(path.join(process.cwd(),'dist','study',req.params.workbook));
+});
+
 app.get(["/academy", "/academy/"], (_req, res) => res.redirect(301, "/"));
 app.get("/academy/course/:slug", (req, res) => {
   const slug = encodeURIComponent(String(req.params.slug || "").trim());
@@ -2280,6 +2313,18 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    // Build tools place private server artifacts beside the browser output.
+    // Decode once, as express.static does, and deny private files before it.
+    app.use((req, res, next) => {
+      let requested: string;
+      try { requested = decodeURIComponent(req.path); }
+      catch { res.status(400).end(); return; }
+      if (/^\/(?:data|release-private|node_modules|scripts)(?:\/|$)/i.test(requested) || /(^|\/)\.[^/]+/.test(requested) ||
+          /\.(?:cjs|mjs|map|ts|tsx|sql|sqlite(?:-wal|-shm)?|key)$/i.test(requested)) {
+        res.status(404).end(); return;
+      }
+      next();
+    });
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

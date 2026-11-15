@@ -31,6 +31,9 @@ export interface Course {
   websiteAppId?: number;
   websitePublishedAt?: string;
   programme?: CourseProgramme;
+  selfPaced?: boolean;
+  topic?: string;
+  lastReviewedAt?: string;
   hasAccess?: boolean;
   hasProgramme?: boolean;
   moduleCount?: number;
@@ -54,6 +57,9 @@ export interface Lesson {
   learningObjectives: string[];
   estimatedTime: string; // e.g. "25 mins"
   lessonContent: string; // Markdown / HTML content
+  studyVisual?: 'ai' | 'prompt' | 'network' | 'subnet' | 'performance';
+  studySolution?: string;
+  review?: {status: string; version: string; lastReviewedAt: string; prerequisites: string[]; sources: {url: string; title: string}[]};
   videoUrl?: string;
   audioUrl?: string;
   imageUrls?: string[];
