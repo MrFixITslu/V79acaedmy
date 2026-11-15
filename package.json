@@ -10,12 +10,14 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "node --import tsx src/lib/curriculumParser.test.ts && node --import tsx src/lib/programmeScoring.test.ts && node --import tsx src/lib/academyAccess.test.ts && node --import tsx src/data/dataEngineeringCourse.test.ts && node --import tsx src/data/juniorAIAcademyCourse.test.ts && node --import tsx src/data/juniorNetworkingAcademyCourse.test.ts && node --import tsx src/data/ideaToAdvantageCourse.test.ts && node --import tsx src/data/selfPacedCourses.test.ts && node --import tsx src/data/dp700Corrections.test.ts",
+    "test": "node --import tsx src/lib/curriculumParser.test.ts && node --import tsx src/lib/programmeScoring.test.ts && node --import tsx src/lib/academyAccess.test.ts && node --import tsx src/data/dataEngineeringCourse.test.ts && node --import tsx src/data/juniorAIAcademyCourse.test.ts && node --import tsx src/data/juniorNetworkingAcademyCourse.test.ts && node --import tsx src/data/ideaToAdvantageCourse.test.ts && node --import tsx src/data/selfPacedCourses.test.ts && node --import tsx src/data/dp700Corrections.test.ts && node --import tsx src/data/businessStudyReview.test.ts && node --import tsx src/lib/businessMath.test.ts",
     "test:api": "ACADEMY_STANDALONE_ADMIN_ENABLED=1 node tests/academy-api.test.mjs",
     "media:junior": "python3 scripts/generate-junior-videos.py",
     "media:networking": "python3 scripts/generate-networking-videos.py",
+    "resources:business": "node --import tsx scripts/generate-business-visuals.ts",
     "resources:study": "node --import tsx scripts/generate-study-resources.ts",
-    "test:study-api": "node tests/self-paced-api.test.mjs"
+    "test:study-api": "node tests/self-paced-api.test.mjs",
+    "test:business-api": "node tests/business-self-study-api.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

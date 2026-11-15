@@ -8,6 +8,7 @@ import {
   buildProgrammeStatus,
   calculateAssessmentConfidence,
   calculateDiagnostic,
+  completedWorkbookCount,
   categoryLabel,
   createInitialProgrammeState,
   normalizeProgrammeState,
@@ -44,8 +45,15 @@ assert.equal(partial.total, 40);
 
 const inventoryCategory = programme.diagnostic.categories.find((category) => category.id === 'inventory')!;
 assert.equal(categoryLabel(inventoryCategory, state.profile), 'Purchasing & Resource Management');
-assert.equal(calculateAssessmentConfidence(true, 0, 12), 55);
+assert.equal(calculateAssessmentConfidence(true, 0, 12), 0);
+assert.equal(calculateAssessmentConfidence(true, 6, 12), 50);
+assert.equal(calculateAssessmentConfidence(false, 12, 12), 0);
+assert.equal(calculateAssessmentConfidence(true, 0, 0), 0);
 assert.equal(calculateAssessmentConfidence(true, 12, 12), 100);
+const evidenceState = createInitialProgrammeState(programme.version);
+evidenceState.workbook['wb-01'] = { completedAt:'2026-11-15T10:00:00Z', answers:{} } as any;
+evidenceState.workbook['unknown-section'] = { completedAt:'2026-11-15T10:00:00Z', answers:{} } as any;
+assert.equal(completedWorkbookCount(evidenceState, programme.workbookSections.map(s=>s.id)),1);
 
 const correctExamAnswers = Object.fromEntries(programme.finalExam.questions.map((question) => [question.id, question.correctAnswer]));
 const passingAttempt = scoreFinalExam(programme, correctExamAnswers, '2026-09-23T15:00:00.000Z');

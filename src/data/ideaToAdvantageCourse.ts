@@ -1618,6 +1618,18 @@ function ideaLessonDownloads(moduleNumber: number, lessonIndex: number) {
   return resources;
 }
 
+// Historical v2 seeding stays stable; reviewed revisions use exact-content guards.
+export function businessLessonRevisionInputs() {
+  return modules.flatMap((module, moduleIndex) => module.lessons.map((lesson, lessonIndex) => ({
+    id: `ita-les-${moduleIndex + 1}-${lessonIndex + 1}`,
+    moduleNumber: moduleIndex + 1,
+    lessonIndex,
+    ...lesson,
+    originalBody: buildLessonContent(moduleIndex + 1, module.title, lesson, lessonIndex),
+    check: module.quiz[lessonIndex]
+  })));
+}
+
 function ideaLessonImages(moduleNumber: number, lessonIndex: number) {
   if (moduleNumber === 1 && lessonIndex === 0) return ['/idea-to-advantage/images/business-operator-skills-map.svg'];
   return [];

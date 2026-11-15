@@ -1411,7 +1411,7 @@ export function StudentPortal({ courseSlug }: StudentPortalProps) {
                     <figure key={url + index} className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
                       <img
                         src={url}
-                        alt={`${currentLesson.title} learning visual ${index + 1}`}
+                        alt={currentLesson.imageAltTexts?.[url] || `${currentLesson.title} learning visual ${index + 1}`}
                         loading="lazy"
                         className="w-full h-auto object-contain"
                       />

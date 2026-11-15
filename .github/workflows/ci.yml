@@ -44,6 +44,9 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Reproduce business visuals
+        run: npm run resources:business && git diff --exit-code -- public/idea-to-advantage/images/study-module-*.svg
+
       - name: Reproduce study resources
         run: npm run resources:study && git diff --exit-code -- public/study
 
@@ -51,7 +54,7 @@ jobs:
         run: npm run build
 
       - name: Academy API integration tests
-        run: npm run test:api && npm run test:study-api
+        run: npm run test:api && npm run test:study-api && npm run test:business-api
 
   docker:
     name: Docker image build

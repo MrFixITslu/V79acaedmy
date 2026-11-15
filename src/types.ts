@@ -57,12 +57,13 @@ export interface Lesson {
   learningObjectives: string[];
   estimatedTime: string; // e.g. "25 mins"
   lessonContent: string; // Markdown / HTML content
-  studyVisual?: 'ai' | 'prompt' | 'network' | 'subnet' | 'performance';
+  studyVisual?: 'ai' | 'prompt' | 'network' | 'subnet' | 'performance' | 'business-finance';
   studySolution?: string;
   review?: {status: string; version: string; lastReviewedAt: string; prerequisites: string[]; sources: {url: string; title: string}[]};
   videoUrl?: string;
   audioUrl?: string;
   imageUrls?: string[];
+  imageAltTexts?: Record<string,string>;
   downloads?: { name: string; url: string; size: string; type: string }[];
   exercisePrompt?: string;
   orderNumber: number;

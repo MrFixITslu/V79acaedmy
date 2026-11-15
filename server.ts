@@ -1,6 +1,6 @@
 import express from "express";
 import path from "path";
-import { reviewErrors } from "./src/lib/lessonReview";
+import { reviewErrors, invalidateLessonReview } from "./src/lib/lessonReview";
 import fs from "fs";
 import crypto from "crypto";
 import { createServer as createViteServer } from "vite";
@@ -1260,10 +1260,8 @@ app.put("/api/lessons/:id", (req, res) => {
   if (index === -1) return res.status(404).json({ error: "Lesson not found" });
   const current = db.lessons[index];
   db.lessons[index] = { ...current, ...req.body, id: current.id, courseId: current.courseId, moduleId: current.moduleId, review: current.review };
-  if(current.review && ['lessonContent','learningObjectives','description','studySolution'].some(key=>req.body[key]!==undefined && JSON.stringify(req.body[key])!==JSON.stringify(current[key]))) {
-    db.lessons[index].review = {...current.review,status:'review-required'};
-    const reviewedCourse = db.courses.find((c:any)=>c.id===current.courseId && c.reviewPolicy==='source-checked-v1');
-    if(reviewedCourse && ['Published','Uploaded'].includes(reviewedCourse.status)) reviewedCourse.status='Review';
+  if(current.review && ['title','lessonContent','learningObjectives','learning_objectives','description','studySolution','studyVisual','imageUrls','imageAltTexts','exercisePrompt','videoUrl','audioUrl','downloads'].some(key=>req.body[key]!==undefined && JSON.stringify(req.body[key])!==JSON.stringify(current[key]))) {
+    invalidateLessonReview(db,db.lessons[index]);
   }
   saveData(db);
   res.json(db.lessons[index]);
@@ -1358,6 +1356,7 @@ app.post("/api/lessons/:lessonId/quiz", (req, res) => {
   const lessonId = req.params.lessonId;
   // Check if exists
   let quiz = db.quizzes.find((q: any) => q.lessonId === lessonId);
+  const previousQuiz = JSON.stringify(quiz);
   if (quiz) {
     quiz.title = req.body.title || quiz.title;
     quiz.passingScore = req.body.passingScore ?? quiz.passingScore;
@@ -1372,6 +1371,7 @@ app.post("/api/lessons/:lessonId/quiz", (req, res) => {
     };
     db.quizzes.push(quiz);
   }
+  if(previousQuiz!==JSON.stringify(quiz))invalidateLessonReview(db,db.lessons.find((l:any)=>l.id===lessonId));
   saveData(db);
   res.json(quiz);
 });

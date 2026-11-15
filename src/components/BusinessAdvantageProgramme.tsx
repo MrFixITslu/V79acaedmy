@@ -128,11 +128,11 @@ function ScoreSummary({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Assessment confidence</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Workbook evidence completed</p>
           <p className="mt-2 text-3xl font-black text-slate-900">{confidence}%</p>
           <ScoreBar value={confidence} colour="bg-emerald-500" />
           <p className="mt-3 text-[11px] leading-4 text-slate-500">
-            Self-assessment starts at 55%. Completing workbook evidence raises confidence toward 100%.
+            Percentage of workbook sections marked complete after the starting diagnostic. This tracks completion markers, not an independent quality review.
           </p>
         </div>
       </div>
@@ -230,7 +230,7 @@ export function BusinessAdvantageProgramme({
   const lessonCompletionPercent = totalLessons ? Math.round((lessonsCompleted / totalLessons) * 100) : 0;
   const programmeAssignments = assignments.filter((assignment) => assignment.courseId === courseId && (assignment as Assignment & { required?: boolean }).required !== false);
   const assignmentsCompleted = programmeAssignments.filter((assignment) => Boolean(assignmentSubmissions[assignment.id])).length;
-  const workbookCompleted = completedWorkbookCount(state);
+  const workbookCompleted = completedWorkbookCount(state, programme.workbookSections.map(section => section.id));
   const confidence = calculateAssessmentConfidence(startingResult.complete, workbookCompleted, programme.workbookSections.length);
 
   const status = useMemo(
@@ -337,7 +337,7 @@ export function BusinessAdvantageProgramme({
       '## Business Advantage Score',
       start ? `Starting score: ${start.score}/100 — ${start.band}` : 'Starting score: not completed',
       final ? `Final score: ${final.score}/100 — ${final.band} (${final.score - (start?.score || 0) >= 0 ? '+' : ''}${final.score - (start?.score || 0)})` : 'Final score: not completed',
-      `Assessment confidence: ${confidence}%`,
+      `Workbook evidence completed: ${confidence}%`,
       ''
     ];
 
@@ -612,7 +612,7 @@ export function BusinessAdvantageProgramme({
       {activeTab === 'workbook' && (
         <div className="space-y-5">
           <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 md:flex-row md:items-center md:justify-between">
-            <div><h2 className="text-lg font-black text-slate-900">My Business Advantage Workbook</h2><p className="mt-1 text-xs text-slate-500">Complete one applied section per module. Detailed responses become your exportable operating plan and increase assessment confidence.</p></div>
+            <div><h2 className="text-lg font-black text-slate-900">My Business Advantage Workbook</h2><p className="mt-1 text-xs text-slate-500">Complete one applied section per module. Detailed responses become your exportable operating plan and track the workbook evidence you have completed.</p></div>
             <button onClick={downloadWorkbook} className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow hover:bg-indigo-700"><Download className="h-4 w-4" /> Download My Plan</button>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4"><div className="flex items-center justify-between text-xs"><span className="font-bold text-slate-800">Workbook evidence</span><span className="font-black text-indigo-700">{workbookCompleted}/{programme.workbookSections.length}</span></div><div className="mt-2"><ScoreBar value={Math.round(workbookCompleted / programme.workbookSections.length * 100)} colour="bg-emerald-500" /></div></div>

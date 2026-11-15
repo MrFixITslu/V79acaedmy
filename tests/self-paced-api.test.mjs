@@ -9,7 +9,7 @@ try{
  for(let i=0;i<100;i++){try{if((await fetch(base+'/healthz')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
  for(const route of ['/server.cjs','/server.cjs.map','/data/learners.json']) {const r=await fetch(base+route);assert.equal(r.status,404,route);}
  await api('/study/ai-workbook.html',{status:403});
- const catalog=(await api('/api/public/courses')).data;const course=catalog.find(c=>c.selfPaced);assert.ok(course);assert.equal(course.lessonCount,8);
+ const catalog=(await api('/api/public/courses')).data;const course=catalog.find(c=>c.id==='course-practical-ai-business-01');assert.ok(course);assert.equal(course.lessonCount,8);
  const source=JSON.parse(readFileSync(path.join(dir,'data/store.json')));const lessons=source.lessons.filter(l=>l.courseId===course.id);const first=lessons[0];
  const a=await api('/api/learner/register',{method:'POST',body:{email:'one@example.test',name:'Learner One',password:'study-password-12345'}});const b=await api('/api/learner/register',{method:'POST',body:{email:'two@example.test',name:'Learner Two',password:'study-password-12345'}});
  await api(`/api/learner/study/${first.id}`,{cookie:a.cookie,status:403});

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Bookmark, Check, Download, Layers, Save } from 'lucide-react';
 import type { Lesson } from '../types';
 import { subnetDetails } from '../lib/studyMath';
+import { BusinessFinanceLab } from './BusinessFinanceLab';
 
 export function StudyTools({lesson,learnerId}:{lesson:Lesson;learnerId:string|null}) {
  const [note,setNote]=useState('');const [bookmarked,setBookmarked]=useState(false);const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);const [ready,setReady]=useState(false);
@@ -29,6 +30,7 @@ export function StudyTools({lesson,learnerId}:{lesson:Lesson;learnerId:string|nu
  </section>;
 }
 export function LearningVisual({kind}:{kind:NonNullable<Lesson['studyVisual']>}) {
+ if(kind==='business-finance')return <BusinessFinanceLab/>;
  if(kind==='subnet')return <SubnetExplorer/>;
  if(kind==='performance')return <PerformanceExplorer/>;
  if(kind==='prompt')return <PromptWorkshop/>;
