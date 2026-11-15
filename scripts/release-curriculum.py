@@ -91,6 +91,8 @@ if mode=='stage':
 elif mode=='checkpoint':
  if (P/'checkpoint.json').exists(): raise RuntimeError('Checkpoint already exists')
  stage=json.loads((P/'stage.json').read_text());live=inspect(LIVE);contract(live)
+ tests=json.loads((P/'candidate-tests.json').read_text())
+ if tests.get('source')!=stage['source'] or not all(tests.get(k) is True for k in ['candidateApiTests','bothAdultCoursesTested','oldImageRestoredHealthy','rollbackLearnersUnchanged']): raise RuntimeError('Candidate acceptance receipt missing or mismatched')
  if live['Config']['Env']!=json.loads((P/'runtime.json').read_text())['Config']['Env']: raise RuntimeError('Live environment changed')
  save('runtime.json',live)
  run(['docker','update','--restart','no',LIVE],stdout=sp.DEVNULL);run(['docker','stop','--time','30',LIVE],stdout=sp.DEVNULL)
@@ -112,6 +114,8 @@ elif mode=='activate':
  if sys.argv[2]!=checkpoint['sha256']: raise RuntimeError('Missing exact off-host verification acknowledgement')
  if (P/'deployed.json').exists(): raise RuntimeError('Already deployed')
  live=inspect(LIVE);contract(live)
+ original=json.loads((P/'runtime.json').read_text())
+ if live['Config']['Env']!=original['Config']['Env'] or live['Mounts']!=original['Mounts']: raise RuntimeError('Runtime changed since checkpoint')
  if live['State']['Running'] or inspect(STAGE)['Image']!=stage['imageId']: raise RuntimeError('Release state changed')
  with tarfile.open(P/'data-final.tar') as t:
   def read(name): return t.extractfile(next(m for m in t.getmembers() if m.name.endswith('/'+name))).read()
@@ -126,7 +130,7 @@ elif mode=='activate':
  try:
   run(['docker','rename',LIVE,OLD]);run(args,stdout=sp.DEVNULL);run(['docker','start',LIVE],stdout=sp.DEVNULL);wait(LIVE)
   result=verify(before,snapshot(LIVE));smoke(LIVE)
-  run(['docker','update','--restart',live['HostConfig']['RestartPolicy']['Name'] or 'always',LIVE],stdout=sp.DEVNULL)
+  run(['docker','update','--restart',original['HostConfig']['RestartPolicy']['Name'] or 'no',LIVE],stdout=sp.DEVNULL)
   result.update(source=stage['source'],imageId=stage['imageId'],backupSha256=checkpoint['sha256'],rollbackContainer=OLD)
   save('deployed.json',result);print(json.dumps(result))
  except Exception: rollback();raise
