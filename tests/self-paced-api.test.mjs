@@ -30,6 +30,25 @@ try{
  await api(`/api/learner/certificate/${course.id}`,{method:'POST',cookie:a.cookie,status:409});
  const assignment=source.assignments.find(a=>a.courseId===course.id);await api(`/api/learner/assignments/${assignment.id}/submit`,{method:'POST',cookie:a.cookie,body:{text:'My fictional capstone includes the prompt, output, independent fact checks, limitations and workflow approval boundary.'}});
  const certificate=(await api(`/api/learner/certificate/${course.id}`,{method:'POST',cookie:a.cookie})).data;assert.equal(certificate.name,'Learner One');
+ // A second independent learner completes the networking course without an instructor.
+ const network=source.courses.find(c=>c.id==='course-small-business-networking-01');
+
+ const networkLessons=source.lessons.filter(l=>l.courseId===network.id);
+ assert.equal(networkLessons.length,8);
+ for(const lesson of networkLessons){
+  const q=source.quizzes.find(q=>q.lessonId===lesson.id);
+  const answers=Object.fromEntries(q.questions.map(q=>[q.id,q.options[q.correctAnswer]]));
+  const result=(await api(`/api/public/lessons/${lesson.id}/quiz/submit`,{method:'POST',cookie:b.cookie,body:{answers}})).data;
+  assert.equal(result.score,100);assert.equal(result.completionRecorded,true);
+ }
+ await api(`/api/learner/certificate/${network.id}`,{method:'POST',cookie:b.cookie,status:409});
+ const networkAssignment=source.assignments.find(a=>a.courseId===network.id);
+ await api(`/api/learner/assignments/${networkAssignment.id}/submit`,{method:'POST',cookie:b.cookie,body:{text:'My simulated small-business network plan includes a labelled topology, subnet range, gateway, separate guest access, performance evidence and a reversible troubleshooting sequence.'}});
+ assert.equal((await api(`/api/learner/certificate/${network.id}`,{method:'POST',cookie:b.cookie})).data.name,'Learner Two');
+ await api(`/api/learners/${b.data.user.id}/membership`,{method:'PUT',admin:true,body:{status:'active',expiresAt:new Date(Date.now()-1000).toISOString()},status:400});
+ await api(`/api/learners/${b.data.user.id}/membership`,{method:'PUT',admin:true,body:{status:'inactive'}});
+ await api(`/api/learner/study/${networkLessons[0].id}`,{cookie:b.cookie,status:403});
+ assert.equal((await api(`/api/learner/study/${first.id}`,{cookie:a.cookie})).data.note,'My private study explanation');
  const learning=(await api('/api/learner/learning',{cookie:a.cookie})).data;assert.equal(learning[0].percent,100);assert.equal(learning[0].bookmarks.length,1);
  const opted=(await api('/api/learner/membership/non-renewal',{method:'POST',cookie:a.cookie})).data;assert.equal(opted.user.membershipStatus,'active');assert.ok(opted.user.nonRenewalRequestedAt);
  const insights=(await api('/api/learners/insights',{admin:true})).data.courses.find(c=>c.id===course.id);assert.equal(insights.quizAttempts,9);assert.equal(insights.quizPasses,8);assert.equal(insights.certificates,1);

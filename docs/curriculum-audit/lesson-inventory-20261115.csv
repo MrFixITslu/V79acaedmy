@@ -1,0 +1,197 @@
+course_id,lesson_id,title,seed_words,source_link_count,review_gap_count,dedicated_solution_field,supervision_mentioned,code_languages,seed_sha256,live_content_comparison
+course-data-engineering-dp700-01,de-les-1-1,What a Data Engineer Actually Does,331,1,4,False,False,,65997c3f8b05e58dead1d21618a775ad392e8f4ed507bcd78ae82b7a8b7e7fed,edited-preserve-and-review
+course-data-engineering-dp700-01,de-les-1-2,"Batch, Streaming, OLTP and OLAP",311,1,4,False,False,,8be2768bb074f41fa706bda6a717956955fbe07fb71832980c7a4532da75b6d8,matches-seed
+course-data-engineering-dp700-01,de-les-1-3,"Reliability, Data Quality and SLAs",454,1,4,False,False,,79c5056d810a03f42b43695861eff7628a6167b689a94e14a57c92c7cc2f83cd,matches-seed
+course-data-engineering-dp700-01,de-les-2-1,"CSV, JSON, Parquet and Delta Concepts",320,1,4,False,False,,1a110ea5c2a6ff3f90f29327179647b8317e40c16bd61d5814cf8d816b0d7cfa,matches-seed
+course-data-engineering-dp700-01,de-les-2-2,Data Lake vs Warehouse vs Lakehouse,323,1,4,False,False,,cb034a9f3bdfda3970d028074897b4db0d3caabee803604294d48b81e2641f0b,matches-seed
+course-data-engineering-dp700-01,de-les-2-3,"Partitioning, Schema and the Medallion Pattern",435,1,4,False,False,,d7db05373d565f3749e2877a7ebafae2b4a4b0ff4cdb43a0e8f29f8b2653ce6d,matches-seed
+course-data-engineering-dp700-01,de-les-3-1,"SELECT, Filter, Aggregate and Group",351,1,4,False,False,sql,6dec48d7787dfbe8eea8ead5b632a30e061b1822eae0b52b47648f8916c634d4,matches-seed
+course-data-engineering-dp700-01,de-les-3-2,"JOINs, CTEs and Window Functions",371,1,4,False,False,sql,5a0f0f23953b35e898065a6b6ed2ef71d798117e76a238a22dc861c08850e0a7,matches-seed
+course-data-engineering-dp700-01,de-les-3-3,SQL Data Quality and Dimensional Preparation,493,1,4,False,False,sql,e12dc28e870437f6c6e20c36269f45c7a3a94d05f68b5b49560701e361120659,matches-seed
+course-data-engineering-dp700-01,de-les-4-1,Python Essentials for Data Work,291,1,4,False,False,,a1bfa7f2d00d47338462d8fb2e06001985d94528e7a7923350076c0f0834cebe,matches-seed
+course-data-engineering-dp700-01,de-les-4-2,"Files, APIs and Defensive Validation",370,1,4,False,False,python,86d0f702024fea6b146c02bc43336852f264401aa20fc36eca74b4d9b187305d,matches-seed
+course-data-engineering-dp700-01,de-les-4-3,"Pandas, Automation and When to Use SQL Instead",438,1,4,False,False,,fc579cd9f806d499b63ad962ddf8e36ff663c52dc22202227797f4380d9517cb,matches-seed
+course-data-engineering-dp700-01,de-les-5-1,"Grain, Facts and Dimensions",293,1,4,False,False,,0ace365443cb35a9bb1e72743b2010e28d93fbbb11389f6e97d1ba24cd2364e3,matches-seed
+course-data-engineering-dp700-01,de-les-5-2,Star Schemas and Slowly Changing Dimensions,332,1,4,False,False,,a6239a2e6bcbd99a50abc0a12be558171890810b4905713af07422ef29abf9dc,matches-seed
+course-data-engineering-dp700-01,de-les-5-3,"Loading Dimensions, Facts and Late-Arriving Data",425,1,4,False,False,,e2232b20648e541a3f9c96c2b87a51817a0ce637a0f0918e79b1f9e8f6b11fed,matches-seed
+course-data-engineering-dp700-01,de-les-6-1,ETL vs ELT and Full vs Incremental Loads,300,1,4,False,False,,7dd6475c885999a4c5b730da1c756d2c30df9154d6b8815f8ea8c6c0ccc48686,matches-seed
+course-data-engineering-dp700-01,de-les-6-2,"Idempotency, Upserts, Retries and Dependencies",300,1,4,False,False,,85105299b01af79e49040a596ee7c5efc31d59ef57f029048fa7263f11e59c66,matches-seed
+course-data-engineering-dp700-01,de-les-6-3,"Scheduling, Event Triggers and Pipeline Observability",420,1,4,False,False,,f69fecb12a2648f30c5e96159b7192294494996023e3465d123d709a4f2ff52f,matches-seed
+course-data-engineering-dp700-01,de-les-7-1,"Azure Resources, Regions and Managed Identity",285,1,4,False,False,,27550cac84bc9fb0b44c0574a3b2d6581934f8ebdf3b6169ad70af975727cc4f,matches-seed
+course-data-engineering-dp700-01,de-les-7-2,"Azure Data Lake Storage, Security and Networking",309,1,4,False,False,,0544b2ea2d75988e79d13f571939904d323aad31a93b320a832b09e543bdfd8f,matches-seed
+course-data-engineering-dp700-01,de-les-7-3,Azure Data Factory Concepts and Hybrid Ingestion,418,1,4,False,False,,97f704d2fc38b6426c7896c6c7733ec89f24d8bcc53eccd8bb36c2af783c3c2e,matches-seed
+course-data-engineering-dp700-01,de-les-8-1,Distributed Processing and Spark DataFrames,284,1,4,False,False,,5c0393a8b248e73a7b112268ff4b3cebc8c96203c371f2b4fa3ef0c70dc22f83,matches-seed
+course-data-engineering-dp700-01,de-les-8-2,"PySpark Transformations, Joins and Aggregations",349,1,4,False,False,python,17e059eae84c509899d357a7746e314b5ddab572c55514e810f9622131c7dc31,matches-seed
+course-data-engineering-dp700-01,de-les-8-3,"Partitions, Shuffle, Skew and Structured Streaming",477,1,4,False,False,python,2ce9db486142c8537d778283c0c49948260ba9b3da469603a60d74778926b609,matches-seed
+course-data-engineering-dp700-01,de-les-9-1,"Fabric Workspaces, OneLake and Shortcuts",304,1,4,False,False,,54d8e3a676195634810c56714c88fb439961dd944e9f199073cab8e83541f115,matches-seed
+course-data-engineering-dp700-01,de-les-9-2,"Lakehouse Tables, Delta and Medallion Design",289,1,4,False,False,,32ba012d16e3b8d18ab3b73527e19282885be98f897a364b8c649bbedf942639,matches-seed
+course-data-engineering-dp700-01,de-les-9-3,SQL and PySpark in a Fabric Lakehouse,472,1,4,False,False,python,89ea4c92020dc0b6b902f03d63881b8427d3e728d04c3c61a2128228eff76fe1,matches-seed
+course-data-engineering-dp700-01,de-les-10-1,"Choosing Pipelines, Dataflows Gen2 and Notebooks",353,1,4,False,False,text,310c1a5395544100f7f25f991d0e82b9d9ae86ac368992e6b2316c05639d1b99,matches-seed
+course-data-engineering-dp700-01,de-les-10-2,"Eventstream, Eventhouse and KQL",410,1,4,False,False,kusto,e2007f1ac32e2f3551de83ab137c8bb362f9311ebb4d05b3d30939d318d6950e,matches-seed
+course-data-engineering-dp700-01,de-les-10-3,"Full, Incremental and Streaming Loading Patterns",461,1,4,False,False,,841a235d03a47b0b0bae5c854d30f6c08845138bbb4a23475d8ff232fb689ea6,matches-seed
+course-data-engineering-dp700-01,de-les-11-1,"Workspace, Item and Data-Level Security",311,1,4,False,False,,7ddf4161eaa845317caa9c15a03e06876e8ddeca529b57aa16c234be4ec86192,matches-seed
+course-data-engineering-dp700-01,de-les-11-2,"Governance, Sensitivity, Endorsement and Audit",285,1,4,False,False,,d41018d0969217dc2fa55d8544ba661c65ffe103a7a58d1d733748b9e0c88d65,matches-seed
+course-data-engineering-dp700-01,de-les-11-3,"Git, Deployment Pipelines and Workspace Configuration",456,1,4,False,False,,476bf1a807857a9e9e8258f509b7a1db5d804ac920cb01efb81e7fc73213e05a,matches-seed
+course-data-engineering-dp700-01,de-les-12-1,Monitor Fabric Items and Configure Alerts,341,1,4,False,False,kusto,81ce120d2ea925bc5d0b04a8a6533e2261475de4ede8c84ef6f20df31bc47dec,matches-seed
+course-data-engineering-dp700-01,de-les-12-2,"Troubleshoot Pipeline, Notebook, SQL and Real-Time Errors",312,1,4,False,False,,7da4c4f30f71c3aa834b11e86e5b0e27f8600d45da534a67ea986d5db8b1de8e,matches-seed
+course-data-engineering-dp700-01,de-les-12-3,Optimize Performance and Complete the Capstone,499,1,4,False,False,,ca9a5e358905e4f7811d70e659bfe2e8c28799ef9d2366aebe9ea8054f2344ed,matches-seed
+course-from-idea-to-advantage-01,ita-les-1-1,The Difference Between an Idea and an Advantage,588,0,4,False,False,,9c2cce0ae319c36f87e889f97ab9cf3cad0396fc768e1d8d68693db686261384,matches-seed
+course-from-idea-to-advantage-01,ita-les-1-2,Think Like an Owner and Operate Like a Manager,506,0,4,False,False,,f42585b321caa4212bd04eaebf34bc0b05fcfa412942db4d35601d255d8c5fe3,matches-seed
+course-from-idea-to-advantage-01,ita-les-1-3,Your Business Advantage Baseline,481,1,4,False,False,,5e758c8e337d18034b7f7de3decf5b16cf94e56d3f495c15009b334257b5604e,matches-seed
+course-from-idea-to-advantage-01,ita-les-2-1,Define the Customer and the Job to Be Done,535,0,4,False,False,,deb7cf2a12869cbabe7d198c4aec14a4f0e9f3f1abd38d66f3ccca98791f7e93,matches-seed
+course-from-idea-to-advantage-01,ita-les-2-2,Validate Demand Before You Spend,471,0,4,False,False,,14c61d17b22778f7a10ebf6065193df957522204c7f8ad433123115c538db1ae,matches-seed
+course-from-idea-to-advantage-01,ita-les-2-3,"Compete in Small, Seasonal and Regional Markets",462,1,4,False,False,,0aba84d40a6d5feaf56a696c2624f5ff085efe665d5a940dbcc4f09e2184773c,matches-seed
+course-from-idea-to-advantage-01,ita-les-3-1,Know Your Unit Economics,519,0,4,False,False,,7c9870620b9878384f280ecfbe9706c578003f66040ca61001c8705d8f449dab,matches-seed
+course-from-idea-to-advantage-01,ita-les-3-2,"Price for Value, Cost and Reality",467,0,4,False,False,,8c56170836a1fd96ad35a811705a08bc3f791543290b4a28b7d7573c2cd9da1a,matches-seed
+course-from-idea-to-advantage-01,ita-les-3-3,"Break-even, Capacity and Scenario Planning",417,0,4,False,False,,adb3cddb0003e90bb50ec0c7b470e45ee6af76f601d2f8a6bdee69b744193fb9,matches-seed
+course-from-idea-to-advantage-01,ita-les-4-1,Profit Is Not Cash,493,0,4,False,False,,92959fc1c9c72caaa264c4d62bd1be5f386c7291b46ce27a1ced9e4cbc215248,matches-seed
+course-from-idea-to-advantage-01,ita-les-4-2,Bookkeeping and Reconciliation That Owners Can Use,477,0,4,False,False,,adb7bbf53f4a39665e2b9ec1933fe5f2e39a59a79491495d9e5e851aba8f1b15,matches-seed
+course-from-idea-to-advantage-01,ita-les-4-3,Financial KPIs and Funding Readiness,440,1,4,False,False,,6f69075a35fd0e5bbe64907e02474e6182301f359aeb48723e959aabfd2303b1,matches-seed
+course-from-idea-to-advantage-01,ita-les-5-1,Landed Cost and the True Cost of Availability,513,0,4,False,False,,eff1b570f7e3a3719a9fbe5599fb19c993fcd0548aa52a6d8b8fef520c75c93c,matches-seed
+course-from-idea-to-advantage-01,ita-les-5-2,"Reorder Points, Safety Stock and Service Capacity",467,0,4,False,False,,3f9031f8e8ac7f48eded1db8ee728634ea86219223a053c8a39d16d5800a1d5c,matches-seed
+course-from-idea-to-advantage-01,ita-les-5-3,"Supplier Performance, Counts and Working Capital",425,0,4,False,False,,52a48f84d639df79d921ec4530ff43ff2ac37ac0a8d4113d6773567ee19d2446,matches-seed
+course-from-idea-to-advantage-01,ita-les-6-1,Map the Order-to-Cash Workflow,483,0,4,False,False,,227492bcb871d49a0817f90d25a04a90342b5e74978efd2b1b897f2a66b14b81,matches-seed
+course-from-idea-to-advantage-01,ita-les-6-2,"SOPs, Quality and Service Recovery",451,0,4,False,False,,822571c0ba617b90768784a6e3af6c6a74f3e3e9b47acf4bd3246feaf4108808,matches-seed
+course-from-idea-to-advantage-01,ita-les-6-3,"Capacity, Scheduling and the Minimum Viable Dashboard",406,0,4,False,False,,d9a53951a8c678d441808fb5bf36d93dc983519bd57df882ae85f5ea4ab686f0,matches-seed
+course-from-idea-to-advantage-01,ita-les-7-1,"Positioning, Brand and a Customer-Centred Message",508,0,4,False,False,,9d4288cefe5c841b7b9a3de169e36230f9cf09c91dcf731495ad62bce01ac3e9,matches-seed
+course-from-idea-to-advantage-01,ita-les-7-2,Choose Channels and Build an Owned Audience,466,0,4,False,False,,5c28523e68f32c9a2bc5359308e58af4f7ac894e1d8da2c03e6e82b3dcfdbabe,matches-seed
+course-from-idea-to-advantage-01,ita-les-7-3,"Campaigns, Content and Marketing Economics",455,1,4,False,False,,42da7777a0c2fe5d37427ed764d992454195cc971af4505afc52806e336219a5,matches-seed
+course-from-idea-to-advantage-01,ita-les-8-1,Find the Right Work for AI,520,0,4,False,False,,c188b6dbe004f8fffdf761c66dd346d9d2e98706d53e76831b7a4bb901241592,matches-seed
+course-from-idea-to-advantage-01,ita-les-8-2,Choose the Tool Category for the Task,527,0,4,False,False,,1d0b0d9420d9a83e4ddd288721196a2bfb5bf1a723b0e5ca341faab7d276cb62,matches-seed
+course-from-idea-to-advantage-01,ita-les-8-3,Run a Safe AI Pilot and Govern It,461,4,4,False,False,,cc8cdfa5d1951ff7cd15664fb0cfa1b6195dc7d69ee359cae28e2dc4b2665d0d,matches-seed
+course-from-idea-to-advantage-01,ita-les-9-1,Build a Sales Pipeline That Drives Action,491,0,4,False,False,,86ebbfd95a2a8003a21f62890c64ac685153600985d52d8b297cb14ff1830b5b,matches-seed
+course-from-idea-to-advantage-01,ita-les-9-2,"Retention, Lifetime Value and Ethical Follow-up",445,0,4,False,False,,fb0399045a990bd9d293eb1c2ca3debbc7c49ba248a6c28889cf85fb8e21796c,matches-seed
+course-from-idea-to-advantage-01,ita-les-9-3,Customer Experience and Service Recovery,401,0,4,False,False,,6bddd443edfed802dab6571ee9f5f156bc795a0e8a9f388be081f437e18aa41d,matches-seed
+course-from-idea-to-advantage-01,ita-les-10-1,Design Roles Around Outcomes,478,0,4,False,True,,28ebfff6973f1a4872bb693b9bd3c109454859a064220ac644ae20fa528ed8a2,matches-seed
+course-from-idea-to-advantage-01,ita-les-10-2,"Delegate, Outsource or Automate",433,0,4,False,False,,04a8e1b6e5f80d480ca33eb450e5d900ba9f3d7f888d9b910f12271cccad70f1,matches-seed
+course-from-idea-to-advantage-01,ita-les-10-3,"Performance, Coaching and a Healthy Accountability Rhythm",414,0,4,False,True,,62c4bf167dfef23c1f53eabf29bcb10ca8a79d85d52ff824a62ddce87c690a65,matches-seed
+course-from-idea-to-advantage-01,ita-les-11-1,Business Impact and Continuity Planning,497,0,4,False,False,,af791f532a8e58ca8553398103fae2cc3ed5df6afb4ca74232d922f05996487f,matches-seed
+course-from-idea-to-advantage-01,ita-les-11-2,Cybersecurity and Data Recovery for Small Teams,460,0,4,False,False,,13b8313668bd4bf847b76bd5a69ce2a3f56a30827e0b114bfaf6d7c7fcdb1408,matches-seed
+course-from-idea-to-advantage-01,ita-les-11-3,"Financial, Supplier and Reputation Resilience",449,1,4,False,False,,903ab581ab3b7cb8fdce421469f7560dfb795f53e41c5106a8142572e3a4636f,matches-seed
+course-from-idea-to-advantage-01,ita-les-12-1,Finance Readiness and the Growth Case,518,0,4,False,False,,c13bbe5801d541be754485094d74e3496f8e8f856283e5d1cc9ca51ef00dca8f,matches-seed
+course-from-idea-to-advantage-01,ita-les-12-2,"Scale Locally, Digitally or Regionally",471,0,4,False,False,,b5438535c3cb07d6fc1a90e5d50b201e92798d6dcbcf782672271b2830bc0235,matches-seed
+course-from-idea-to-advantage-01,ita-les-12-3,The 12-Month Business Advantage Roadmap,608,1,4,False,False,,d8033379fbac9b9600bf3d0e14444b39a4dc59d05d9d1a9f2a5ddbd6bda18f77,matches-seed
+course-junior-ai-academy-01,jai-les-1-1,Discover: Welcome to the World of AI,766,0,4,False,True,,202aeaf575e2764bf00a8fbd8d19b542d148beddf9c7068f49ea0e8d391d0735,matches-seed
+course-junior-ai-academy-01,jai-les-1-2,Create: AI Explorer Challenge,730,0,4,False,False,,ed92d224e4e0a8898c21f48e88f1a4b9cdb0052e0619210af18d1bf773a37d86,matches-seed
+course-junior-ai-academy-01,jai-les-1-3,Studio Team: Week 1 Project Check-In,657,0,4,False,True,,b0c8ab909272e5ac780cd0c7400abcbd5dbfc2b1525ddb6c2a7df4fe74a91adf,matches-seed
+course-junior-ai-academy-01,jai-les-2-1,Discover: Prompt Power,740,0,4,False,True,,02f0deac505a121074d7a9d43b5ed118bea2f703c1cde9711888d19c348766dd,matches-seed
+course-junior-ai-academy-01,jai-les-2-2,Create: Prompt Wizard Challenge,739,0,4,False,False,,f7aaf0bb10a3e3d24265a03e448d74f03c34e08a8c8e3b08fe306a06021cf9a8,matches-seed
+course-junior-ai-academy-01,jai-les-2-3,Studio Team: Week 2 Project Check-In,635,0,4,False,True,,a74277c3bff799743663bba5d5552eb124f32d9ab0d94d9949e05c1ff3aa1ddb,matches-seed
+course-junior-ai-academy-01,jai-les-3-1,"Discover: Safe, Smart & Ethical AI",698,0,4,False,True,,ecfeeabac238244d4089bf5214ee4be8654cdd8cd52537460c6c4ea8eef80d80,matches-seed
+course-junior-ai-academy-01,jai-les-3-2,Create: AI Safety Hero Challenge,697,0,4,False,False,,65ecaf982425522352c34906de6ccbf5437343c320ec7933829cb3e50bd2c5c9,matches-seed
+course-junior-ai-academy-01,jai-les-3-3,Studio Team: Week 3 Project Check-In,618,0,4,False,True,,21add437175da07777d158b32ceb54a0f4a72357d8f9e8591e76a3d24f58621d,matches-seed
+course-junior-ai-academy-01,jai-les-4-1,Discover: Become a Fact Detective,687,0,4,False,True,,62d04b495bbb2c10142e2be28825734c60dcda61210555cd8c2608f24e44226a,matches-seed
+course-junior-ai-academy-01,jai-les-4-2,Create: Fact Detective Challenge,702,0,4,False,True,,b333c34707ec15612c5813ab6e8d366028cdf4d465bd9b876d171a1db84e0aff,matches-seed
+course-junior-ai-academy-01,jai-les-4-3,Studio Team: Week 4 Project Check-In,633,0,4,False,True,,274f681248735d59f25ab02afe81a2248fccc9ced331d131f5b68b2a4a806c37,matches-seed
+course-junior-ai-academy-01,jai-les-5-1,Discover: AI Everywhere: Possibilities & Future Careers,713,0,4,False,True,,54eb230dd1c71303e46232b436df0be7308e1a6fa613f8a24116f005d74cea8b,matches-seed
+course-junior-ai-academy-01,jai-les-5-2,Create: Future Thinker Challenge,677,0,4,False,True,,553d4846739f5e8c4cbb36793e890e7a616ecadff3a5decb19d06e029fbc3d13,matches-seed
+course-junior-ai-academy-01,jai-les-5-3,Studio Team: Week 5 Project Check-In,614,0,4,False,True,,ce7778574d1027d7768e322c11d436d16d89f039150b21e33959bc2093c1655d,matches-seed
+course-junior-ai-academy-01,jai-les-6-1,Discover: AI Image Studio,677,0,4,False,True,,b2ef4eccea38e861dc744388df6257e2b9098bff722732938ea3c7f4318d5c09,matches-seed
+course-junior-ai-academy-01,jai-les-6-2,Create: Image Creator Challenge,656,0,4,False,False,,8300a78b3584e8bb2193a27b9336842b129a8851beba6d305d2abd851ed04954,matches-seed
+course-junior-ai-academy-01,jai-les-6-3,Studio Team: Week 6 Project Check-In,625,0,4,False,True,,028f0ceaca4b40468671e4e453f2ebd08eced3ffa7e49afbb82ce5b9739d1eb8,matches-seed
+course-junior-ai-academy-01,jai-les-7-1,Discover: Story & Writing Lab,697,0,4,False,True,,a19ff0d4268a63b7a264e2ab3eca4fea117e1f7f320518861ee10a765a9851ad,matches-seed
+course-junior-ai-academy-01,jai-les-7-2,Create: Story Director Challenge,670,0,4,False,False,,94f26897507a640e5822620bcc5e890c558b5322d5ef1587878eca4cddb660bb,matches-seed
+course-junior-ai-academy-01,jai-les-7-3,Studio Team: Week 7 Project Check-In,626,0,4,False,True,,42c2b8fb37af0bed1a6dc2af1d27f5d0e104c24ff587136cdd47ca851a7246f0,matches-seed
+course-junior-ai-academy-01,jai-les-8-1,Discover: AI Audio Studio,646,0,4,False,True,,00bae455b5ae619a212e5df802374ffdb17238d1123118f2c33342211006e494,matches-seed
+course-junior-ai-academy-01,jai-les-8-2,Create: Sound Designer Challenge,660,0,4,False,False,,30eb45750f09c5a13926447156729095b3da08257a9191869bd37ed040fe32c0,matches-seed
+course-junior-ai-academy-01,jai-les-8-3,Studio Team: Week 8 Project Check-In,618,0,4,False,True,,a0ab66fa637086c59e027de2057586d85bc9541e6ba7fc532c1727013fdae016,matches-seed
+course-junior-ai-academy-01,jai-les-9-1,Discover: AI Video Studio,641,0,4,False,True,,bcfad251b7e9f04633bfb0afe8759e1e3f9a520f5cac1b21a27cb441cc69e1c0,matches-seed
+course-junior-ai-academy-01,jai-les-9-2,Create: Video Creator Challenge,672,0,4,False,False,,900683d2c3d60fc0db2385487e7e6cc02bd4fca134ffb35bfe1740065008ce60,matches-seed
+course-junior-ai-academy-01,jai-les-9-3,Studio Team: Week 9 Project Check-In,609,0,4,False,True,,eb1f466f58dc28e91fa11b3cd7b4aa7c8f3f812ee8bc74df55ce6c1143b761b0,matches-seed
+course-junior-ai-academy-01,jai-les-10-1,Discover: Presentation Power,651,0,4,False,True,,3ce0d67f0c61e9fe5d35b3969bc2b6ac31b968670ab67990ec236b73c65cdfac,matches-seed
+course-junior-ai-academy-01,jai-les-10-2,Create: Presentation Pro Challenge,675,0,4,False,False,,80d52b1ebb3b7709f623cd011284deefc6ebdd2854e5690de270f2a1cc65a6f5,matches-seed
+course-junior-ai-academy-01,jai-les-10-3,Studio Team: Week 10 Project Check-In,619,0,4,False,True,,920dfbb82a714ea4fcb8a0f65d188914d193af7f5629a206c6ba5774fdd1f8d3,matches-seed
+course-junior-ai-academy-01,jai-les-11-1,Discover: Content Creator & Promotion Lab,653,0,4,False,True,,04da1b9259c77ba175c71bbb619924ed78c433ff916dea4c268cd5a8cc96227b,matches-seed
+course-junior-ai-academy-01,jai-les-11-2,Create: Content Creator Challenge,640,0,4,False,False,,7ba03054d1cc54402ef8e729167c9a3c22cb42fecd25c8bae219e776ba004c2b,matches-seed
+course-junior-ai-academy-01,jai-les-11-3,Studio Team: Week 11 Project Check-In,619,0,4,False,True,,55dffa9b78a94f6e0dbed9e36468d8b22cfbd72b02666fcb5191cf1627c5a5a2,matches-seed
+course-junior-ai-academy-01,jai-les-12-1,Discover: AI Workflow Wizard,657,0,4,False,True,,905d7d5b65bdb466b75a025d386edce63875f98afca5ea71e389243cdb08f4ed,matches-seed
+course-junior-ai-academy-01,jai-les-12-2,Create: Workflow Wizard Challenge,683,0,4,False,False,,9cba392f0f436c01676a82f97db1b7662b76358668dfc7405548292197f835ee,matches-seed
+course-junior-ai-academy-01,jai-les-12-3,Studio Team: Week 12 Project Check-In,623,0,4,False,True,,4a554f6f8aefd5997af3c05b51c0dd35577df9b7deffccd9333e97913a980979,matches-seed
+course-junior-ai-academy-01,jai-les-13-1,Discover: AI Problem Solver,636,0,4,False,True,,9be07798329ece9ae3b3f5fd5be1e8deef48a1e162d5ab7c0c893d6df2497f9f,matches-seed
+course-junior-ai-academy-01,jai-les-13-2,Create: Problem Solver Challenge,659,0,4,False,False,,a7710dc81c332660aede13fe44515e215ec0b573682d50ab3869a99305e343f4,matches-seed
+course-junior-ai-academy-01,jai-les-13-3,Studio Team: Week 13 Project Check-In,626,0,4,False,True,,c2e8625417184bb5e035a45aeddd67cd3dedb6988422cf5da318f202882ba599,matches-seed
+course-junior-ai-academy-01,jai-les-14-1,Discover: Young AI Entrepreneur,681,0,4,False,True,,f22ad5157309faa4ec452c60034dfc9b8607a4491f083f50cf3f1940624ea272,matches-seed
+course-junior-ai-academy-01,jai-les-14-2,Create: Young Entrepreneur Challenge,668,0,4,False,True,,55a2848e67a829519e1d86dde5568593280d71dff2a20038400ff108b62656c1,matches-seed
+course-junior-ai-academy-01,jai-les-14-3,Studio Team: Week 14 Project Check-In,624,0,4,False,True,,37157a0691454e16b411dd84660a0950b31a914e761b625658609e3893d5df0e,matches-seed
+course-junior-ai-academy-01,jai-les-15-1,Discover: Final Production Sprint,651,0,4,False,True,,d0c958c9f7588c2e05e4a6e5d85de27cb9090bf9c9fe8657090715daaac2d274,matches-seed
+course-junior-ai-academy-01,jai-les-15-2,Create: AI Builder Challenge,636,0,4,False,True,,1be998cbe343a9344dea708a40770c23d411e19189d577eeb66f9aba95ecc547,matches-seed
+course-junior-ai-academy-01,jai-les-15-3,Studio Team: Week 15 Project Check-In,623,0,4,False,True,,978418d59fce108c883a97a1c3012db609540e78b99876744e72c0ccebe50bf1,matches-seed
+course-junior-ai-academy-01,jai-les-16-1,Discover: AI Creator Showcase & Portfolio,682,0,4,False,True,,52101b4132f1c3c967c7183361e9736c03a8c25f5a853a1724db3fffe8097af3,matches-seed
+course-junior-ai-academy-01,jai-les-16-2,Create: V79 AI Creator Challenge,737,0,4,False,False,,ef0c1e7f653b67f2568272c57018f3a8d4e6c5ef8ff2320bea9d09db15e0e7c5,matches-seed
+course-junior-ai-academy-01,jai-les-16-3,Studio Team: Week 16 Project Check-In,847,0,4,False,True,,35622b30263a9c2f71543e009e3ab97464e680cbcf81b20d0b5d56334f5ba934,matches-seed
+course-junior-networking-academy-01,jna-les-1-1,Learn: Welcome to Computer Networks,466,0,4,False,True,,61d8cf1c80c566e162bcb2c0199d3848be915941d616be1612249ab293a5041d,matches-seed
+course-junior-networking-academy-01,jna-les-1-2,Interactive Lab: Mission 1,368,0,4,False,False,,8f0bf9b215932bf6dd3e9b557245b35d541f9fa8dcf1e05f621ee275a5a90573,matches-seed
+course-junior-networking-academy-01,jna-les-1-3,Build & Engineer Challenge: Mission 1,445,0,4,False,False,,b715750ee5de66a07b3bd1518a38914e06db969662e7a90a5a25114385acf533,matches-seed
+course-junior-networking-academy-01,jna-les-2-1,Learn: Network Hardware: Meet the Equipment,469,0,4,False,True,,6489126c0bcc2bdaa60478ba73bf94dcc65a19865b2f35472f3ca9630724d974,matches-seed
+course-junior-networking-academy-01,jna-les-2-2,Interactive Lab: Mission 2,345,0,4,False,False,,e292f86e3e8880a9401fb6f85fcb1735b7061ea1187082cc2312ab74ba5bfe5c,matches-seed
+course-junior-networking-academy-01,jna-les-2-3,Build & Engineer Challenge: Mission 2,433,0,4,False,False,,6ccf48ca8efb8b595a4c1d5f6de7647458fc55d4b77b5ff00e5a670c90fe7623,matches-seed
+course-junior-networking-academy-01,jna-les-3-1,"Learn: Racks, Power, UPS and the Network Room",455,0,4,False,True,,49ff069b2ae5ad0ffb1a54617e3e08ad0863e03a47f69059d7c7ba71248b7951,matches-seed
+course-junior-networking-academy-01,jna-les-3-2,Interactive Lab: Mission 3,323,0,4,False,False,,7fee103d2e069a8031524f7351e5d05ed8e3c5e64e6426c80f3824a33f161a99,matches-seed
+course-junior-networking-academy-01,jna-les-3-3,Build & Engineer Challenge: Mission 3,427,0,4,False,False,,d98640fd53b2b1d41e003e7305a2975fbdaefe91c57a89d91a9e512c58cefbe7,matches-seed
+course-junior-networking-academy-01,jna-les-4-1,Learn: Structured Cabling and Copper Ethernet,464,0,4,False,True,,4fa6091ae752daf168c59b4d240eb398c450d9e59c080631f646790e626ff256,matches-seed
+course-junior-networking-academy-01,jna-les-4-2,Interactive Lab: Mission 4,337,0,4,False,False,,b80003fa8cb8e9a2bf90568b56ac1cfc8136b58d7ed15fba54cbf8bd5de0d479,matches-seed
+course-junior-networking-academy-01,jna-les-4-3,Build & Engineer Challenge: Mission 4,434,0,4,False,False,,ec6d74086020ab7b9d62aa0a87be2e091042e1c06b8844d53d34bf4f98704688,matches-seed
+course-junior-networking-academy-01,jna-les-5-1,Learn: Fiber Optics and High-Speed Links,453,0,4,False,True,,6357051e1d87942ed61007b1efd28758d5a866aec9c9bac11150fd3efc48a9c5,matches-seed
+course-junior-networking-academy-01,jna-les-5-2,Interactive Lab: Mission 5,317,0,4,False,False,,474a8e742e0286bcda5267673f4d80d125eca6b6c4cb4e79adb5121de93442bd,matches-seed
+course-junior-networking-academy-01,jna-les-5-3,Build & Engineer Challenge: Mission 5,419,0,4,False,False,,64ef21a21b17ca5a54c0969b5faef8147f2719406c147ed186e8f7926727717e,matches-seed
+course-junior-networking-academy-01,jna-les-6-1,Learn: The OSI Model and TCP/IP,460,0,4,False,True,,49f88edc9956303e5fbfb3f8e317355fbb631afe8d54ca3dd3c4a03aff0df64e,matches-seed
+course-junior-networking-academy-01,jna-les-6-2,Interactive Lab: Mission 6,331,0,4,False,False,,8d654bb015990357bef1650d00d790703f2c4ac8919a8da7e4160abbc0a9a4bc,matches-seed
+course-junior-networking-academy-01,jna-les-6-3,Build & Engineer Challenge: Mission 6,427,0,4,False,False,,7ac32a820a385f1701d2ca2624ddac097c912ee5d9e599bbb3ce06f6be02bc85,matches-seed
+course-junior-networking-academy-01,jna-les-7-1,"Learn: Ethernet, MAC Addresses and Switching",451,0,4,False,True,,1dbf42c7c14fe3d55a39c4207072d68d173795504a2493647636c5f2a1846c51,matches-seed
+course-junior-networking-academy-01,jna-les-7-2,Interactive Lab: Mission 7,323,0,4,False,False,,69e0c5eaed6e1c7dc2086c6a40292e327a43bf246c5898c12dff862fb44765b5,matches-seed
+course-junior-networking-academy-01,jna-les-7-3,Build & Engineer Challenge: Mission 7,422,0,4,False,False,,7bd53fe40f5f8c10f9eb61971884abec90dc9fb6ec24bab625580548a992abed,matches-seed
+course-junior-networking-academy-01,jna-les-8-1,Learn: IPv4 Addressing,448,0,4,False,True,,3358afa4af3dff59a79a50937a80c65e44f22c516c22f2d7e96e54295b9da69b,matches-seed
+course-junior-networking-academy-01,jna-les-8-2,Interactive Lab: Mission 8,320,0,4,False,False,,5a71a4425a50bddef6aa400d809cecde20bbd8795af8287abe2c513c4ffa49a0,matches-seed
+course-junior-networking-academy-01,jna-les-8-3,Build & Engineer Challenge: Mission 8,418,0,4,False,False,,121556f6cbbb2bb17c0485d5a0184b03b12fe680f8810e628c8390e51f0849d4,matches-seed
+course-junior-networking-academy-01,jna-les-9-1,Learn: Subnetting and CIDR,431,0,4,False,True,,fe583901d4632f5cdbe1ebd37e1e7a1a42b9923f09c8ebc81aa26e3b54ec48a2,matches-seed
+course-junior-networking-academy-01,jna-les-9-2,Interactive Lab: Mission 9,308,0,4,False,False,,837eab14525d110690e3d53879872edb87538c88783857d5b4c454f9296c0aad,matches-seed
+course-junior-networking-academy-01,jna-les-9-3,Build & Engineer Challenge: Mission 9,409,0,4,False,False,,ae9af7ac7d17569bf93009ccc28b3f20179386e645e6a597eaaeb9f677686d36,matches-seed
+course-junior-networking-academy-01,jna-les-10-1,"Learn: DHCP, DNS, ARP and ICMP",448,0,4,False,True,,a7d1483c201d6fa43c8e24e21634aac2c018fc9e42bef2f4c6e438b3ef85d95f,matches-seed
+course-junior-networking-academy-01,jna-les-10-2,Interactive Lab: Mission 10,329,0,4,False,False,,074919cf3c7dd93de5a838d9ea81cdcd252beff1368d503194d0f8d54a5c26c8,matches-seed
+course-junior-networking-academy-01,jna-les-10-3,Build & Engineer Challenge: Mission 10,428,0,4,False,False,,acf9e9ac624ace3135ea73ebe139748417a8d9514a69dd52dd696296324d9d1f,matches-seed
+course-junior-networking-academy-01,jna-les-11-1,Learn: Routing and the Default Gateway,412,0,4,False,True,,efb30f3d7cb0f18b9124341a3af80f4c9f50b96ab6c2f042fc5bdf979af0e902,matches-seed
+course-junior-networking-academy-01,jna-les-11-2,Interactive Lab: Mission 11,305,0,4,False,False,,8d5e76cb9f1c62867322ecd96bddaa06e3e4fbd96c959fc4439d532fcf73a0e9,matches-seed
+course-junior-networking-academy-01,jna-les-11-3,Build & Engineer Challenge: Mission 11,416,0,4,False,False,,f3f28f80bc5b45f8b00bf220f5b1ada816e6113730662ec3e79bbb0fb1fa3a0d,matches-seed
+course-junior-networking-academy-01,jna-les-12-1,"Learn: VLANs, Trunks and Inter-VLAN Routing",430,0,4,False,True,,8a546442a6c329769f27644fe43388f6131ab2eb3c02a24bed414a277e4fe96e,matches-seed
+course-junior-networking-academy-01,jna-les-12-2,Interactive Lab: Mission 12,308,0,4,False,True,,3454c8fcd6c3bf163c220407cf035029897ce621aadb36dac3ca390fd316fec7,matches-seed
+course-junior-networking-academy-01,jna-les-12-3,Build & Engineer Challenge: Mission 12,412,0,4,False,False,,b29347bed95f3acc6dfa729183e639d4087e166b556594a9d57b8d2d78f88637,matches-seed
+course-junior-networking-academy-01,jna-les-13-1,"Learn: Wi-Fi, Radio and Wireless Design",436,0,4,False,True,,fb48c529e064392b6bfedb5a380038875ff8a94ca2f307369d54e76c665a981b,matches-seed
+course-junior-networking-academy-01,jna-les-13-2,Interactive Lab: Mission 13,313,0,4,False,False,,b521c0f65aab25d6e96eb5df4efac1e5b6f19f862f65159231a0770da0910510,matches-seed
+course-junior-networking-academy-01,jna-les-13-3,Build & Engineer Challenge: Mission 13,417,0,4,False,False,,a681f0b5f495b6a894f63659022696751a8345b48a3728946c4a0e8ce50e2349,matches-seed
+course-junior-networking-academy-01,jna-les-14-1,"Learn: Servers, Storage, Virtualization and Cloud",447,0,4,False,True,,6ef6451d18d316e49081e57152bc383dcd492a79abb14d507b5b6ded998d7080,matches-seed
+course-junior-networking-academy-01,jna-les-14-2,Interactive Lab: Mission 14,317,0,4,False,False,,7d5ffd59d013c18e4ce714f47c6733256c0cce3307e990e0158ef25c7fd051e5,matches-seed
+course-junior-networking-academy-01,jna-les-14-3,Build & Engineer Challenge: Mission 14,417,0,4,False,False,,6123675c994286361266cdc508766953dca1f93b90d20d03bd064e29aed5c544,matches-seed
+course-junior-networking-academy-01,jna-les-15-1,"Learn: Firewalls, NAT, VPNs and Network Security",423,0,4,False,True,,b4a88e339414e596a0d8152c0e633ae017a8a46970b51ec6ea615f03cc51f8de,matches-seed
+course-junior-networking-academy-01,jna-les-15-2,Interactive Lab: Mission 15,319,0,4,False,False,,ccb5b1a316b18f5f81aaaafa991e6c77dc0bc7ec359b392c1a2daded526580de,matches-seed
+course-junior-networking-academy-01,jna-les-15-3,Build & Engineer Challenge: Mission 15,421,0,4,False,False,,7ba2ae4b7acdc1b5cbbe42a6ee801b030abaeadb17c7925829686c823371405b,matches-seed
+course-junior-networking-academy-01,jna-les-16-1,"Learn: Monitoring, Logs and Network Operations",428,0,4,False,True,,51270447162126806a2c714962c51a215d09f9eb5ef96bd5bede67bd16a81e63,matches-seed
+course-junior-networking-academy-01,jna-les-16-2,Interactive Lab: Mission 16,306,0,4,False,False,,508e389b547e1f24d05263f8a0597a9a4be6e76bba3954e77870d2d1b05f2ff9,matches-seed
+course-junior-networking-academy-01,jna-les-16-3,Build & Engineer Challenge: Mission 16,417,0,4,False,False,,f21f597cd472f7ab3bd4176d00735b72370fe14da1442c94878982ad9494009b,matches-seed
+course-junior-networking-academy-01,jna-les-17-1,Learn: Troubleshooting Like a Network Technician,447,0,4,False,True,,cae9228f0cb1333eea68f5cb142c06447127d4e6070407b4455d9eba140aa63c,matches-seed
+course-junior-networking-academy-01,jna-les-17-2,Interactive Lab: Mission 17,320,0,4,False,False,,2260775905cc9d02ce08c045450bcec57c31279625654e38a9944dd15fa098a7,matches-seed
+course-junior-networking-academy-01,jna-les-17-3,Build & Engineer Challenge: Mission 17,416,0,4,False,False,,79c6ccf980731a88f22e75c303bc5ca1afe91c2b58038352c1f10b97c9ef8635,matches-seed
+course-junior-networking-academy-01,jna-les-18-1,Learn: Network Design and Documentation,459,0,4,False,True,,33b5f36bddd5ac3ffef88833fe8932d8cd2ec351fc2198c900a0c75afd7c1947,matches-seed
+course-junior-networking-academy-01,jna-les-18-2,Interactive Lab: Mission 18,312,0,4,False,False,,5d3adef843c5adaf4d1d5cb28d734d18f1ffafd295770200e02118fbf167fe55,matches-seed
+course-junior-networking-academy-01,jna-les-18-3,Build & Engineer Challenge: Mission 18,427,0,4,False,False,,d47891029e8832c0b47abb8392e25fddbdcdd8146b1c574a7ed883f4fea57f93,matches-seed
+course-junior-networking-academy-01,jna-les-19-1,"Learn: Build, Configure and Test the Network",434,0,4,False,True,,1fc6342f2499809615576b8aed11eb5791d5ac04122789a801627acf2d24e248,matches-seed
+course-junior-networking-academy-01,jna-les-19-2,Interactive Lab: Mission 19,320,0,4,False,False,,205fec7c6038837658a519203708d3a6fbbce8b03d35cb071f9261020b2a1ced,matches-seed
+course-junior-networking-academy-01,jna-les-19-3,Build & Engineer Challenge: Mission 19,420,0,4,False,False,,47a5dba21d7914b6ddd71edc47dddcb981788746ba3fb501badbd8bdd3458f8c,matches-seed
+course-junior-networking-academy-01,jna-les-20-1,Learn: NOC Challenge & Network Engineer Demo Day,497,0,4,False,True,,5055e3044b2aef7beec52bf5469e1e4d38546d791a4c04bc1736dd3d60da76d9,matches-seed
+course-junior-networking-academy-01,jna-les-20-2,Interactive Lab: Mission 20,375,0,4,False,True,,87a95d701a072d03284c8477f451e753f8c8ccd56a594e8c779032f43ee103fa,matches-seed
+course-junior-networking-academy-01,jna-les-20-3,Build & Engineer Challenge: Mission 20,568,0,4,False,False,,16a3d5cafd9faaca785e217635f3d18ec70b838a68044aa4625e6f912f1dab8a,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-understand-ai,Understand AI before you use it,563,2,0,True,False,,7fc31887e4f719bc482d5d5a163b8545133c9173064f9dd697c7c6fa36bfc2d6,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-prompt-with-purpose,"Write, test and improve a useful prompt",540,2,0,True,False,,7723f21ce0fa11085efb7631e49b9809ecf840dec09e01657221441b01cc0222,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-work-from-sources,Summarise and extract without inventing facts,518,2,0,True,False,,fee372461c6aea6f072fd329cc64a1bdc0862c3686fe1f73f35afcbd57c10f5a,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-verify-results,"Verify claims, calculations and decisions",509,2,0,True,False,,94dc591630df8b89a1ab9dfa80a722042ec06aa831776f918f7ad7107d2acf42,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-privacy-and-responsibility,"Protect people, data and business trust",499,2,0,True,False,,8ec0d67de0936fb2779937efc29ae4786cbbf884c301523686f4b78dcb3106a2,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-content-and-media,Create useful writing and visual briefs,498,3,0,True,False,,13d71c7d5867a10c095a9f8aa6d4160234f16a77e4a36d76427b9fd841ea95c0,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-safe-workflows,Design a reliable assisted workflow,487,2,0,True,False,,c52ae06057c771960ab92dc57315158f483b8ddc8d47f85210a31e3815479eb1,matches-seed
+course-practical-ai-business-01,course-practical-ai-business-01-ai-capstone,Capstone: build your independent AI playbook,536,2,0,True,True,,935e03996145afbc7e05ade5214d9908a05bd70447967e4b9b1ea1d6056a8e3e,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-network-journey,Follow data through a small-business network,550,3,0,True,False,,505baa26a17d806c56086559fd0f25e7cb4cf910a2fdd7c0d1ee8b594c84a97b,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-ipv4-and-subnets,Understand IPv4 addresses and calculate subnets,521,3,0,True,False,,6be0a1fc6eba93e3696aa5eb0c4293685e6eb09fe98e497cf43c973d6fdaa0f1,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-dhcp-dns-arp,"Separate DHCP, DNS and local address resolution",538,4,0,True,False,,e779797565d95a98698434231a16c2ed550287d20d0c435657738f8e44ae3c91,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-switch-route-segment,"Understand switching, routing and segmentation",534,2,0,True,False,,dfa6f80138dddfdbbb9eb2b6608a9984d3fdb98101595163b3bcb8da328f6a29,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-wifi-planning,"Plan Wi-Fi for coverage, capacity and safety",522,2,0,True,False,,5063125c4cdfb862d1bf318f71291026a671b29102ebb6b1847e765f7a227f71,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-measure-performance,"Read latency, throughput and loss correctly",515,3,0,True,False,,cbb5d7bc8ab7de1b98d39a38e48718e3910e93d6a9e5bbed914d7a3105f50298,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-secure-the-network,Apply practical network defence and recovery,504,4,0,True,False,,fe4167f7dba304670b5e9ca13956bb5c709a724b6fd5aaa644a8e8bb42940dbc,matches-seed
+course-small-business-networking-01,course-small-business-networking-01-troubleshoot-capstone,"Capstone: diagnose, document and hand over",571,3,0,True,True,,9f60ab47fc031c8551e508a74bdb392b57de407625f30d0e88995942aee5e88b,matches-seed

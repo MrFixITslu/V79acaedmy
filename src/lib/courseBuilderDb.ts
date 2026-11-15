@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { ensureSelfPacedCourses } from '../data/selfPacedCourses';
+import { applyDp700Corrections } from '../data/dp700Corrections';
 import path from 'path';
 import { ensureDataEngineeringCourse } from '../data/dataEngineeringCourse';
 import { ensureIdeaToAdvantageCourse } from '../data/ideaToAdvantageCourse';
@@ -115,6 +116,7 @@ export function initAndMigrateDb(): StoreSchema {
   }
 
   if (ensureSelfPacedCourses(db)) migrated = true;
+  if (applyDp700Corrections(db)) migrated = true;
 
   if (migrated || !fs.existsSync(DATA_FILE)) {
     saveDb(db as StoreSchema);
