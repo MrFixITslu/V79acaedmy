@@ -13,3 +13,7 @@ coverage/
 
 # Generated Junior Networking Academy media
 /public/junior-networking/media/
+
+release-private/
+
+__pycache__/

@@ -1,0 +1,112 @@
+[
+  {
+    "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.w3.org/WAI/tutorials/images/",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.w3.org/WAI/tutorials/images/complex/",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://developers.cloudflare.com/fundamentals/reference/network-layers/",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.cisco.com/c/en/us/support/docs/lan-switching/8021q/17056-741-4.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.cisco.com/c/en/us/td/docs/wireless/controller/9800/technical-reference/c9800-best-practices.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.cloudflare.com/learning/performance/glossary/what-is-latency/",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-Passwords-Tip-Sheet.pdf",
+    "status": 403,
+    "result": "automated access blocked; verify in official source browser"
+  },
+  {
+    "url": "https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-MFA-Tip-Sheet.pdf",
+    "status": 403,
+    "result": "automated access blocked; verify in official source browser"
+  },
+  {
+    "url": "https://www.cisa.gov/sites/default/files/2024-09/Secure-Our-World-Software-Updates-Tip-Sheet.pdf",
+    "status": 403,
+    "result": "automated access blocked; verify in official source browser"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc826.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc1918.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc4632.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc3021.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc2131.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc1034.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc792.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc6349.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc3393.html",
+    "status": 200,
+    "result": "reachable"
+  },
+  {
+    "url": "https://www.rfc-editor.org/rfc/rfc3022.html",
+    "status": 200,
+    "result": "reachable"
+  }
+]

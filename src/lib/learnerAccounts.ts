@@ -43,7 +43,7 @@ export function learner(req: express.Request) {
   const userId = learnerSessionUserId(learnerSessionToken(req));
   return userId ? read().find(u => u.id === userId) || null : null;
 }
-function publicUser(u: any) { return { id: u.id, email: u.email, name: u.name, membershipStatus: hasMembership(u) ? 'active' : 'inactive', membershipExpiresAt: u.membershipExpiresAt, enrolledCourseIds: u.enrolledCourseIds || [] }; }
+function publicUser(u: any) { return { id: u.id, email: u.email, name: u.name, membershipStatus: hasMembership(u) ? 'active' : 'inactive', membershipExpiresAt: u.membershipExpiresAt, nonRenewalRequestedAt:u.nonRenewalRequestedAt || null, enrolledCourseIds: u.enrolledCourseIds || [] }; }
 function cookie(req: express.Request, value: string, age: number) { return `academy_session=${value}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${age}${req.secure || process.env.NODE_ENV === 'production' ? '; Secure' : ''}`; }
 export const learnerRouter = express.Router();
 learnerRouter.get('/session', async (req, res) => {
@@ -89,6 +89,51 @@ learnerRouter.post('/logout', (req, res) => {
   res.setHeader('Set-Cookie', cookie(req, '', 0)); res.json({ success: true });
 });
 learnerRouter.use((req, res, next) => { if (!learner(req)) return res.status(401).json({ error: 'Sign in to your learner account.' }); next(); });
+// Study state is resolved from trusted lesson/course IDs and isolated to the signed-in user.
+learnerRouter.post('/membership/non-renewal',(req,res)=>{
+ const users=read();const user=users.find(u=>u.id===learner(req).id);
+ user.nonRenewalRequestedAt ||= new Date().toISOString();write(users);
+ res.json({user:publicUser(user),message:'Non-renewal preference recorded. Current access remains until the membership expiry. Academy has no automatic recurring collection configured; any external payment arrangement must be managed with V79 separately.'});
+});
+learnerRouter.get('/learning', (req, res) => {
+  const user = learner(req); const db = loadDb();
+  const courses = db.courses.filter((c:any) => ['Published', 'Uploaded'].includes(c.status) && (user.enrolledCourseIds || []).includes(c.id));
+  res.json(courses.map((course:any) => {
+    const lessons = db.lessons.filter((l:any) => l.courseId === course.id);
+    const progress = user.progress?.[course.id] || {};
+    const completed = lessons.filter((l:any) => progress.completedLessons?.[l.id]).length;
+    const last = lessons.find((l:any) => l.id === progress.lastLessonId);
+    const next = last || lessons.find((l:any) => !progress.completedLessons?.[l.id]) || lessons[0];
+    return { courseId: course.id, completed, total: lessons.length, percent: lessons.length ? Math.round(completed / lessons.length * 100) : 0,
+      resumeLessonId: next?.id, updatedAt: progress.updatedAt || null,
+      bookmarks: lessons.filter((l:any) => progress.study?.[l.id]?.bookmarked).map((l:any) => ({id:l.id,title:l.title})) };
+  }));
+});
+function studyContext(req: express.Request) {
+ const users=read(); const user=users.find(u=>u.id===learner(req)?.id); const db=loadDb();
+ const lesson=db.lessons.find((l:any)=>l.id===req.params.lessonId);
+ const course=lesson && db.courses.find((c:any)=>c.id===lesson.courseId && ['Published','Uploaded'].includes(c.status));
+ return user && course && canReadCourse(course,user) ? {users,user,lesson,course} : null;
+}
+learnerRouter.get('/study/:lessonId',(req,res)=>{
+ const ctx=studyContext(req);if(!ctx)return res.status(403).json({error:'Course access required.'});
+ const saved=ctx.user.progress?.[ctx.course.id]?.study?.[ctx.lesson.id];
+ res.json({note:saved?.note || '',bookmarked:Boolean(saved?.bookmarked)});
+});
+learnerRouter.put('/study/:lessonId',(req,res)=>{
+ const ctx=studyContext(req);if(!ctx)return res.status(403).json({error:'Course access required.'});
+ if(typeof req.body.note!=='string' || req.body.note.length>10000 || typeof req.body.bookmarked!=='boolean') return res.status(400).json({error:'Enter notes of up to 10,000 characters and a valid bookmark choice.'});
+ ctx.user.progress ||= {};const p=ctx.user.progress[ctx.course.id] ||= {};p.study ||= {};
+ p.study[ctx.lesson.id]={note:req.body.note,bookmarked:req.body.bookmarked,savedAt:new Date().toISOString()};p.updatedAt=new Date().toISOString();
+ write(ctx.users);res.json({saved:true});
+});
+learnerRouter.post('/visits/:lessonId',(req,res)=>{
+ const ctx=studyContext(req);if(!ctx)return res.status(403).json({error:'Course access required.'});
+ ctx.user.progress ||= {};const p=ctx.user.progress[ctx.course.id] ||= {};p.lastLessonId=ctx.lesson.id;p.lastVisitedAt=new Date().toISOString();
+ // Direct course links also create a genuine enrolment, only after access is checked.
+ ctx.user.enrolledCourseIds=[...new Set([...(ctx.user.enrolledCourseIds || []),ctx.course.id])];
+ write(ctx.users);res.json({saved:true});
+});
 learnerRouter.post('/enroll/:courseId', (req, res) => {
   const users = read(); const user = users.find(u => u.id === learner(req).id);
   const course = loadDb().courses.find(c => c.id === req.params.courseId && ['Published', 'Uploaded'].includes(c.status));
@@ -220,13 +265,17 @@ learnerRouter.post('/certificate/:courseId', (req, res) => {
 });
 export function recordLearnerQuizPass(req: express.Request, lessonId: string, score: number, passingScore: number) {
   const currentUser = learner(req);
-  if (!currentUser || score < passingScore) return false;
+  if (!currentUser) return false;
   const users = read(); const user = users.find(u => u.id === currentUser.id);
   const db = loadDb(); const lesson = db.lessons.find((row: any) => row.id === lessonId);
   const course = lesson && db.courses.find((row: any) => row.id === lesson.courseId && ['Published', 'Uploaded'].includes(row.status));
   if (!user || !lesson || !course || !canReadCourse(course, user)) return false;
   user.progress ||= {};
   const progress = user.progress[course.id] ||= { completedLessons: {}, assignmentSubmissions: {}, quizPasses: {} };
+  progress.quizAttempts ||= [];
+  progress.quizAttempts = [...progress.quizAttempts.slice(-199), {lessonId,score,passingScore,passed:score>=passingScore,at:new Date().toISOString()}];
+  progress.updatedAt = new Date().toISOString();
+  if(score < passingScore) { write(users); return false; }
   progress.quizPasses ||= {};
   progress.completedLessons ||= {};
   progress.quizPasses[lesson.id] = { passed: true, score, passedAt: new Date().toISOString() };
@@ -318,6 +367,14 @@ learnerRouter.post('/checkout/confirm', async (req, res) => {
   }
 });
 export const learnerAdminRouter = express.Router();
+learnerAdminRouter.get('/insights', (_req,res) => {
+ const users=read();const db=loadDb();
+ res.json({generatedAt:new Date().toISOString(),measurement:'Saved learner records; historical attempts before this release were not recorded. Inactivity is not proof of drop-out.',courses:db.courses.map((c:any)=>{
+ const lessons=db.lessons.filter((l:any)=>l.courseId===c.id);const enrolled=users.filter(u=>(u.enrolledCourseIds||[]).includes(c.id));
+ const attempts=enrolled.flatMap(u=>u.progress?.[c.id]?.quizAttempts||[]);
+ return {id:c.id,title:c.title,enrolled:enrolled.length,completedLessons:enrolled.reduce((n,u)=>n+lessons.filter((l:any)=>u.progress?.[c.id]?.completedLessons?.[l.id]).length,0),courseCompletions:enrolled.filter(u=>lessons.length>0&&lessons.every((l:any)=>u.progress?.[c.id]?.completedLessons?.[l.id])&&db.assignments.filter((a:any)=>a.courseId===c.id&&a.required!==false).every((a:any)=>u.progress?.[c.id]?.assignmentSubmissions?.[a.id]?.text?.trim())&&(!c.programme||(u.progress?.[c.id]?.programmeState?.examAttempts||[]).some((a:any)=>a.passed))).length,certificates:enrolled.filter(u=>u.progress?.[c.id]?.certificate?.id).length,quizAttempts:attempts.length,quizPasses:attempts.filter((a:any)=>a.passed).length,inactive14Days:enrolled.filter(u=>{const p=u.progress?.[c.id];const date=p?.lastVisitedAt||p?.updatedAt;return date && Date.parse(date)<Date.now()-14*86400000 && !p?.certificate?.id;}).length};
+ })});
+});
 learnerAdminRouter.get('/', (_req, res) => res.json(read().map(publicUser)));
 learnerAdminRouter.put('/:id/membership', (req, res) => {
   const users = read(); const user = users.find(u => u.id === req.params.id);

@@ -12,3 +12,5 @@ backups
 *.log
 public/junior-ai/media
 public/junior-networking/media
+
+release-private/
