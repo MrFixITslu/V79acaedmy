@@ -4,6 +4,7 @@ Run --check without sudo first. Applying requires an interactive administrator.
 Never changes Docker's version, storage driver, networks, container data or images.
 """
 import datetime, json, os, pathlib, shutil, stat, subprocess as sp, sys, tempfile, time
+from docker_recovery_checks import wait_for_live_restore
 
 CONFIG = pathlib.Path('/etc/docker/daemon.json')
 CHECK = sys.argv[1:] == ['--check']
@@ -60,14 +61,14 @@ mode=stat.S_IMODE(CONFIG.stat().st_mode) if existed else 0o644
 atomic(candidate,mode)
 try:
  run(['systemctl','reload','docker'])
- active=info()
- if active.get('LiveRestoreEnabled') is not True:raise RuntimeError('Live restore was not activated; restart refused')
- for key in ['Driver','DockerRootDir','ServerVersion']:
-  if active.get(key)!=before_info.get(key):raise RuntimeError('Daemon identity changed; restart refused')
+ # systemctl reload returns after signalling, before Docker finishes applying it.
+ active=wait_for_live_restore(lambda: info(timeout=3),before_info)
+ if CONFIG.read_bytes()!=candidate:
+  raise RuntimeError('Persistent daemon configuration changed; restart refused')
 except Exception:
- if original is None:CONFIG.unlink(missing_ok=True)
- else:atomic(original,mode)
- sp.run(['systemctl','reload','docker'],check=False,timeout=15)
+ # A delayed SIGHUP may still take effect. Removing the persisted setting here
+ # could leave runtime protection enabled but lost on the next daemon restart.
+ print('Runtime confirmation failed; configuration and backup retained. Docker restart refused.',flush=True)
  raise
 print('Live restore verified active. Restarting only the Docker control service.',flush=True)
 try:run(['systemctl','restart','docker'],timeout=45)
