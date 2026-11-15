@@ -16,7 +16,7 @@ Corrected weak-category averaging, workbook evidence versus statistical confiden
 - Editing teaching or a quiz invalidates source review and prevents protected-course publication until explicitly checked again: passed.
 - Calculator: 500 cases independently compared with Python Decimal; passed. Boundary and invalid-input unit tests passed.
 - Twelve SVGs: XML/title/description checks passed. Source material and examples reviewed; numbers are labelled illustrative.
-- Browser, restored production data, rollback rehearsal and release: pending; these are release gates.
+- Browser, restored production data, rollback rehearsal and deployment: passed. See BUSINESS-RELEASE-20261115.md for exact provenance, evidence and recovery limits.
 
 ## Acceptance and release
 

@@ -41,6 +41,9 @@ jobs:
           python3 -m py_compile scripts/recover-docker-control.py scripts/docker_recovery_checks.py
           python3 scripts/test_docker_recovery_checks.py
 
+      - name: Business content rollback regression checks
+        run: python3 tests/business-rollback.test.py
+
       - name: Unit tests
         run: npm test
 

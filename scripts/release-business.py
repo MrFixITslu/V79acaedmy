@@ -69,6 +69,11 @@ def smoke(n):
 def rollback():
  names=out(['docker','ps','-a','--format','{{.Names}}']).splitlines()
  if OLD not in names: raise RuntimeError('No retained rollback container')
+ old=inspect(OLD);data=pathlib.Path(next(m['Source'] for m in old['Mounts'] if m['Destination']=='/app/data'))
+ store=json.loads((data/'store.json').read_text())
+ business=[l for l in store['lessons'] if l.get('courseId')=='course-from-idea-to-advantage-01']
+ if any(l.get('studyVisual')=='business-finance' or any('/study-module-' in u for u in l.get('imageUrls',[])) for l in business):
+  raise RuntimeError('Prepare compatible business content on a stopped-app copy before the old-image rollback; see BUSINESS-RELEASE-20261115.md. Learner files must be retained.')
  if LIVE in names:
   run(['docker','stop','--time','20',LIVE],stdout=sp.DEVNULL)
   run(['docker','rename',LIVE,'v79-academy-business-failed-20261115'])
