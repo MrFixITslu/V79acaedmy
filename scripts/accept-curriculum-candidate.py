@@ -31,3 +31,4 @@ finally:
  run(['docker','rm','-f',old],stdout=sp.DEVNULL)
 result={'candidateApiTests':True,'bothAdultCoursesTested':True,'oldImageRestoredHealthy':True,'rollbackLearnersUnchanged':True,'source':json.loads((p/'stage.json').read_text())['source']}
 (p/'candidate-tests.json').write_text(json.dumps(result));print(json.dumps(result))
+
