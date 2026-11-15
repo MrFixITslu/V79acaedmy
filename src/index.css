@@ -78,3 +78,5 @@ button, a, input, select, textarea { touch-action:manipulation; }
 @media(max-width:900px){.academy-study-hero{gap:24px;padding:48px 28px}.academy-hero-copy h1{font-size:3.5rem}.study-lab-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:640px){.academy-study-hero{grid-template-columns:1fr;padding:36px 20px}.academy-hero-copy h1{font-size:3.2rem}.academy-hero-visual img{max-height:340px}.learning-rows article{align-items:flex-start;flex-direction:column}.study-lab,.study-notes,.study-solution,.study-provenance{padding:18px}.study-fields,.prompt-options{grid-template-columns:1fr}.study-fields{gap:0}.subnet-results{gap:12px}.subnet-results dd{font-size:.9rem}.study-table-wrap{max-width:100%}.lesson-reading{font-size:16px}.study-actions{align-items:stretch;flex-direction:column}.study-lab th,.study-lab td{padding:10px 5px;font-size:.77rem}}
 @media(prefers-reduced-motion:reduce){.journey-svg g{transition:none!important}}
+
+.study-answer { white-space: pre-line; }

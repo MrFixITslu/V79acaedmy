@@ -158,7 +158,9 @@ export function calculateAssessmentConfidence(
   const evidenceRate = totalWorkbookSections > 0
     ? Math.min(1, Math.max(0, completedWorkbookSections / totalWorkbookSections))
     : 0;
-  return Math.round(55 + (45 * evidenceRate));
+  // Compatibility name: this is submitted workbook coverage, not a statistical
+  // confidence estimate or an independent assessment of business capability.
+  return Math.round(100 * evidenceRate);
 }
 
 export function scoreFinalExam(
@@ -231,6 +233,7 @@ export function createCertificateId(now = new Date()): string {
   return `V79-ITA-${now.getUTCFullYear()}-${token}`;
 }
 
-export function completedWorkbookCount(state: BusinessAdvantageState): number {
-  return Object.values(state.workbook).filter((section) => Boolean(section?.completedAt)).length;
+export function completedWorkbookCount(state: BusinessAdvantageState, allowedIds?: string[]): number {
+  return Object.entries(state.workbook)
+    .filter(([id, section]) => (!allowedIds || allowedIds.includes(id)) && Boolean(section?.completedAt)).length;
 }
